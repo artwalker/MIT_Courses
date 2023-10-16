@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Readings on MIT OpenCourseWare</title>
+    <link>/resources/readings/</link>
+    <description>Recent content in Readings on MIT OpenCourseWare</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="/resources/readings/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Readings</title>
+      <link>/pages/readings/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/pages/readings/data.json</guid>
+      <description>This section contains the course&amp;rsquo;s reading assignments, which refer to the required textbook:
+Agarwal, Anant, and Jeffrey H. Lang. Foundations of Analog and Digital Electronic Circuits. San Mateo, CA: Morgan Kaufmann Publishers, Elsevier, July 2005. ISBN: 9781558607354.
+View e-book version
+Elsevier companion site: supplementary sections and examples
+Readings with an asterisk (*) provide key intuitive analyses.
+SES # TOPICS READINGS L1 Lumped abstraction relationship to physics, KVL, KCL Chapter 1 R1 KVL, KCL resistive network analysis Chapter 2.</description>
+    </item>
+    
+  </channel>
+</rss>

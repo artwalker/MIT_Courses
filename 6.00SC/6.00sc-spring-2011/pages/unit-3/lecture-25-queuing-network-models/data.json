@@ -1,0 +1,6 @@
+
+{
+  "title":"Queuing Network Models",
+  "content":"« Previous | Next »\nSession Overview This lecture introduces queuing network models and simulations. It also prepares students to read the code they are asked to study in preparation for the final exam.\nImage courtesy of welovepandas on Flickr.\nSession Activities Lecture Videos Lecture 25: Queuing Network Models About this Video Topics covered: Queuing network simulations, Poisson distributions, wait time, queue length, server utilization, FIFO, LIFO, SRPT.\nResources Lecture code handout (PDF) Lecture code (PY) Bus code (PY) Check Yourself What is meant by queue discipline?\n› View/hide answer\nQueue discipline is the rule by which we select the next \u0026lsquo;customer\u0026rsquo; to be served. Changing the queue discipline can potentially reduce overall processing time.\nWhat does FIFO stand for?\n› View/hide answer\nFirst in, first out: for example, standing in line. It is also known as FCFS (first come, first served).\nWhat does LIFO stand for?\n› View/hide answer\nLast in, first out: for example, a stack.\nWhat does SRPT stand for?\n› View/hide answer\nShortest remaining processing time: this results in the shortest average wait time.\n« Previous | Next »\n"}
+
+

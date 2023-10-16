@@ -1,0 +1,6 @@
+
+{
+  "title":"Problem Solving",
+  "content":"« Previous | Next »\nSession Overview This lecture covers the use of iteration to build programs whose execution time depends upon the size of inputs. It also introduces search problems and brute force and bisection for solving them.\nSession Activities Lecture Videos Lecture 3: Problem Solving About this Video Topics covered: Termination, decrementing functions, exhaustive enumeration, brute force, while loop, for loop, approximation, specifications, bisection search.\nResources Lecture code handout (PDF) Lecture code (PY) Check Yourself What does it mean for a program to terminate?\n› View/hide answer\nEither the program will return a value, or throw an exception. A program that does not terminate runs indefinitely, typically because it\u0026rsquo;s gotten stuck in a loop.\nWhat is a for loop?\n› View/hide answer\nA for loop takes some sort of iterable object (a list, tuple, or string) and performs its function once for each item in that object. Any function that depends on the input can have a different result at each step, since the input is the current item.\nFurther Study These optional resources are provided for students that wish to explore this topic more fully.\nReadings Loops. An Introduction to Python. « Previous | Next »\n"}
+
+

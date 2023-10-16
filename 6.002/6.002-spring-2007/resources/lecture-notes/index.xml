@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Lecture Notes on MIT OpenCourseWare</title>
+    <link>/resources/lecture-notes/</link>
+    <description>Recent content in Lecture Notes on MIT OpenCourseWare</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="/resources/lecture-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Lecture Notes</title>
+      <link>/pages/lecture-notes/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/pages/lecture-notes/data.json</guid>
+      <description>This section contains lecture notes from the Fall 2000 version of the course. These notes can also be found in the Video Lectures section, under the Related Resources tab for each video. Demonstration handouts can be found there as well.
+Notes for Lecture 24 are not available.
+LEC # TOPICS LECTURE NOTES 1 Introduction and lumped abstraction (PDF) 2 Basic circuit analysis method (PDF) 3 Superposition, Thévenin and Norton (PDF) 4 The digital abstraction (PDF) 5 Inside the digital gate (PDF) 6 Nonlinear analysis (PDF) 7 Incremental analysis (PDF) 8 Dependent sources and amplifiers (PDF) 9 MOSFET amplifier large signal analysis (PDF)</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,20 @@
+{
+  "course_title":"Introduction to Computer Science and Programming",
+  "course_description":"This subject is aimed at students with **little or no programming experience**. It aims to provide students with an understanding of the role computation can play in solving problems. It also aims to help students, regardless of their major, to feel justifiably confident of their ability to write small programs that allow them to accomplish useful goals. The class will use the Python programming language.\n\nCourse Format\n\nThis course has been designed for independent study. It provides everything you will need to understand the concepts covered in the course. The materials include:\n\n- A complete set of **Lecture Videos** by Prof. Guttag.\n- Resources for each lecture video, such as **Handouts, Slides,** and **Code Files.**\n- **Recitation Videos** by course TA's to review content and problem solving techniques.\n- **Homework** problems with sample student solutions.\n- **Further Study** collections of links to supplemental online content.\n- **Self-Assessment** tools, including lecture questions with answers and unit quizzes with solutions, to assess your subject mastery.",
+  "site_uid":"ce6f7d33-2a93-404d-8546-a3c628c2b8b7",
+  "legacy_uid":"41b37938-a604-834d-01f3-e5faa9de5080","instructors": [{
+    "first_name":"John",
+    "last_name":"Guttag",
+    "middle_initial":"",
+    "salutation":"Prof.",
+    "title":"Prof. John Guttag"}],"department_numbers":["6"],
+  "learning_resource_types":["Lecture Videos","Recitation Videos","Problem Sets with Solutions","Exams with Solutions","Online Textbook","Programming Assignments with Examples"],
+  "topics":[["Engineering","Computer Science"]],
+  "primary_course_number":"6.00SC",
+  "extra_course_numbers":"",
+  "term":"Spring",
+  "year":"2011",
+  "level":["Undergraduate"],
+  "image_src":"./static_resources/150f1db23890c18ca7b3bdea6d64be88_6-00scf11.jpg",
+  "course_image_metadata":{"content_type":"resource","description":"Many of the problem sets focus on specific topics, such as virus population dynamics, word games, optimizing routes, or simulating the movement of a Roomba. Roomba photograph courtesy of Stephanie Booth on Flickr; virus image courtesy of the CDC; Boggle photograph courtesy of Angelina on Flickr; MIT campus map image courtesy of RahulG on Flickr.","draft":false,"file":"/courses/6-00sc-introduction-to-computer-science-and-programming-spring-2011/150f1db23890c18ca7b3bdea6d64be88_6-00scf11.jpg","file_type":"image/jpeg","image_metadata":{"caption":"Many of the problem sets focus on specific topics, such as virus population dynamics, word games, optimizing routes, or simulating the movement of a [Roomba](http://en.wikipedia.org/wiki/Roomba). (Roomba photograph courtesy of [Stephanie Booth](http://www.flickr.com/photos/bunny/802123646/) on Flickr; virus image courtesy of the [CDC](http://www.cdc.gov/std/hpv/stdfact-hpv-vaccine-hcp.htm); Boggle photograph courtesy of [Angelina](http://www.flickr.com/photos/angelinawb/258801158/) on Flickr; MIT campus map image courtesy of [RahulG](http://www.flickr.com/photos/rahulg/701257372/) on Flickr.)","credit":"Roomba photograph courtesy of Stephanie Booth on Flickr; virus image courtesy of the CDC; Boggle photograph courtesy of Angelina on Flickr; MIT campus map image courtesy of RahulG on Flickr.","image-alt":"Photograph of a Roomba vacuum robot, virus model, MIT campus map, and Boggle game board."},"iscjklanguage":false,"learning_resource_types":[],"license":"https://creativecommons.org/licenses/by-nc-sa/4.0/","ocw_type":"OCWImage","resourcetype":"Image","title":"6-00scf11.jpg","uid":"150f1db2-3890-c18c-a7b3-bdea6d64be88","video_files":{"video_thumbnail_file":null},"video_metadata":{"youtube_id":null}}}
+

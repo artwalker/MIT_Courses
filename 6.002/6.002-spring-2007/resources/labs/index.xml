@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Labs on MIT OpenCourseWare</title>
+    <link>/resources/labs/</link>
+    <description>Recent content in Labs on MIT OpenCourseWare</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="/resources/labs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>eesafety.pdf</title>
+      <link>/resources/eesafety/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/eesafety/data.json</guid>
+      <description>This resource discusses about the topics: never work alone, voltage rules and prevent accidents.</description>
+    </item>
+    
+    <item>
+      <title>lab_handout.pdf</title>
+      <link>/resources/lab_handout/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab_handout/data.json</guid>
+      <description>This handout is intended to provide a brief technical overview of the lab instruments like the oscilloscope, multimeter, function generator, and the protoboard.</description>
+    </item>
+    
+    <item>
+      <title>lab0.pdf</title>
+      <link>/resources/lab0/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab0/data.json</guid>
+      <description>This resource focus on lab and its use: good lab practice, and lab safcty</description>
+    </item>
+    
+    <item>
+      <title>lab1.pdf</title>
+      <link>/resources/lab1/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab1/data.json</guid>
+      <description>This resource explores the characterization of a network by its Thevenin and Norton equivalents.</description>
+    </item>
+    
+    <item>
+      <title>lab2.pdf</title>
+      <link>/resources/lab2/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab2/data.json</guid>
+      <description>This lab examines the behavior of an inverting MOSFET amplifier.</description>
+    </item>
+    
+    <item>
+      <title>lab3.pdf</title>
+      <link>/resources/lab3/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab3/data.json</guid>
+      <description>The purpose of this lab is to give experience with second-order networks, and to illustrate that real network elements do not always behave in an ideal manner.</description>
+    </item>
+    
+    <item>
+      <title>lab4.pdf</title>
+      <link>/resources/lab4/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab4/data.json</guid>
+      <description>In this lab, one will construct, test and demonstrate the audio playback system.</description>
+    </item>
+    
+    <item>
+      <title>labpractices.pdf</title>
+      <link>/resources/labpractices/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/labpractices/data.json</guid>
+      <description>This handout discusses aspects of the experimental lab work.</description>
+    </item>
+    
+    <item>
+      <title>Labs</title>
+      <link>/pages/labs/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/pages/labs/data.json</guid>
+      <description>Lab Practice and Safety (PDF)
+Electrical Safety (PDF)
+Lab Equipment Handout (PDF)
+LABS TOPICS SUPPORTING FILES 0 Lab familiarization (PDF) 1 Thevenin/Norton equivalents and logic gates (PDF - 1.3 MB) Fairchild Semiconductor 2N7000 datasheet 2 MOSFET inverting amplifiers and first-order circuits (PDF) 3 Second-order networks (PDF) Prelab 3-2 (M)
+Prelab 3-5 (M)
+4 Audio playback system (PDF) </description>
+    </item>
+    
+    <item>
+      <title>prelab_3_2.m</title>
+      <link>/resources/prelab_3_2/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/prelab_3_2/data.json</guid>
+      <description>This file is a supporting file for the third lab - Second-order networks.</description>
+    </item>
+    
+    <item>
+      <title>prelab_3_5.m</title>
+      <link>/resources/prelab_3_5/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/prelab_3_5/data.json</guid>
+      <description>This resource is a supporting file for 3rd lab second-order networks.</description>
+    </item>
+    
+  </channel>
+</rss>

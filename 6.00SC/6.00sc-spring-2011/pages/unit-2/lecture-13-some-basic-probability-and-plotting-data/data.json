@@ -1,0 +1,6 @@
+
+{
+  "title":"Some Basic Probability and Plotting Data",
+  "content":"« Previous | Next »\nSession Overview This lecture returns briefly to random walks, and moves on to discuss different views of non-determinism and an introduction to probability. It concludes with examples of using pylab to plot data.\nImage courtesy of Lonnie Dunn on Flickr.\nSession Activities Lecture Videos Lecture 13: Some Basic Probability and Plotting Data About this Video This lecture begins a deeper look at simulations with an introduction to randomness, probability, and plotting through programming.\nResources Lecture code handout (PDF) Lecture code (PY) Check Yourself What is a stochastic process?\n› View/hide answer\nOne whose next state depends upon both previous states and some random element.\nWhat makes two events independent?\n› View/hide answer\nTwo events are independent if the outcome of one has no influence on the outcome of the other.\n« Previous | Next »\n"}
+
+

@@ -1,0 +1,6 @@
+
+{
+  "title":"Dynamic Programming",
+  "content":"« Previous | Next »\nSession Overview This lecture introduces dynamic programming, and discusses the notions of optimal substructure and overlapping subproblems.\nImage courtesy of aaroninthe360 on Flickr.\nSession Activities Lecture Videos Lecture 23: Dynamic Programming About this Video Topics covered: Dynamic programming, optimal path, overlapping subproblems, weighted edges, specifications, restrictions, efficiency, pseudo-polynomials.\nResources Lecture code handout (PDF) Lecture code (PY) Check Yourself What does it mean for a problem to have optimal substructure?\n› View/hide answer\nA globally optimal solution can be found by combining solutions to local subproblems.\nWhat does it mean for a problem to have overlapping subproblems?\n› View/hide answer\nAn optimal solution involves solving the same problem multiple times.\n« Previous | Next »\n"}
+
+

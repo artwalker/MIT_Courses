@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exams on MIT OpenCourseWare</title>
+    <link>/resources/exams/</link>
+    <description>Recent content in Exams on MIT OpenCourseWare</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="/resources/exams/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Exams</title>
+      <link>/pages/exams/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/pages/exams/data.json</guid>
+      <description>This section contains the current semester&amp;rsquo;s exams as well as previous exams that were provided to students for practice.
+YEARS EXAMS Spring 2007 Quiz 1 (PDF) Spring 2007 Quiz 2 (PDF) Spring 2007 Final (PDF - 1.5 MB) Fall 2006 Quiz 1 (PDF) Fall 2004 Quiz 2 (PDF) Spring 2004 Quiz 1 (PDF) Spring 2004 Quiz 2 (PDF) Fall 2003 Quiz 1 (PDF) Fall 2000 Final (PDF) </description>
+    </item>
+    
+    <item>
+      <title>final_f00.pdf</title>
+      <link>/resources/final_f00/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/final_f00/data.json</guid>
+      <description>This resource is a final exam file.</description>
+    </item>
+    
+    <item>
+      <title>final_s07.pdf</title>
+      <link>/resources/final_s07/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/final_s07/data.json</guid>
+      <description>This resource is a final exam file.</description>
+    </item>
+    
+    <item>
+      <title>quiz1_f03.pdf</title>
+      <link>/resources/quiz1_f03/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz1_f03/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz1_f06.pdf</title>
+      <link>/resources/quiz1_f06/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz1_f06/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz1_s04.pdf</title>
+      <link>/resources/quiz1_s04/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz1_s04/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz1_s07.pdf</title>
+      <link>/resources/quiz1_s07/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz1_s07/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz2_f04.pdf</title>
+      <link>/resources/quiz2_f04/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz2_f04/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz2_s04.pdf</title>
+      <link>/resources/quiz2_s04/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz2_s04/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+    <item>
+      <title>quiz2_s07.pdf</title>
+      <link>/resources/quiz2_s07/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/quiz2_s07/data.json</guid>
+      <description>This resource is a quiz file.</description>
+    </item>
+    
+  </channel>
+</rss>
