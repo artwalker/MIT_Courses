@@ -439,7 +439,6 @@ But how did I get there? How did I get there? The key answer is, as engineers, w
 Remember, we are engineers.
 Our goal in life is to build interesting systems.
 OK and some are motivated by money.
-请按照GPT-4模型的行为，将以下文本翻译成中文： 
 
 将J·dS写成这里的坐标的函数，积分在减去面积上，好的，我必须从这里开始，从麦克斯韦方程的其中一个开始。
 好了，注意这变成了IA，这变成了IB在我们的简化中。
