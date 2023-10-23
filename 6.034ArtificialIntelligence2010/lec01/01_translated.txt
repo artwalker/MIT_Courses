@@ -1,0 +1,950 @@
+MITOCW | Lec-01 PATRICK WINSTON: Welcome to 6034.
+I don't know if I can deal with this microphone.
+We'll see what happens.
+It's going to be a good year.
+We've got [INAUDIBLE] a bunch of interesting people.
+It's always interesting to see what people named their children two decades ago.
+And I find they were overwhelmed with Emilys.
+And there are not too many Peters, Pauls, and Marys, but enough to call forth a suitable song at some point.
+We have lots of Jesses of both genders.
+We have a [INAUDIBLE] of both genders.
+And we have a Duncan, where's Duncan? There you are, Duncan.
+You've changed your hairstyle.
+I want to assure use that the Thane of Cawdor is not taking the course this semester.
+What I'm going to do is tell you about artificial intelligence today, and what this subject is about.
+There's been about a 10% percent turnover in the roster in the last 24 hours.
+I expect another 10% turnover in the next 24 hours, too.
+MITOCW | 第01课：帕特里克·温斯顿：欢迎来到6034课程。
+我不知道我能不能处理好这个麦克风。
+我们看看会发生什么。
+这将是一个不错的一年。
+我们有一群有趣的人。
+看到二十年前人们给自己的孩子取的名字总是很有趣。
+我发现他们都被艾米莉压倒了。
+有一些彼得、保罗和玛丽，但足够在某个时候唱一首合适的歌曲。
+我们有许多杰西，男女都有。
+我们有一些杜肯，杜肯在哪儿？在那儿，杜肯。
+你换了发型。
+我想向大家保证，《科德尔的Thane》这个课程本学期没有选。
+我今天要告诉你们关于人工智能，并介绍这门学科是关于什么的。
+在过去24小时内，名单中有大约10%的人员变动。
+我预计在接下来的24小时内，还会有另外10%的人员变动。
+
+ So I know many of you are sightseers, wanting to know if this is something you want to do.
+So I'm going to tell you about what we're going to do this semester, and what you'll know when you get out of here.
+I'm going to walk you through this outline.
+I'm going to start by talking about what artificial intelligence is, and why we do it.
+And then I'll give you a little bit of the history of artificial intelligence, and conclude with some of the covenants by which we run the course.
+One of which is no laptops, please.
+I'll explain why we have these covenants at the end.
+So what is it? Well, it must have something to do with thinking.
+So let's start up here, a definition of artificial intelligence, by saying that it's about thinking, whatever that is.
+My definition of artificial intelligence has to be rather broad.
+So we're going to say it's not only about thinking.
+It's also about perception, and it's about action.
+所以我知道你们很多人都是观光者，想要知道这是否是你们想做的事情。
+所以我要告诉你们关于我们这个学期将要做的事情，以及你们在这里学到的知识。
+我会带你们浏览这个大纲。
+我会从讲解人工智能是什么，以及为什么我们要做它开始。
+然后我会简单介绍一下人工智能的历史，并在最后总结一些我们课程运行的条约。
+其中一个是，请不要使用笔记本电脑。
+我会在最后解释为什么我们有这些条约。
+那么，它到底是什么呢？嗯，它肯定与思考有关。
+所以让我们从这里开始，通过给出一个关于人工智能的定义来说，它是关于思考的，不管那是什么意思。
+我的人工智能定义必须相当宽泛。
+所以我们要说它不仅仅与思考有关。
+它也与感知和行动有关。
+
+ And if this were a philosophy class, then I'd stop right there and just say, in this subject we're going to talk about problems involving thinking, perception, and action.
+But this is not a philosophy class.
+This a Course six class.
+It's an engineering school class.
+It's an MIT class.
+So we need more than that.
+And therefore we're going to talk about models that are targeted at thinking, perception, and action.
+And this should not be strange to you, because model making is what MIT is about.
+You run into someone at a bar, or relative asks you what you do at MIT, the right knee jerk reaction is to say, we learned how to build models.
+That's what we do at MIT.
+We build the models using differential equations.
+We build models using probabilities.
+We build models using physical and computational simulations.
+Whatever we do, we build models.
+Even in humanities class, MIT approach is to make models that we can use to explain the past, predict the future, understand the subject, and control the world.
+如果这是一门哲学课，那我会在这里就停下来，并且只会说，在这门课上我们要讨论涉及思考、感知和行动的问题。
+但这并不是一门哲学课。
+这是一门第六课，是一门工程学院的课程，是一门麻省理工学院的课程。
+所以我们需要更多的东西。
+因此，我们将讨论针对思考、感知和行动的模型。
+这对你来说应该不陌生，因为模型制作是麻省理工学院的特色。
+当你在酒吧遇到有人问你在麻省理工学院做什么，正确的反应是说，我们学习如何建立模型。
+那就是我们在麻省理工学院做的事情。
+我们使用微分方程来建立模型。
+我们使用概率来建立模型。
+我们使用物理和计算模拟来建立模型。
+无论我们做什么，我们都在建立模型。
+即使在人文课上，麻省理工学院的方法也是制作我们可以用来解释过去、预测未来、理解主题和控制世界的模型。
+
+ That's what MIT is about.
+And that's what this subject is about, too.
+And now, our models are models of thinking.
+So you might say, if I take this classic will I get smarter? And the answer is yes.
+You will get smarter.
+Because you'll have better models of your own thinking, not just the subject matter of the subject, but better models of your own thinking.
+So models targeted at thinking, perception, and action.
+We know that's not quite enough, because in order to have a model, you have to have representation.
+So let's say that artificial intelligence is about representations that support the making of models to facilitate an understanding of thinking, perception, and action.
+Now you might say to me, well what's a representation? And what good can it do? So I'd like to take a brief moment to tell you about gyroscopes.
+Many of you have friends in mechanical engineering.
+One of the best ways embarrass them is to say here's a bicycle wheel.
+这就是MIT的目标。
+这也是这门课程的目标。
+现在，我们的模型是思考模型。
+所以你可能会问，如果我学这门经典课程，我会变聪明吗？答案是肯定的。
+你会变聪明的。
+因为你会有更好的思考模型，不仅仅是对课程内容的理解，还有你自己思考的更好模型。
+所以这些模型着重于思考、感知和行动。
+我们知道这还不够，因为要有一个模型，你必须要有表达。
+所以我们可以说，人工智能是关于支持构建模型的表示，以促进对思考、感知和行动的理解。
+现在你可能会问我，什么是表示？它有什么作用？所以我想花一点时间告诉你一个关于陀螺仪的故事。
+你们当中有很多人的朋友是学机械工程的。
+最好的方法之一就是给他们看一辆自行车轮。
+
+ And if I spin it, and blow hard on it right here, on the edge of the wheel, is going to turn over this way or this way? I guarantee that what they will do is they'll put their hand in an arthritic posture called the right hand screw rule, aptly named because people who use it tend to get the right answer about 50% of the time.
+But we're never going to make that mistake again.
+Because we're electrical engineers, not mechanical engineers.
+And we know about representation.
+What we're going to do is we're going to think about it a little bit.
+And we're going to use some duct tape to help us think about just one piece of the wheel.
+So I want you to just think about that piece of the wheel as the wheel comes flying over the top, and I blow on it like that.
+What's going to happen to that one piece? It's going to go off that way, right? And the next piece is going to go off that way too.
+So when it comes over, it has to go that way.
+Let me do some ground f here just to be sure.
+It's very powerful feeling.
+Try it.
+如果我把它转动，并在轮子的边缘吹得很大力，它会向这边或者那边翻转吗？我保证他们会把手放在一种被称为右手螺旋法则的关节炎姿势上，这个名字很贴切，因为使用这种方法的人大约50%的时间能得到正确答案。
+但我们再也不会犯这个错误了。
+因为我们是电气工程师，不是机械工程师。
+我们了解表示法。
+我们要做的是稍微思考一下。
+并使用一些胶带帮助我们仅考虑轮子的一部分。
+所以当轮子飞过顶部时，我想你只需考虑那一部分，当我这样吹它时，那部分会发生什么？它会朝那边飞出，对吗？下一个部分也会朝那边。
+所以当它过来时，它必须朝那个方向去。
+让我做一些地面工作，以确保。
+这感觉非常强大。
+试试吧。
+
+ We need a demonstration.
+I don't anybody think that I'm cheating, here.
+So let's just twist it one way or the other.
+So that's powerful pull, isn't it.
+Alex is now never going to get the gyroscope wrong, because he's got the right representation.
+So much of what you're going to accumulate in this subject is a suite of representations that will help you to build programs that are intelligent.
+But I want to give you a second example, one a little bit more computational.
+But one of which was very familiar to you by the time you went to first grade, in most cases.
+It's the problem of the farmer, the fox, the goose, and the grain.
+There's a river, a leaky rowboat that can only carry the farmer, and one of his four possessions.
+So what's the right representation for this problem? It might be a picture of the farmer.
+It might be a poem about the situation, perhaps a haiku.
+We know that those are not the right representation.
+我们需要一个演示。
+我不希望任何人认为我在这里作弊。
+所以我们就把它扭曲成另一种方式。
+这是一种强大的吸引力，是吧。
+现在Alex永远不会弄错陀螺仪了，因为他已经有了正确的表征。
+你在这门课程中要积累的很大一部分是一套能帮助你构建智能程序的表征。
+但是我想给你举一个第二个例子，一个稍微更具计算性的例子。
+但这个例子在大多数情况下，你上一年级的时候就非常熟悉了。
+这个问题涉及农夫、狐狸、鹅和谷物。
+河上有一艘漏水的小船，只能载着农夫和他的四个物品中的一个。
+那么这个问题的正确表征是什么呢？可能是一个农夫的图片，也可能是一首关于这种情况的诗，或许是一首俳句。
+我们知道这些都不是正确的表征。
+
+ Somehow, we get the sense that the right representation most involve something about the location of the participants in this scenario.
+So we might draw a picture that looks like this.
+There's the scenario, and here in glorious green, representing our algae infested rivers is the river.
+And here's the farmer, the fox, the goose, and the grain.
+An initial situation.
+Now there are other situations like this one, for example.
+We have the river, and the farmer, and the goose is on that side.
+And the fox and the grain is on that side.
+And we know that the farmer can execute a movement from one situation to another.
+So now we're getting somewhere where with the problem.
+This is at MIT approach to the farmer, fox, goose, and grain problem.
+It might have stumped you when you were a little kid.
+How many such situations are there? What do you think, Tanya? It looks to me like all four of individuals can be on one side or the other.
+不知何故，我们得到的感觉是，正确的描绘最好包括与参与者在这种情景中的位置有关的内容。
+因此，我们可能会画出这样一个图画。
+这是情景，这里是我们的河流，草泥爬满了整个河流，望之令人赞叹。
+这是农夫、狐狸、鹅和谷物。
+一个最初的情况。
+现在还有其他类似的情况，例如。
+我们有了河流，有了农夫，鹅在那一边。
+狐狸和谷物在这一边。
+我们知道农夫可以从一个情况转移到另一个情况。
+所以现在我们在解决问题。
+这是麻省理工学院对于农夫、狐狸、鹅和谷物问题的方法。
+当你还是小孩的时候，它可能让你难倒。
+有多少种这样的情况？你认为呢，塔尼娅？在我看来，这四个人可以在任一一边。
+
+ So for every position the farmer can be, each of the other things can be on either side of the river.
+So it would be two to the fourth she says aggressively and without hesitation.
+Yes, two to the fourth, 16 possibilities.
+So we could actually draw out the entire graph.
+It's small enough.
+There's another position over here with the farmer, fox, goose, and grain.
+And in fact that's the one we want.
+And if we draw out the entire graph, it looks like this.
+This is a graph of the situations and the allowed connections between them.
+Why are there not 16? Because the other-- how many have I got? Four? 10? The others are situations in which somebody gets eaten.
+So we don't want to go to any of those places.
+So having got the representation, something magical has happened.
+We've got our constraints exposed.
+And that's why we build representations.
+农夫所处的位置是固定的，与其它物品相比，它们可以在河的两边任意一边。
+所以，她坚决地、毫不犹豫地说，有16种可能性，即2的4次方。
+实际上，我们可以绘制出整个图表，因为它足够小。
+这里有另一个位置，有农夫、狐狸、鹅和谷物。
+实际上，这就是我们想要的位置。
+如果我们绘制整个图表，它看起来像这样。
+这是一张描述各种情况及其之间允许的连接的图表。
+为什么不是16个呢？因为其他的情况下会有人被吃掉。
+所以我们不想去那些地方。
+所以，通过这种表示，一些神奇的事情发生了。
+我们的约束条件被暴露了出来。
+这就是为什么我们构建表示的原因。
+
+ That's whey you algebra in high school, because algebraic notation exposes the constraints that make it possible to actually figure out how many customers you get for the number of advertisements you place in the newspaper.
+So artificial intelligence is about constraints exposed by representations that support models targeted to thinking-- actually there's one more thing, too.
+Not quite done.
+Because after all, in the end, we have to build programs.
+So it's about algorithms enabled by constraints exposed by representations that model targeted thinking, perception, and action.
+So these algorithms, or we might call them just as well procedures, or we might call them just as well methods, whatever you like.
+These are the stuff of what artificial intelligence is about-- methods, algorithms, representations.
+I'd like to give you one more example.
+It's something we call, in artificial intelligence, generated test.
+And it's such a simple idea, you'll never hear it again in this subject.
+这就是为什么高中要学代数，因为代数表示揭示了能够计算出在报纸上刊登广告获得的顾客数量的约束条件。
+因此，人工智能是关于揭示支持思考模型的表示所暴露的约束条件，实际上还有一件事，还没有完成。
+毕竟，最终我们必须构建程序。
+因此，它涉及到通过表示所揭示的约束条件所启用的算法，这些算法是针对思考、感知和行动的模型的。
+因此，这些算法，或者我们也可以称之为过程，或者我们也可以称之为方法，随你喜欢。
+这些就是人工智能的核心内容--方法、算法、表示。
+我想再给你一个例子。
+这是我们在人工智能中称之为生成测试。
+这是一个非常简单的想法，在这个主题中你以后再也不会听到它了。
+
+ But it's an idea you need to add to your repertoire of problem solving methods, techniques, procedures, and algorithms.
+So here's how it works.
+Maybe I can explain to best by starting off with an example.
+Here's a tree leaf I picked off a tree on the way over to class.
+I hope it's not the last of the species.
+What is it, what kind of tree? I don't know.
+I never did learn my trees, or my colors, or my multiplication tables.
+So I have to go back to this book, the Audubon Society Field Guide to North American Trees.
+And how would I solve the problem? It's pretty simple.
+I just turn the pages one at a time, until I find something that looks like this leaf.
+And then I discover it's a sycamore, or something.
+MIT's full of them.
+So when I do that, I do something very intuitive, very natural, something you do all the time.
+But we're going to give it a name.
+We're going to call it generate and test.
+但这是一个你需要加入到你的解决问题方法、技巧、程序和算法库中的想法。
+所以下面是它的工作原理。
+也许我可以通过一个例子来最好地解释。
+这是我在去上课的路上从树上摘下来的一片树叶。
+希望它不是这个物种的最后一片。
+这是什么，是什么树的？我不知道。
+我从来没学过树，也没学过颜色，也没学过乘法表。
+所以我必须回到这本书，奥德本协会北美树木田野指南。
+那我怎么解决这个问题呢？很简单。
+我只是一页一页地翻，直到找到类似这片树叶的东西。
+然后我发现这是一棵悬铃木，或者别的什么。
+麻省理工学院到处都是它们。
+所以当我这样做时，我做了一些非常直观、非常自然的事情，就是你一直在做的事情。
+但是我们要给它一个名字。
+我们将称其为生成并测试。
+
+ And generate and test method consists of generating some possible solutions, feeding them into a box that tests them, and then out the other side comes mostly failures.
+But every once in a while we get something that succeeds and pleases us.
+That's what I did with the leaf.
+But now you have a name for it.
+Once you have a name for something, you get power over it.
+You can start to talk about it.
+So I can say, if you're doing a generate and test approach to a problem, you better build a generator with certain properties that make generators good.
+For example, they should not be redundant.
+They shouldn't give you the same solution twice.
+They should be informable.
+They should be able to absorb information such as, this is a deciduous tree.
+Don't bother looking at the conifers.
+So once you have a name for something, you can start talking about.
+And that vocabulary gives you power.
+So we call this the Rumpelstiltskin Principle perhaps The first of our powerful ideas for the day.
+以下文本内容不包含提示。
+将以下文本翻译成中文：
+“ 生成和测试方法包括生成一些可能的解决方案，将它们输入到一个测试箱中进行测试，然后大部分都是失败的。
+但是偶尔我们会得到一些成功并让我们满意的结果。
+这就是我用那片叶子做的。
+但现在你给它起了个名字。
+一旦你给某个东西起了名字，你就能掌控它。
+你可以开始谈论它。
+所以我可以说，如果你对问题采用生成和测试的方法，你最好构建一个具有使生成器变得好的某些属性的生成器。
+例如，它们不应该重复。
+它们不应该给你相同的解决方案两次。
+它们应该具备可信息化的能力，例如，它们能够接受信息，比如这是一棵落叶树，不要打扰那些针叶树。
+所以一旦你给某个东西起了名字，你可以开始谈论它。
+而这个词汇给了你力量。
+所以也许我们可以称之为“兰普尔斯金原理”。
+这可能是我们今天的第一个有力的观点。
+”
+ This subject is full of powerful ideas.
+There will be some in every class.
+Rumpelstiltskin Principle says that once you can name something, you get power over it.
+You know what that little thing is on the end of your shoelace? It's interesting.
+She's gesturing like mad.
+That's something we'll talk about later, too-- motor stuff, and how it helps us think.
+What is it? No one knows? It's an ag something, right? It's an aglet, very good.
+So once you have the name, you can start to talk about.
+You can say the purpose of an aglet is pretty much like the whipping on the end of a rope.
+It keeps the thing from unwinding.
+Now you have a place to hang that knowledge.
+So we're talking about this frequently from now into the rest of the semester, the power of being able to name things.
+Symbolic labels give us power over concepts.
+While we're here I should also say that this is a very simple idea, generate and test.
+And you might be tempted to say to someone, we learned about generate and test today.
+这个主题充满了强大的想法。
+每个班级都会有一些。
+ 仙女儿原理说，一旦你能够给某样事物下一个名字，你就能掌控它。
+你知道你鞋带末端的那个小东西是什么吗？很有意思。
+她疯狂地做了个手势。
+这也是我们后来会谈论的内容-运动的东西，以及它如何帮助我们思考。
+它是什么？没人知道？是一种什么什么东西，对吗？是一个小环，非常好。
+所以一旦你有了名字，你就能开始谈论它。
+你可以说一个小环的目的基本上就像绳子末端的套结。
+它防止物体松开。
+现在你有一个放置知识的地方了。
+所以我们从现在开始到学期结束都会经常谈论这个，能够命名事物的力量。
+象征性的标签赋予我们对概念的掌控力。
+在这里我也应该说一下，这是一个非常简单的观念，生成和测试。
+你可能会诱惑地对某人说，我们今天学到了生成和测试。
+
+ But it's a trivial idea.
+The word trivial is a word I would like you to purge from your vocabulary, because it's a very dangerous label.
+The reason it's dangerous is because there's a difference between trivial and simple.
+What is it? What's the difference between labeling something as trivial and calling it simple? Yes? Exactly so.
+He says that simple can be powerful, and trivial makes it sound like it's not only simple, but of little worth.
+So many MIT people miss opportunities, because they have a tendency to think that ideas aren't important unless they're complicated.
+But the most simple ideas in artificial intelligence are often the most powerful.
+We could teach an artificial intelligence course to you that would be so full of mathematics it would make a Course 18 professor gag.
+But those ideas would be merely gratuitously complicated, and gratuitously mathematical, and gratuitously not simple.
+Simple ideas are often the most powerful.
+So where are we so far? We talked about the definition.
+但这只是一个琐碎的想法。
+我希望你从词汇中清除“琐碎”这个词，因为它是一个非常危险的标签。
+它危险的原因是因为琐碎和简单是有区别的。
+是什么区别？将某些事物标注为琐碎和将其称为简单有什么不同？是的，没错。
+他说简单可以很有力量，但是琐碎听起来不仅仅是简单，而且毫不值钱。
+因此，许多麻省理工学院的人错失了机会，因为他们倾向于认为只有复杂的想法才重要。
+但在人工智能中，最简单的想法往往是最有力量的。
+我们可以给你开设一门充满数学的人工智能课程，足以让18号学院的教授噎住。
+但那些想法只会过于复杂、过于数学化，远非简单。
+简单的想法通常是最有力量的。
+到目前为止我们谈论了定义。
+
+ We talked about an example of a method.
+Showed you a representation, and perhaps also talked about the first idea, too.
+You've got the representation right, you're often almost done.
+Because with this representation, they can immediately see that there are just two solutions to this problem, something that wouldn't have occurred to us when we were little kids, and didn't think to draw the [? state ?] diagram.
+There's still one more thing.
+In the past, and in other places, artificial intelligence is often taught as purely about reasoning.
+But we solve problems with our eyes, as well as our symbolic apparatus.
+And you solved that problem with your eyes.
+So I like to reinforce that by giving you a little puzzle.
+Let's see, who's here? I don't see [? Kambe, ?] but I'll bet he's from Africa.
+Is anyone from Africa? No one's from Africa? No? Well so much the better-- because they would know the answer to the puzzle.
+Here's the puzzle.
+How many countries in Africa does the Equator cross?
+我们讨论了一个方法的例子。
+向您展示了一个表示，并可能也谈到了第一个想法。
+您的表示是正确的，您通常快完成了。
+因为有了这个表示，他们立即就能看到这个问题只有两个解决方案，这在我们小时候没有想到并没有想要绘制状态图时是无法想到的。
+还有一件事。
+在过去和其他地方，人工智能通常被教授为纯粹的推理。
+但我们用眼睛解决问题，也用象征性工具解决问题。
+而您是用眼睛解决了那个问题。
+所以我想通过给您一个小难题来加强这一点。
+让我们看看，谁在这里？我没有看到[? Kambe, ?]，但我敢打赌他来自非洲。
+有人来自非洲吗？没有人来自非洲？没有？那就更好了——因为他们会知道这个谜题的答案。
+这是谜题：赤道穿过非洲多少个国家？
+ Would anybody be willing to stake their life on their answer? Probably not.
+Well, now let me repeat the question.
+How many countries in Africa does the Equator cross? Yeah, six.
+What happened is a miracle.
+The miracle is that I have communicated with you through language, and your language system commanded your visual system to execute a program that involves scanning across that line, counting as you go.
+And then your vision system came back to your language system and said, six.
+And that is a miracle.
+And without understanding that miracle, we'll never have a full understanding of the nature of intelligence.
+But that kind of problem solving is the kind of problem solving I wish we could teach you a lot about it.
+But we can't teach you about stuff we don't understand.
+We [INAUDIBLE] for that.
+That's a little bit about the definition and some examples.
+What's it for? We can deal with that very quickly.
+If we're engineers, it's for building smarter programs.
+有人愿意拿自己的生命做赌注来回答问题吗？可能没有。
+好吧，现在让我重复一下这个问题。
+赤道穿过非洲的多少个国家？是的，是六个。
+发生的是一个奇迹。
+这个奇迹是我通过语言与你进行了交流，你的语言系统命令你的视觉系统执行一个涉及扫描那条线并边数边走的程序。
+然后你的视觉系统回到你的语言系统，并说了六个。
+这就是一个奇迹。
+如果不理解这个奇迹，我们将永远无法充分理解智能的本质。
+但是这种问题解决是我希望我们能够教给你很多的问题解决方法。
+但是我们无法教给你我们不理解的东西。
+这对于定义和一些例子来说就有点了解了。
+它的作用是什么？我们可以很快地解决这个问题。
+如果我们是工程师，它用于构建更智能的程序。
+
+ It's about building a tool kit of representations and methods that make it possible to build smarter programs.
+And you will find, these days, that you can't build a big system without having embedded in it somewhere the ideas that we talk about in the subject.
+If you're a scientist, there's a somewhat different motivation.
+But it amounts to studying the same sorts of things.
+If you're a scientist, you're interested in what it is that enables us to build a computational account of intelligence.
+That's the part that I do.
+But most this subject is going to be about the other part, the part that makes it possible for you to build smarter programs.
+And some of it will be about what it is that makes us different from the chimpanzees with whom we share an enormous fraction of our DNA.
+It used to be thought that we share 95% of our DNA with chimpanzees.
+Then it went up to 98.
+Thank God it stopped about there.
+Then it actually went back a little bit.
+I think we're back down to 94.
+以下是一段没有提示的文本。
+将以下文本翻译成中文：
+
+这是关于建立一个表示和方法的工具包，使得构建更智能的程序成为可能。
+如今，您会发现，如果没有嵌入我们在课程中谈论的想法，就无法构建一个大型系统。
+如果您是一名科学家，那么动机可能会略有不同。
+但它归结为研究相同类型的事物。
+如果您是一名科学家，您对于使我们能够构建智能的计算模型感兴趣。
+这是我所做的部分。
+但是本课程的大部分内容将是关于另一部分，即使您能够构建更智能的程序的部分。
+其中的一部分将涉及到使我们不同于共享了我们巨大DNA部分的黑猩猩的因素是什么。
+过去人们认为我们与黑猩猩共享95%的DNA。
+然后增加到了98%。
+谢天谢地它停在了这个数值。
+然后又稍稍下降了一点。
+我觉得我们又回到了94%。
+
+ How about if we talk a little bit now about the history of AI, so we can see how we got to where we are today? This will also be a history of AI that tells you a little bit about what you'll learn in this course.
+It all started with Lady Lovelace, the world's first programmer, Who wrote programs about 100 years before there were computers to run them.
+But it's interesting that even in 1842, people were hassling her about whether computers could get really smart.
+And she said, "The analytical engine has no pretensions to originate anything.
+It can do whatever we know how to order it to perform." Screwball idea that persists to this day.
+Nevertheless, that was the origin of it all.
+That was the beginning of the discussions.
+And then nothing much happened until about 1950, when Alan Turing wrote his famous paper, which introduced the Turing test.
+我们现在可以谈一下AI的历史，这样我们就能了解如今的发展历程。
+这也是关于本课程的AI历史，会告诉你一些你将在课程中学到的东西。
+一切都始于拉夫拉斯夫人，她是世界上第一个程序员，她在计算机出现大约100年前就写了程序。
+但有趣的是，即使在1842年，人们也在烦扰她，问计算机是否能变得真正聪明。
+她说：“分析机没有产生任何东西的倾向。
+它可以执行我们知道如何命令它执行的任何事情。
+”这个疯狂的想法一直存在至今。
+然而，这就是一切的起源，讨论的开始。
+接下来的重要事件直到1950年才发生，当时艾伦·图灵写了他著名的论文，提出了图灵测试。
+
+ Of course, Alan Turing had previously won the Second World War by breaking the German code, the Ultra Code, for which the British government rewarded him by driving him to suicide, because he happened to be homosexual.
+But Turing wrote his paper in 1950, and that was the first milestone after Lady Lovelace's comment in 1842.
+And then the modern era really began with a paper written by Marvin Minsky in 1960, titled "Steps Toward Artificial Intelligence." And it wasn't a long after that Jim [? Slagle, ?] a nearly blind graduate student, wrote a program that did symbolic integration.
+Not adding up area under a curve, but doing symbolic integration just like you learn to do in high school when you're a freshman.
+Now on Monday, we're going to talk about this program.
+And you're going to understand exactly how it works.
+And you can write one yourself.
+当然，艾伦·图灵此前通过破译德国密码（Ultra Code）赢得了第二次世界大战，英国政府因此奖励他，但却逼迫他自杀，因为他恰好是同性恋。
+不过，图灵在1950年写下了他的论文，那是自1842年洛夫莱丝夫人的评论之后的第一个里程碑。
+然后，现代时代真正开始于马文·明斯基在1960年写的一篇名为《通向人工智能的步骤》的论文。
+而不久之后，一位几乎失明的研究生吉姆·斯莱格写了一个做符号积分的程序。
+它不是用来计算曲线下的面积，而是像你在高中新生时学到的那样进行符号积分。
+下周一，我们将讨论这个程序。
+你将会完全理解它是如何工作的，而且你也可以自己编写一个。
+
+ And we're going to reach way back in time to look at that program because, in one day discussing it, talking about it, will be in itself a miniature artificial intelligence course.
+Because it's so rich with important ideas.
+So that's the dawn age, early dawn age.
+This was the age of speculation, and this was the dawn age in here.
+So in that early dawn age , the integration program took the world by storm.
+Because not everybody knows how to do integration.
+And someone, everyone, thought that if we can do integration today, the rest of intelligence will be figured out tomorrow.
+Too bad for our side it didn't work out that way.
+Here's another dawn age program, the Eliza [? thing ?].
+But I imagine you'd prefer a demonstration to just reading it, right? Do you prefer a demonstration? Let's see if we can demonstrate it.
+This is left over from a hamentashen debate of a couple of years ago.
+How do you spell hamentashen, anybody know? I sure hope that's right.
+It doesn't matter.
+Something interesting will come.
+以下文本内容不包括提示。
+
+我们将回溯到很久以前的那个程序，因为在讨论它的一天里，谈论它本身就是一个微型人工智能课程。
+因为其中蕴含了非常重要的想法。
+所以这是黎明时代，早期黎明时代。
+这是猜测的时代，这就是这里的黎明时代。
+所以在那个早期的黎明时代，整合程序席卷了全球。
+因为并非每个人都知道如何进行整合。
+每个人都认为，如果我们今天能够进行整合，智能的其他方面明天就会被解决。
+可惜对我们来说并非如此。
+这是另一个黎明时代的程序，Eliza[?东西?].
+但是我想你可能更喜欢一个演示，而不是只读它，对吗？你喜欢演示吗？让我们看看我们是否可以演示一下。
+这是几年前一个hamentashen辩论的遗留物。
+有人知道怎么拼hamentashen吗？我真希望拼对了。
+这无关紧要。
+会有有趣的事情发生。
+
+ OK, your choice.
+Teal? Burton House? Teal.
+So that's dawn age AI.
+And no one ever took that stuff seriously, except that it was a fun [INAUDIBLE] project level thing to work out some matching programs, and so on.
+The integration program was serious.
+This one wasn't.
+This was serious, programs that do geometric analogy, problems of the kind you find on intelligence tests.
+Do you have the answer to this? A is to B as C is to what? That would be 2, I guess.
+What's the second best answer? And the theories of the program that solve these problems are pretty much identical to what you just figured out.
+In the first case you deleted the inside figure.
+And the second case is, the reason you got four is because you deleted the outside part and grew the inside part.
+There's another one.
+I think this was the hardest one it got, or the easiest one it didn't get.
+I've forgotten.
+A is to B as C is to 3.
+好吧，你选择。
+礁绿色？伯顿楼？礁绿色。
+那就是黎明时代的人工智能。
+除了它是一个有趣的项目外，没有人真正将它当回事，只是一个用来研究一些匹配程序之类的项目。
+集成程序是认真的。
+这个不是。
+这是严肃的程序，用于解决几何类比问题，就像你在智力测试中遇到的那种问题。
+你知道这个问题的答案吗？A对应B，那么C对应什么？我猜应该是2。
+第二好的答案是什么？而解决这些问题的程序的理论与你刚刚找出的答案基本一致。
+在第一个例子里，你删除了内部的图形。
+而在第二个例子里，你删除了外部部分并增加了内部部分是你得到4的原因。
+还有一个问题。
+我记得这是它遇到的最难的问题，或者说是它没能解决的最简单的问题。
+A对应B，那么C对应3。
+
+ In the late dawn age, we began to turn our attention from purely symbolic reasoning to thinking a little bit about perceptual apparatus.
+And programs were written that could figure out the nature of shapes and forms, such as that.
+And it's interesting that those programs had the same kind of difficulty with this that you do.
+Because now, having deleted all the edges, everything becomes ambiguous.
+And it may be a series of platforms, or it may be a series of-- can you see the saw blade sticking up if you go through the reversal? Programs were written that could learn from a small number of examples.
+Many people think of computer learning as involving leading some neural net to submission with thousands of trials.
+Programs were written in the early dawn age that learned that an arch is something that has to have the flat part on top, and the two sides can't touch, and the top may or may not be a wedge.
+在晚黎明时代，我们开始将注意力从纯符号推理转向对感知装置的思考。
+并编写了能够识别形状和形式本质的程序，例如那个。
+有趣的是，这些程序与你一样对这个问题有着同样的困难。
+因为现在，在删除了所有的边缘之后，一切变得模糊不清。
+它可能是一系列的平台，或者可能是一系列的……如果你通过反转，你能看到露出来的锯齿刀片吗？编写的程序可以从少数例子中学习。
+很多人认为计算机学习是通过数千次试验来引导神经网络达到某种程度的顺从。
+在早期黎明时代编写的程序学会了一个拱形结构是有顶部平坦部分，并且两侧不能接触，顶部可能是一个楔形结构。
+
+ In the late dawn age, though, the most important thing, perhaps, was what you look at with me on Wednesday next.
+It's a rule-based expert systems.
+And a program was written at Stanford that did diagnosis of bacterial infections of the blood.
+It turned out to do it better than most doctors, most general practitioners.
+It was never used, curiously enough.
+Because nobody cares what your problem actually is.
+They just give you a broad spectrum antibiotic that'll kill everything.
+But this late dawn age system, the so-called [INAUDIBLE] system, was the system that launched a thousand companies, because people started building expert systems built on that technology.
+Here's that you don't know you used, or that was used on your behalf.
+If you go through, for example, the Atlanta airport, your airplane is parked by a rule-based expert system that knows how to park aircraft effectively.
+It saves Delta Airlines about to $0.5 million a day of jet fuel by being all smarter about how to park them.
+在迟夜时代，也许最重要的事情是你在下周三与我一起关注的内容。
+这是一个基于规则的专家系统。
+斯坦福编写了一个程序，用于诊断血液细菌感染。
+结果证明，它比大多数医生、普通医生都做得更好。
+但令人奇怪的是，它从未被使用过。
+因为没人关心你的实际问题是什么。
+他们只会给你一种能杀死一切的广谱抗生素。
+但这个所谓的“曙光时代”系统，也就是所谓的[INAUDIBLE]系统，启发了千家公司的成立，因为人们开始基于这项技术构建专家系统。
+以下是你可能不知道你使用过或代表你使用过的系统。
+举例来说，如果你通过亚特兰大机场，你的飞机将由一个知道如何有效停放飞机的基于规则的专家系统来停放。
+它使得达美航空公司每天能够节省约500万美元的喷气燃料。
+
+ So that's an example of an expert system that does a little bit of good for a lot of people.
+There's Deep Blue.
+That takes us to the next stage beyond the age of expert systems, and the business age.
+It takes us into this age here, which I call the bulldozer age, because this is the time when people began to see that we had at our disposal unlimited amounts of computing.
+And frequently you can substitute computing for intelligence.
+So no one would say that Deep Blue does anything like what a human chess master does.
+But nevertheless, Deep Blue, by processing data like a bulldozer processes gravel, was able to beat the world champion.
+So what's the right way? That's the age we're in right now.
+I will of course be inducing programs for those ages as we go through the subject.
+There is a question of what age we're in right now.
+And it's always dangerous to name an age when you're in it, I guess.
+I like to call at the age of the right way.
+那就是一个能为大量人群做些好事的专家系统的例子。
+还有深蓝。
+它带领我们走出了专家系统时代，进入了商业时代。
+它带领我们进入了现在这个我称之为推土机时代的时代，因为在这个时代，人们开始意识到我们可以随心所欲地使用无限数量的计算机。
+而经常情况下，你可以用计算机来代替智能。
+所以，没人会说深蓝做的事情有任何像人类国际象棋大师那样的东西。
+但尽管如此，通过像推土机处理碎石一样处理数据，深蓝能够击败世界冠军。
+那么什么是正确的方式呢？这就是我们现在正在处于的时代。
+当然，在我们讲授这门课程的过程中，我会针对这些时代引导性地开发程序。
+现在是什么时代存在着一个问题。
+我想当你身处其中时，给一个时代命名总是很危险的吧。
+我喜欢称之为正确方式的时代。
+
+ And this is an age when we begin to realize that that definition up there is actually a little incomplete, because much of our intelligence has to do not with thinking, perception, and action acting separately, but with loops that tie all those together.
+We had one example with Africa.
+Here's another example drawn from a program that has been under development, and continues to be, in my laboratory.
+We're going to ask the system to imagine something.
+SYSTEM: OK.
+I will imagine that a ball falls into a bowl.
+OK.
+I will imagine that a man runs into a woman.
+PATRICK WINSTON: You see, it does the best that it can if it doesn't have a good memory of what these situations actually involve.
+But having imagined the scene it can then-- SYSTEM: Yes.
+I have learned from experience that contact between a man and a woman appeared because a man runs into a woman.
+PATRICK WINSTON: Having imagined the scene, it can then read the answers using its visual apparatus on the scene that it imagined.
+这是一个让我们开始意识到上述定义实际上有些不完整的时代，因为我们的大部分智力与思考、感知和行动的分离无关，而是与将它们统一起来的循环有关。
+我们之前提到了非洲的一个例子。
+这里有另一个例子，来自于在我的实验室中一直在开发的一个项目。
+我们将让系统想象一些东西。
+系统：好的。
+我将想象一个球掉进一个碗里。
+好的。
+我将想象一个男人撞到一个女人。
+PATRICK WINSTON：你看，如果它对这些情境的实际涉及没有一个好的记忆，它会尽最大努力。
+但是在想象了场景之后，它可以使用自己的视觉装置读取它想象中的场景的答案。
+
+ So just like what you did with Africa, only now it's working with its own visual memory, using visual programs.
+SYSTEM: OK.
+I will imagine that a man gives a ball to a man.
+PATRICK WINSTON: I know this looks like slugs, but they're actually distinguished professors.
+It always does the best it can.
+SYSTEM: OK.
+I will imagine that a man flies.
+PATRICK WINSTON: It's the best that it can do.
+So that concludes our discussion of the history.
+And I've provided you with a little bit of a glimpse of what we're going to look at as the semester unfolds.
+Yes, Chris? CHRIS: Is it actually a demonstration of something? Does it have a large database of videos? PATRICK WINSTON: No, it has a small database videos.
+CHRIS: But it's intelligently picking among them based on-- PATRICK WINSTON: Based on their content.
+So if you say imagine that a student gave a ball to another student, it imagines that.
+You say, now does the other student have the ball? Does the other student take the ball?
+基于你对非洲的了解，现在它在使用视觉程序进行自己的视觉记忆的工作。
+系统：好的。
+我将想象一个男人给另一个男人一个球。
+帕特里克·温斯顿：我知道这看起来像蛞蝓，但它们实际上是杰出的教授。
+它总是尽力而为。
+系统：好的。
+我将想象一个男人在飞行。
+帕特里克·温斯顿：这是它所能做到的最好的。
+所以，这就结束了我们对历史的讨论。
+我已经给你们一个小小的预览，展示了这个学期我们将要看到的内容。
+是的，克里斯？克里斯：这实际上是某种演示吗？它有一个大型的视频数据库吗？帕特里克·温斯顿：不，它有一个小型的视频数据库。
+克里斯：但它根据内容聪明地进行选择吗？帕特里克·温斯顿：根据它们的内容进行选择。
+所以，如果你说想象一个学生给另一个学生一个球，它就会想象出来。
+你说，现在另一个学生有球了吗？另一个学生拿球了吗？
+ It can answer those questions because it can review the same video and see the take as well as the give in the same video.
+So now we have to think about why we ought to be optimistic about the future.
+Because we've had a long history here, and we haven't solved the problem.
+But one reason why we can feel optimistic about future is because all of our friends have been on the march.
+And our friends include the cognitive psychologists, the [? developmental ?] psychologists, the linguists, sometimes the philosophers, and especially the paleoanthropologists.
+Because it is becoming increasingly clear why we're actually different from the chimpanzees, and how we got to be that way.
+The high school idea is that we evolved through slow, gradual, and continuous improvement.
+But that doesn't seem to be the way it happened.
+There are some characteristics of our species that are informative when it comes to guiding the activities of people like me.
+And here's what the story seems to be from the fossil record.
+因为它可以回顾同一段视频并了解视频中的表达和传递。
+现在我们需要思考为什么我们对未来应该持乐观态度。
+因为我们在这里有很长的历史，而且我们还没有解决这个问题。
+但我们可以对未来持乐观态度的原因之一是因为我们所有的朋友都在努力。
+我们的朋友包括认知心理学家、发展心理学家、语言学家，有时还有哲学家，尤其是古人类学家。
+因为为什么我们与黑猩猩实际上不同，以及我们是如何变成现在这个样子，这一点正变得越来越清楚。
+过去高中教育的观念是我们通过缓慢、渐进和持续的改进演化而来。
+但事实似乎并非如此。
+我们物种的一些特征对像我这样的人的活动具有指导意义。
+以下是从化石记录中看出的故事。
+
+ First of all, we humans have been around for maybe 200,000 years in our present anatomical form.
+If someone walked through the door right now from 200,000 years ago, I imagine they would be dirty, but other than that-- probably naked, too-- other than that, you wouldn't be able to tell the difference, especially at MIT.
+And so the ensuing 150,000 years was a period in which we humans didn't actually amount to much.
+But somehow, shortly before 50,000 years ago, some small group of us developed a capability that separated us from all other species.
+It was an accident of evolution.
+And these accidents may or may not happen, but it happened to produce us.
+It's also the case that we probably necked down as a species to a few thousand, or maybe even a few hundred individuals, something which made these accidental changes, accidental evolutionary products, more capable of sticking.
+This leads us to speculate on what it was that happened 50,000 years ago.
+首先，我们人类以目前的解剖形态存在了大约20万年。
+如果现在有人从20万年前走进门来，我想他们会很脏，除此之外 - 也许还是赤身裸体 - 除此之外，你无法分辨出差异，尤其在麻省理工学院。
+因此，在接下来的15万年里，我们人类实际上没有取得太多进展。
+但不知何故，在大约5万年前的不久之前，我们的一小部分人发展出了一种能力，使我们与其他物种有所区别。
+这是进化的偶然事件。
+这些事故可能发生也可能不发生，但它恰好发生在我们身上。
+另外，我们很可能作为一个物种减少到了几千人，甚至可能只有几百个个体，这使得这些意外的变化、意外的进化产物更有可能保持下去。
+这让我们推测发生在5万年前的事情是什么。
+
+ And paleoanthropologists, Noam Chomsky, a lot of people reached similar conclusions.
+And that conclusion is-- I'll quote Chomsky.
+He's the voice of authority.
+"It seems that shortly before 50,000 years ago, some small group of us acquired the ability to take two concepts, and combine them to make a third concept, without disturbing the original two concepts, without limit." And from a perspective of an AI person like me, what Chomsky seems to be saying is, we learned how to begin to describe things, in a way that was intimately connected with language.
+And that, in the end, is what separates us from the chimpanzees.
+So you might say, well let's just study language.
+No, you can't do that, because we think with our eyes.
+So language does two things.
+Number one, it enables us to make descriptions.
+Descriptions enable us to tell stories.
+And storytelling and story understanding is what all of education is about.
+That's going up.
+以下的文本内容没有包含提示。
+将以下文本翻译成中文：
+
+古人类学家和诺姆·乔姆斯基等许多人得出了类似的结论。
+这个结论是——我引用乔姆斯基的话。
+他是权威的代表。
+"似乎在大约5万年前不久，我们中的一小部分人获得了一种能力，即无限地将两个概念结合在一起形成第三个概念，而不会破坏原始的两个概念。
+”以我这样一个人工智能的角度来看，乔姆斯基似乎是在说，我们学会了如何用与语言密切相关的方式来描述事物。
+而这最终就是将我们与黑猩猩区分开来的东西。
+所以你可能会说，好吧，让我们研究语言。
+但不，你不能这样做，因为我们是用眼睛思考的。
+所以语言有两个作用。
+第一，它使我们能够进行描述。
+描述能够让我们讲故事。
+而叙事和故事理解就是教育的全部内容。
+这是正在上升的过程。
+
+ And going down enables us to marshal the resources of our perceptual systems, and even command our perceptual systems to imagine things we've never seen.
+So here's an example.
+Imagine running down the street with a full bucket of water.
+What happens? Your leg gets wet.
+The water sloshes out.
+You'll never find that fact anywhere on the web.
+You've probably never been told that that's what happens when you run down the street with a full bucket of water.
+But you easily imagine this scenario, and you know what's going to happen.
+There was internal imagination simulation.
+We're never going to understand human intelligence until we can understand that.
+Here's another example.
+Imagine running down the street with a full bucket of nickels? What happens? Nickels weigh a lot.
+You're going to be bent over.
+You're going to stagger.
+But nobody ever told you that.
+You won't find it anywhere on the web.
+下坡使我们能够调动我们感知系统的资源，甚至指挥感知系统去想象我们从未见过的事物。
+这里有一个例子。
+想象一下带着满满一桶水跑下街怎么样？会发生什么？你的腿会被弄湿。
+水会溅出来。
+你在网上永远找不到这个事实。
+你可能从未听说过，当你带着满桶水下街跑的时候会发生这种情况。
+但是你很容易想象出这种情景，知道会发生什么。
+这就是内部想象模拟。
+只有当我们能够理解这一点，我们才能真正理解人类智能。
+再举一个例子。
+想象一下带着满满一桶镍币跑下街会发生什么？镍币很重。
+你会弯腰。
+摇摇晃晃的。
+但是没有人告诉过你这一点。
+你在网上也找不到这个信息。
+
+ So language is at the center of things because it enables storytelling going up, and marshalling the resources of the perceptual apparatus, going down.
+And that's where we're going to finish the subject the semester, by trying to understand more about that phenomenon.
+So that concludes everything I wanted to say about the material and the subject.
+Now I want to turn my attention a little bit to how we are going to operate the subject.
+Because there are many characteristics of the subject that are confusing.
+First of all, we have four kinds of activities in the course.
+And each of these has a different purpose.
+So I did the lectures.
+And the lectures are supposed to be an hour about introducing the material and the big picture.
+They're about powerful ideas.
+They're about the experience side of the course.
+Let me step aside and make a remark.
+MIT is about two things.
+It's about skill building, and it's about big ideas.
+所以语言是核心，因为它使得故事讲述向上发展，并且调动感知机构的资源向下发展。
+这就是我们这学期关于这个主题要结束的地方，我们要试着更多地了解这种现象。
+这就涵盖了我对材料和主题想要说的一切。
+现在我想把注意力转向我们将如何操作这个主题。
+因为主题具有许多令人困惑的特点。
+首先，我们在课程中有四种活动。
+每一种都有不同的目的。
+所以我进行了讲座。
+讲座的目的是为了一个小时来介绍材料和大致情况。
+它们关于强大的思想。
+它们关于课程的体验方面。
+让我稍微离开一下，发表一番感想。
+麻省理工学院有两个重点，一个是技能培养，另一个是伟大的思想。
+
+ So you can build a skill at home, or at Dartmouth, or at Harvard, or Princeton, or all those kinds of places.
+But the experience you can only get at MIT.
+I know everybody there is to know in artificial intelligence.
+I can tell you about how they think.
+I can tell you about how I think.
+And that's something you're not going to get any other place.
+So that's my role, as I see it, in giving these lectures.
+Recitations are four buttressing and expanding on the material, and providing a venue that's small enough for discussion.
+Mega recitations are [? a usual ?] components of the course.
+They're taught at the same hour on Fridays.
+Mark Seifter, my graduate student, will be teaching those.
+And those are wrapped around past quiz problems.
+And Mark will show you how to work them.
+It's very important component to the subject.
+And finally the tutorials are about helping you with the homework.
+So you might say to me, well, do I really need to go to class?
+所以你可以在家里，或者在达特茅斯，或者在哈佛，或者在普林斯顿，或者在那些地方培养技能。
+但是只有在麻省理工学院才能获得的经验。
+我认识人工智能领域的每个人，我可以告诉你他们的思维方式。
+我可以告诉你我的思维方式。
+这是你在其他地方得不到的东西。
+所以这是我在这些讲座中的角色，从我看来，复习加强和扩展材料，并提供一个适合讨论的小范围场所。
+大型复习是课程的常规组成部分。
+它们在周五的同一时间上课。
+我的研究生马克·塞夫特将负责授课。
+这些复习将围绕过去的测验问题展开。
+马克会告诉你如何解决它们。
+这是这门课程非常重要的组成部分。
+最后的辅导课是为了帮助你完成作业。
+所以你可能问我，我真的需要去上课吗？
+ I like to say that the answer is, only if you like to pass the subject.
+But you are MIT students.
+And MIT people always like to look at the data.
+So this is a scattergram we made after the subject was taught last fall, which shows the relationship between attendance at lectures and the grades awarded in the course.
+And if you're not sure what that all means, here's the regression line.
+So that information is a little suspect for two reasons, one of which is we asked people to self report on how many lectures they thought they attended.
+And our mechanism for assigning these numerical grades is a little weird.
+And there's a third thing, too, and that is, one must never confuse correlation with cause.
+You can think of other explanations for why that trend line goes up, different from whether it has something to do with lectures producing good grades.
+You might ask how I feel about the people up there on the other upper left hand corner.
+我想说的是，答案只有在你想要通过这门课程时才会是肯定的。
+但是你们是麻省理工学院的学生，而麻省理工的人们总是喜欢看数据。
+所以这是我们在去年秋季教授这门课程后制作的一个散点图，展示了在课堂上出勤与课程成绩之间的关系。
+如果你不确定这一切意味着什么，这里有个回归线。
+所以这些信息有些可疑，原因有两个。
+一是我们要求人们自报他们认为他们上了多少节课。
+而我们用数字成绩来评定的机制有点奇怪。
+还有第三个原因，那就是我们决不能混淆相关性和因果关系。
+你可以想出其他关于为什么那个趋势线上升的解释，不一定与课堂讲座有关。
+你可能会问我对那些在另一个左上角的人们有什么感觉。
+
+ There are one or two people who were near the top of the subject who didn't go to class at all.
+And I have mixed feelings about that.
+You're adults.
+It's your call.
+On the other hand, I wish that if that's what you do habitually in all the subjects you take at MIT, that you would resign and go somewhere else, and let somebody else take their slot.
+Because you're not benefiting from the powerful ideas, and the other kinds of things that involve interaction with faculty.
+So it can be done.
+But I don't recommend it.
+By the way, all of the four activities that we have here show similar regression lines.
+But what about that five point scale? Let me explain how that works to you.
+We love to have people ask us what the class average is on a quiz.
+Because that's when we get to use our blank stare.
+Because we have no idea what the class average ever is on any quiz.
+Here's what we do.
+Like everybody else, we start off with a score from zero to 100.
+以下文本内容不包含提示。
+将以下文本翻译成中文：
+
+有一两个在该学科中名列前茅的人根本不上课。
+对此我有一些矛盾的感觉。
+你们都是成年人，这是你们的选择。
+另一方面，如果你们在麻省理工学院所有学科中都有这个习惯，我希望你们辞职并去其他地方，让其他人来顶替你的位置。
+因为你们没有从强大的思想和与教职员工互动的其他方式中受益。
+虽然这是可行的，但我不建议这样做。
+顺便说一下，我们这里的这四项活动都显示出了类似的回归线。
+但是那个五分制度怎么样呢？让我向你解释一下它的工作原理。
+我们喜欢有人问我们测验的班级平均分是多少。
+因为那时我们可以用无辜的眼神回答。
+因为我们根本不知道任何一次测验的班级平均分是多少。
+我们是这么做的。
+像其他人一样，我们从零到100开始评分。
+
+ But then we say to ourselves, what score would you get if you had a thorough understanding of the material? And we say, well, for this particular exam, it's this number right here.
+And what score would you get if you had a good understanding of the material? That's that score.
+And what happens if you're down here is that you're following off the edge of the range in which we think you need to do more work.
+So what we do is, we say that if you're in this range here-- following MIT convention with GPAs and stuff, that gets you a five.
+If you're in this range down here, there's a sharp drop off to four.
+If you're in this range down here, there's a sharp fall off to three.
+So that means if you're in the middle of one of those plateaus there's no point in arguing with this.
+Because it's not going to do you any good.
+We have these boundaries where we think performance break points are.
+So you say, well that seems a little harsh.
+Blah, blah, blah, blah, blah, and start arguing.
+但是然后我们对自己说，如果你对这个材料有一个透彻的理解，你会得到多少分？我们说，对于这个特定的考试，分数就在这个数字上。
+如果你对材料有一个良好的理解，你会得到多少分？那就是那个分数。
+如果你在这里，会发生什么？那就是你跌出我们认为你需要做更多工作的范围。
+所以我们说，如果你在这个范围内 - 按照麻省理工学院的惯例，包括绩点等等，得到的是五分。
+如果你在这个范围内，就会急剧下降到四分。
+如果你在这个范围内，就会急剧下降到三分。
+所以这意味着如果你在那个平台的中间，争论是没有意义的。
+因为这对你没有任何好处。
+我们有一些我们认为表现的分界点。
+所以你说，那似乎有点苛刻。
+啦啦啦啦啦，开始争论。
+
+ But then we will come back with a second major innovation we have in the course.
+That is that your grade is calculated in several parts.
+Part one is the max of your grade on Q1, and part one of the final.
+So in other words, you get two shots at everything.
+So if you have complete glorious undeniable horrible F on the first quiz, it gets erased on the final if you do well on that part of the final.
+So each quiz has a corresponding mirror on the final.
+You get the max of the score you got on those two pieces.
+And now you say to me, I'm an MIT student.
+I have a lot of guts.
+I'm only going to take the final.
+It has been done.
+We don't recommend it.
+And the reason we don't recommend it is that we don't expect everybody to do all of the final.
+So there would be a lot of time pressure if you had to do all of the final, all five parts of the final.
+So we have four quizzes.
+但是接下来我们将推出我们在课程中的第二个重大创新。
+那就是你的成绩是由几个部分计算出来的。
+第一部分是你在Q1上的成绩的最高分，以及最后考试的第一部分。
+换句话说，你有两次机会。
+所以如果你在第一次测验中得到完美无比的糟糕的F，只要你在最后一部分做得好，它就会被抹掉。
+所以每个测验都对应着最后考试上的镜像。
+你会得到这两部分得分中的最高分。
+然后你对我说，我是MIT的学生。
+我有很大的勇气。
+我只会参加最后一次考试。
+这是可以做到的。
+我们不推荐这样做的原因是我们不期望每个人都参加最后一次考试。
+如果你必须参加全部最后一次考试的话，那将会有很大的时间压力。
+所以我们有四次测验。
+
+ And the final has a fifth part because there's some material that we teach you after the last date on which we can give you a final by institute rules.
+But that's roughly how it works.
+And you can read about more of the details in the FAQ on the subject homepage.
+So now we're almost done.
+I just want to talk a little bit about how we're going to communicate with you in the next few days, while we're getting ourselves organized.
+So, number one-- if I could ask the TAs to help me pass these out-- we need to schedule you into tutorials.
+So we're going to ask you to fill out this form, and give it to us before you leave.
+So you'll be hearing from us once we do the sort.
+There's the issue of whether we're going to have ordinary recitation and a mega recitation this week.
+So pay attention.
+Otherwise, you're going to be stranded in a classroom with nothing to do.
+We're not going to have any regular recitations this week.
+Are we having regular recitation this week, [INAUDIBLE]? No.
+以下文本內容不包括提示。
+
+
+最后有第五部分，因为根据学院规定，我们会在最后截止日期之后教给你一些材料。
+但大致上就是这样。
+你可以在相关主页的常见问题解答中了解更多细节。
+所以现在我们差不多要结束了。
+我只想稍微谈一下在接下来的几天里我们将如何与你交流，因为我们正在整理自己。
+所以，首先，如果我可以请助教帮我分发这些-我们需要安排你们参加辅导课。
+所以我们要求你们填写这张表格，并在离开之前交给我们。
+一旦我们整理好了，我们会与你们联系。
+还有一个问题，就是这周我们是否要有普通的复习课和超级复习课。
+请注意。
+否则，你们将会被困在教室里无事可做。
+这周我们不会有任何常规的复习课。
+这周我们会有常规的复习课吗，[无法听清]？不。
+
+ We may, and probably will, have a mega recitation this week that's devoted to a Python review.
+Now we know that there are many of you who are celebrating a religious holiday on Friday, and so we will be putting a lot of resources online so you can get that review in another way.
+We probably will have a Python review on Friday.
+And we ask that you look at our home page for further information about that as the week progresses.
+So that's all folks.
+That concludes what we're going to do today.
+And as soon as you give us your form, we're through.
+我们可能会在本周举行一场特别的Python复习活动。
+现在我们知道，周五有许多人正在庆祝宗教节日，因此我们将会在网上提供很多资源，以便您可以以其他方式参与复习。
+我们可能会在周五进行一场Python复习。
+请在本周随着进展查看我们的主页以获取更多信息。
+那就是我们今天要做的全部内容。
+一旦您给我们提交表格，我们就结束了。
+

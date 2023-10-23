@@ -1,0 +1,804 @@
+MITOCW | Lec-02 What we're going to talk about today, is goals.
+So just by way of a little warm up exercise, I'd like you to look at that integration problem over there.
+The one that's disappeared.
+So the question is, can you do it in your head? Probably not.
+The question is, if a program can do that, is a program, in any sense of the word, intelligent? That's a background task I'd like you to work on as I talk today.
+So today we're going to be modeling a little bit of human problem solving, the kind that is required when you do symbolic integration.
+Now, you all learned how to do that.
+You may not be able to do that particular problem anymore, but you all learned how to integrate in high school 1801, or something like that.
+The question is, how did you do it, and is the problem solving technique that we are trying to model by building a program that does symbolic integration, is that a common kind of description of what people do when they solve problems.
+So the answer to the question is, yes.
+MITOCW | Lec-02 今天我们要谈论的是目标。
+所以，作为一个小的热身练习，我想让你们看看那边的这个积分问题。
+就是那个消失了的。
+所以问题是，你能在脑子里解决吗？可能不行。
+问题是，如果一个程序可以做到这一点，一个程序在任何意义上都算聪明吗？这是一个背景任务，我希望你们能在我演讲的时候思考一下。
+所以今天我们要模拟一下人类问题解决的一小部分，这是在进行符号积分时所需要的那种问题解决。
+现在，你们都学会了怎么做。
+你们可能再也不会解决那个特定的问题了，但你们在高中1801年左右都学会了积分。
+问题是，你们是怎么做到的，我们尝试通过建立一个进行符号积分的程序来模拟的问题解决技巧，这是人们解决问题时的一种常见描述吗？答案是肯定的。
+
+ The kind of problem solving you'll see today is like generating tests, which you saw last time.
+It's a very common kind of problem solving that we all engage in, that we all engage in without thinking about it, and without having a name for it.
+But once we get a name for it, we'll get power over it.
+And then we'll be able to deploy it, and it will become a skill.
+We'll not just witness it, we'll not just understand it, we'll use it instinctively, as a skill.
+So there you are, you've got that problem, there's your problem, and what do you do to solve it? I don't know, look it up in a table? You'll never find it in a table because of that minus sign and that 5.
+So you're going to have to do something better than that.
+So what you're going to do, is what you always do when you see a problem like that.
+You try to apply a transform, and make it into a different problem that's easier to solve.
+今天你将看到的问题解决方式类似于上次你见过的生成测试。
+这是一种我们大家都在参与的非常常见的问题解决方式，我们在进行时并没有意识到，也没有给它起一个名字。
+但是一旦我们给它起了名字，我们就能够掌控它。
+然后我们就能够运用它，并将其变成一种技能。
+我们不只是见证它，不只是理解它，我们会将其作为一种本能的技能来运用。
+所以在这里，你面临着那个问题，你的问题是什么，你要做什么来解决它？我不知道，去表格里查找吗？你永远也找不到，因为有那个负号和那个5。
+所以你要做的比那更好。
+所以你要做的，就是当你遇到那样的问题时所总是做的。
+你试着应用一个变换，将其转化为一个更容易解决的问题。
+
+ And eventually, what you hope is that you'll simplify it sufficiently, that the pieces that you've simplified to will be found in some small table of integrals.
+So how long is this table? It's not the case that we're going to look at a table with 388 elements, because this is not a big table of integrals.
+This is what a freshman might have in a freshman's head, after taking a course in integral calculus.
+One of the interesting questions is, how many elements have to be in that table to get an A in the course? We're interested in how much knowledge is involved, that's one of the elements of catechism that I've listed over there, that will be part of the gold star ideas suite of the day.
+So we'd like to take that problem, and find a way to make it into another problem that's more likely, or closer to being found in the table.
+So what we're going to do is very simple, graphically.
+We're going to take the problem we're given, and convert it into another problem that's simpler.
+最后，你希望的是将它简化到足够简单的程度，这样你已经简化的部分会在一张小的积分表中找到。
+那么这张表有多长呢？不是我们要看一张有388个元素的表，因为这不是一张大的积分表。
+这是一个新生在学习积分微积分课程后可能记住的内容。
+其中一个有趣的问题是，在这张表中需要多少个元素才能取得A的成绩？我们对其中涉及的知识量感兴趣，那是我列在那边的教义元素之一，它将成为今天金色星标思想套件的一部分。
+因此，我们想要把那个问题转化为另一个更容易或更接近于在表中找到的问题。
+所以我们要做的很简单，就是图形化地将我们给定的问题转化为一个更简单的问题。
+
+ And we're going to give that process and name, and we're going to call it problem reduction.
+And so, in the world of integral calculus, there are all sorts of simple methods, simple transformations, we can try that will take a hard problem and make it into an easier problem.
+And some of these transformations are extremely simple and always safe.
+Some of them are just, well let's try it and see what happens.
+But some of them are safe, and I'd like to make a short list of safe transformations right now.
+Now I'm going to be going into some detail.
+And that detail will be grungy.
+And the question is, why do I do it? And it's educational philosophy, is why I do it.
+So here's the educational philosophy.
+At one level, you want to have a skill.
+But if you're going to have a skill, you have to understand it.
+So if you're going to have a skill you have to understand it one level down.
+If you're going to understand it, you have to have witnessed it on a level lower than that.
+接下来我们将给这个过程起一个名字，我们将称其为问题简化。
+在积分计算的世界中，有各种简单的方法和简单的转换，我们可以尝试将一个难题变为一个更容易的问题。
+其中一些转换非常简单且总是安全的。
+有些转换只是试一试，看看会发生什么。
+但其中一些是安全的，我想现在列出一份安全转换的简短清单。
+现在我将详细解释一些。
+这些细节可能比较繁琐。
+问题是，为什么要这样做呢？这是我的教育哲学，这就是我这样做的原因。
+所以这就是教育哲学。
+在某种程度上，你想要掌握一项技能。
+但是如果你要掌握一项技能，你就必须理解它。
+所以如果你要掌握一项技能，你就必须在一个更低的层次上理解它。
+如果你要理解它，你必须在一个更低的层次上见证它。
+
+ So I'm not just going to talk about the idea of problem reduction, because if I were just going to do that, then we could all go home now.
+So I'm going to show you a particular example of it, so you understand it better, and I'm going to show you the detail at an even lower level than that.
+So you will witness the stuff that makes it possible, to understand the stuff that makes it possible, to build a skill.
+So that's why I'm going through the grungy detail.
+So I don't know, let's see.
+Maybe we can get some hints from that example, but I wonder if somebody could volunteer a simple transformation that always is a good thing to do.
+Yes, Sebastian.
+AUDIENCE: Take the constants out.
+SPEAKER 1: Take the constants out.
+So we'll make that number two.
+And we'll say that the integral c f of x dx is equal to c times the integral f of x dx.
+Other suggestions? Yes.
+AUDIENCE: Trig substitution.
+SPEAKER 1: Trig substitution.
+Now this is-- no, that's for day two.
+所以我不只是要谈论问题简化的理念，因为如果我只是这样做的话，我们现在就可以都回家了。
+所以我将向您展示一个具体的例子，这样您就能更好地理解它，而且我将向您展示比这更低层次的细节。
+所以您将目睹使其成为可能的东西，以理解使其成为可能的东西，以建立一种技能。
+所以这就是为什么我要详细介绍的原因。
+那么我不知道，我们来看看。
+也许我们可以从这个例子中得到一些线索，但我想知道是否有人可以提供一个总是好的简单转化方法。
+是的，塞巴斯蒂安。
+听众：将常数剥离出来。
+发言人1：将常数剥离出来。
+所以我们将把这个数字定为2。
+我们将说，积分c f(x)dx等于c乘以积分f(x)dx。
+其他建议吗？是的。
+听众：三角代换。
+发言人1：三角代换。
+但这是后面的事情。
+
+ We don't do trig substitution here under stuff that's safe, always works, never any doubt, there are simpler things.
+These are the safe transformations.
+What you're giving me is a heuristic transformation.
+Often is helpful, doesn't necessarily always work.
+We're going to divide our transformations into those two categories.
+So I need another safe one.
+AUDIENCE: [INAUDIBLE] SPEAKER 1: The architects are sitting over there.
+Divided not only by nationality, but by course.
+What? AUDIENCE: The sum of integrals is the integral of the sum.
+AUDIENCE: The sum of integrals is the integral of the sum.
+SPEAKER 1: The sum of integrals is the integral of the sum.
+Now what's missing? What's number one? You're probably thinking it's already there, because you've given me the transformation that involves a constant.
+And you can think of minus 1 as a constant.
+But whether you use a separate transformation or not, of course depends on how you represent the knowledge.
+我们这里不使用三角代换，因为这是一个安全、始终有效、没有疑问的事情，还有更简单的方法。
+这些都是安全的转换。
+你给我的是一种启发式转换，通常有帮助，但并不总是有效。
+我们将将转换分为这两个类别。
+所以我需要另一种安全的转换。
+听众：[听不清]。
+演讲者1：建筑师们坐在那边。
+不仅是按国籍划分，还按课程划分。
+怎么了？听众：积分的和是和的积分。
+听众：积分的和是和的积分。
+演讲者1：积分的和是和的积分。
+现在缺少什么？第一项你可能认为已经有了，因为你给了我涉及常数的转换。
+但是否使用单独的转换，当然取决于你如何表示这个知识。
+
+ And all of this knowledge, all of this whole thing, was written in an early form of Lisp.
+As a consequence, the way in which minus was represented is different from the way minus 1 is represented.
+So we need one more transformation.
+Or rather, Jim Slagle needed one more transformation, when he wrote his famous transformation program.
+And that was that if you have the integral of minus f of x, that's equal to, minus the integral of f of x.
+So that almost completes our safe transformation set.
+There's one more that I'm going to supply you, because I don't think you'd guess it.
+Why should you? It's number four.
+There are more than this, this is a sample.
+And these are the ones we're going to need in order to solve that problem, by way of illustration.
+So the fourth one is that, if you have the integral of p of x, over q of x, then you divide.
+If you can reach way back into high school and figure out how to divide polynomials.
+而所有这些知识，所有这一切，都是用早期形式的Lisp语言编写的。
+因此，减号的表示方式与减1的表示方式不同。
+因此，我们需要进行另一个转换。
+或者更准确地说，吉姆·斯拉格尔在编写他的著名转换程序时需要进行另一个转换。
+就是如果你有减去x的f的积分，那么等于减去f的x的积分。
+因此，这几乎完成了我们安全转换集合。
+我将再给你提供一个，因为我不认为你能猜到。
+为什么你要猜呢？这是第四个。
+这还不止这些，这只是其中的一部分。
+这些是我们为了解决那个问题需要用到的，只是作为例子。
+所以第四个是，如果你有x的p除以x的q的积分，那么你要除以q。
+如果你还能回到高中并弄清楚如何除多项式的话。
+
+ But if the degree of the numerator is greater than the degree of the denominator, then it's a knee-jerk always win, you must do it, divide it out.
+So this, then, forms the core of an integration program, that will integrate almost nothing.
+But actually, almost nothing is integrable anyway, so it's a good head start.
+So let's see how we would put this into some kind of procedure.
+Some kind of framework for deploying the knowledge that we're beginning to develop.
+What we're going to do is, apply all safe transforms.
+That's our first step.
+Then we're going to look in the table, and then we're going to do a test to see if we're done.
+And if we are, we report success.
+But, we're not likely to get done with just that stuff.
+But you know what, there was one transformation up here, which breaks my little diagram.
+Which one is it? It's the third one, right? Because this picture does not reflect what happens when you apply number three.
+但是，如果分子的次数大于分母的次数，那么这就是一个膝反应总是胜利的，你必须这样做，将其除掉。
+因此，这就构成了一个集成程序的核心，几乎不会集成任何内容。
+但实际上，几乎没有什么是可积的，所以这是一个良好的起点。
+那么让我们看看如何将其转化为某种程序。
+为部署我们开始开发的知识建立某种框架。
+我们将做的是，应用所有安全变换。
+这是我们的第一步。
+然后我们将在表格中查找，然后进行测试以查看我们是否完成。
+如果是，我们报告成功。
+但是，我们不太可能只凭这些就完成。
+但你知道吗，这里有一个转换打破了我的简单图表。
+是哪一个呢？是第三个吧？因为这张图片不反映你应用第三个时发生的情况。
+
+ Because it breaks the problem up, not into just one problem, but into a whole bunch.
+So we have to extend our graphical device for talking about this by a little bit, and show what is called an "and node".
+So we've got a program core, we've got a table of integrals, we've got a few transformations, we've got an architecture, a way of putting that stuff together.
+And now we can try it out on our sample problem.
+So let's have a go at that.
+Let's see, this one immediately transforms into 5x to the fourth over 1 minus x squared to the 5/2 dx.
+And that in turn, immediately transforms into the integral of x to the fourth over 1 minus x squared to the 5/2, dx.
+This program, by the way, is a dawn-age program.
+This was written by a nearly blind, and subsequently completely blind, graduate student by the name of James Slagle in 1960, a long time ago.
+The reason I gave it to you today is because, that by describing it, I am giving you a one-lecture course in artificial intelligence.
+由于它将问题分解为不仅仅是一个问题，而是一系列问题。
+因此，我们必须稍微扩展我们用来讨论这个问题的图形化工具，展示所谓的“与节点”。
+所以我们有一个程序核心，我们有一个积分表，我们有一些变换，我们有一种将这些东西放在一起的架构。
+现在我们可以尝试在我们的示例问题上使用它。
+所以让我们试一试。
+看，这个问题立即变换为5x的4次方除以1减x的平方的5/2次方，对x的积分。
+而这立即变换为x的4次方除以1减x的平方的5/2次方对x的积分。
+顺便说一句，这个程序是一个黎明时代的程序。
+它是由一个几乎失明、后来完全失明的研究生詹姆斯·斯拉格尔在1960年编写的，很久很久以前了。
+我今天给你们带来这个的原因是，通过描述它，我给你们提供了一次关于人工智能的单讲课程。
+
+ He anticipated so much of the subsequent 20 years, that talking about his program, which is possible in one day, is a miniature introduction to the whole field.
+So Slagle, as he was doing this on an antique computer, almost no memory, almost no speed, only slightly faster than mice running around on a treadmill.
+He was able to write a program that did extremely well when benchmarked against freshmen.
+And the way you benchmark against freshman, of course, is you give it an examination, drawn from the previous MIT finals for four or five years, the hardest problems.
+And this was the hardest problem that it solved.
+So at this point, with what we've got so far, we would be stuck.
+We have no transformation that can take us further, so we need something else.
+And what we need by way of something else, is some transformations that we will describe as-- perhaps we'll call them, heuristic transformations.
+A funny word, meaning a method that often works isn't guaranteed to work.
+他对接下来的二十年预见了很多，所以讨论他的计划，虽然在一天内完成，却是整个领域的简介。
+所以斯莱格在一台古董电脑上进行这项工作，几乎没有内存，几乎没有速度，只比小白鼠在跑步机上奔跑稍快一点。
+他能够编写出一套与大一学生进行基准测试相当出色的程序。
+当然，你要与大一学生进行基准测试的方法是给它一套来自麻省理工学院过去四五年期末考试的题目，其中最难的问题就是这个程序成功解决的问题。
+所以在此时，就我们目前所拥有的，我们会被卡住。
+我们没有能够进一步发展的转化方式，所以我们需要其他的东西。
+而我们需要的其他东西，可以用一些转化方法来形容——也许我们可以称之为启发式转化。
+一个有趣的词，意味着一种经常有效但不保证有效的方法。
+
+ It's not an algorithm in the usual sense that we talk about algorithms.
+But rather, it's an attempt.
+So these things I'm going to talk about now, are sometimes useful, not always useful.
+Sometimes take you into a blind alley, don' always work.
+But you can't get an A in calculus without knowing some of them.
+So you said, some kind of trig substitution.
+So here is some kind of trig substitution.
+We'll call this heuristic transformation A.
+You have a function sine x, cosine x, tangent of x, cotangent of x, secant of x, and cosecant of x.
+And we all know from high school trigonometry, that we can rewrite that as a function of sine x, and cosine x.
+Or we can rewrite that as a function of tangent of x, and cosecant of x.
+Or we can rewrite that as function of cotangent of x, and the secant of x.
+So that's a transmission from trigonometric form, into another trigonometric form.
+It's not always a good idea, sometimes it helps.
+Well that's just part one of our suite of heuristic transformations.
+Stop.
+这段文字不包含提示。
+将以下文本翻译成中文：
+这不是我们通常谈论的算法。
+而是一种尝试。
+所以我现在要谈论的这些东西，有时候有用，有时候没有用。
+有时候会让你走上一条死胡同，不总是有效。
+但是如果你不知道其中一些东西，就不可能在微积分中获得A。
+所以你说，一种三角代换。
+这里有一种三角代换。
+我们将这个启发式变换称为A。
+你有一个正弦 x，余弦 x，正切 x，余切 x，正割 x 和余割 x 的函数。
+我们都知道，根据高中三角学，我们可以将其重写为正弦 x 和余弦 x 的函数。
+或者我们可以将其重写为正切 x 和余割 x 的函数。
+或者我们可以将其重写为余切 x 和正割 x 的函数。
+所以这是从三角形式到另一种三角形式的转换。
+这并不总是一个好主意，有时候会有帮助。
+那只是我们一系列启发式变换的第一部分。
+停止。
+
+ There are others that we need to have in our repertoire, in order to solve the problem.
+One of them is a family of transformations, which I'll show you only one.
+It goes like this, if you have the integral of a function, of the tangent of x, then you can rewrite that as the integral of a function of y over 1 plus y squared dy.
+So that's a transformation from a trigonometric form into a polynomial form.
+So it gets rid of all that trigonometric garbage we don't want to deal with.
+And there's a whole family of things like that, just as there's a family of transformations like so, but this is enough to give you flavor.
+Now there's a C that we need as well.
+And that's going to be your proper knee-jerk reaction when you see something of the form 1 minus x squared.
+What do you do when you see that? AUDIENCE: [INAUDIBLE] What's that Rhana? Rhana: 1 + 6 * 1 - 6 Well wait a second.
+We could do that.
+But there's another thing we can do.
+Christian, have you got something you can suggest? Where's our Hungarian?
+以下文本内容不包含提示。
+
+
+我们需要掌握其他技巧来解决这个问题。
+其中之一就是变换家族，我只给你展示其中一种。
+变换的方式是这样的：如果你有函数的积分，其中包含x的正切函数，那么你可以将它重写为y的函数对1加y平方的积分。
+这样就将三角函数的麻烦全部去掉了，我们不想处理它们。
+除此之外，还有一整个与这类似的变换家族，但这已足够让你体会到。
+现在我们还需要一个C。
+当你看到形式类似于1减x平方时，你会有什么反应？
+
+观众：【无法听清】
+那是什么，Rhana？
+Rhana：1 + 6 * 1 - 6。
+等等。
+我们可以这样做。
+但还有另一种方法。
+Christian，你有什么建议吗？我们的匈牙利人在哪里？
+ Our Turk, our young Turk.
+Yeah, what do you think? AUDIENCE: I actually don't remember.
+I mean, I think it might have been 10.
+SPEAKER 1: Well, let's see.
+Cosine squared plus sine squared equals 1.
+So, what's that suggest to you? So it suggests that we make a transformation that involves x equals sine y.
+So [? Silla ?] doesn't actually have to remember that anymore because going forward, she will never have to integrate anything personally in her life, she can just simulate the program.
+So these go from polynomial form, back into trigonometric form.
+So you have three of these heuristic transformations.
+We've got four safe transformations.
+Let's see if we can make any progress on our integration problem.
+OK so keeping track of what we've been using, this is safe transformation number one, this is safe transformation number two.
+What do we do next? We decided there were no more safe transformations that apply.
+But now we can look at our heuristic transformations and behold, we see what?
+我们的土耳其人，我们的年轻土耳其人。
+是的，你觉得怎么样？听众：我实际上不记得了。
+我的意思是，我觉得可能是10。
+发言者1：好吧，我们来看看。
+余弦平方加正弦平方等于1。
+那么，这对你有什么意义？所以，这表明我们进行了一个涉及x等于sin y的转换。
+所以[? Silla ?] 现在不需要再记住这个了，因为从现在开始，她在生活中将永远不需要亲自进行任何积分，她可以只是模拟程序。
+所以这些从多项式形式转化回三角形式。
+所以我们有三个这些启发式转换。
+我们还有四个安全转换。
+让我们看看我们是否可以在积分问题上取得任何进展。
+好的，所以保持追踪我们正在使用的内容，这是安全转换一，这是安全转换二。
+接下来我们该怎么办？我们决定没有更多适用的安全转换。
+但是现在我们可以看看我们的启发式转换，看到了什么？
+ AUDIENCE: C SPEAKER 1: What? AUDIENCE: Applying transformation C.
+SPEAKER 1: Transformation C suggests that we do x equals the sine y.
+And now we get the integral of sine to the fourth y over cosine to the fourth y dy, right.
+All good, I see some confused, worried, concerned looks.
+Maybe I've made a mistake, perhaps I should use notes.
+Well no, wait a minute.
+For those of you who have a concerned look, remember that if x equals a sine y, then dx is equal to cosine y dy.
+That's why it's cosine to the fourth not cosine to the fifth, as you were perhaps thinking it might be.
+So now we've made some progress.
+We look at this, we say, are there any safe transformations that apply? And the answer is, no.
+Now we look for a heuristic transformation that might apply, and I say, what do you see? Which one? What's that? AUDIENCE: [INAUDIBLE].
+SPEAKER 1: She said something unintelligible, but what she probably said is, that this looks like a pattern that might match with the heuristic transformation A, right?
+听众：C 发言人 1：什么？听众：应用转换 C。
+发言人 1：转换 C 表明我们要做 x 等于正弦 y。
+现在我们得到正弦的四次方 y 除以余弦的四次方 y 的积分，对吧。
+好的，我看到有些人困惑、担忧、关注的表情。
+也许我犯了个错误，也许我应该使用笔记。
+等一下，不对。
+对于那些有困惑表情的人，记住如果 x 等于正弦 y，那么 dx 等于余弦 y dy。
+这就是为什么它是余弦的四次方而不是余弦的五次方，正如你们可能认为的那样。
+所以现在我们取得了一些进展。
+我们看看这个，我们说，有没有适用的安全转换？答案是否定的。
+现在我们寻找可能适用的启发式变换，我说，你们看到了什么？哪一个？那是什么？听众：[不可理解的声音]。
+发言人 1：她说了些听不懂的话，但她可能说的是，这看起来像是可能与启发式变换 A 相匹配的模式，对吧？
+ Because we have a function in which the variable is buried, universally in sines, or cosines, or tangents, or cotangents, or secants, or cosecants.
+And we know we can rewrite that in one of three ways.
+It's already written as a function of sine and cosine.
+But we can also rewrite that in terms of tangent and cosecant.
+Or cotangent and secant.
+So when we do that, we can go this way, and we can get the integral of 1 over the cotangent of x dx.
+That's g3 up there.
+Or we can do it down this path, and get the integral of tangent of x dx.
+And of course, those are both to the fourth.
+But know what, I've broken my little graphical diagram again.
+Where did it go, it's disappeared.
+There it is.
+How have I broken it? Because with transformation A, I've introduced a possibility that a particular problem can be transformed into more than one kind of problem, any of which will be the solution to my problem.
+So far I've got an and node, but now I've got to introduce an or node.
+因为我们有一个函数，其中的变量通常是正弦、余弦、正切、余切、正割或余割。
+而且我们知道我们可以用三种方式来重写它。
+它已经写成了正弦和余弦的函数形式。
+但我们也可以将其改写为正切和余割的形式。
+或者余切和正割的形式。
+所以当我们这样做时，我们可以通过这种方式获得 1/余切(x) dx 的积分。
+那是上面的 g3。
+或者我们可以通过这条路径，获得正切(x) dx 的积分。
+当然，这两个都是四次积分。
+但要知道，我又弄乱了我的图形图表。
+它到哪里去了，它消失了。
+在这里。
+我是怎么弄乱了它呢？因为通过转换 A，我引入了一种可能性，即特定问题可以转化为多种问题之一，而任何一种问题都将是我的问题的解决方案。
+到目前为止，我得到了一个与节点，但现在我必须引入一个或节点。
+
+ Because now we have an example of something that can be solved one of two different ways, and we don't care which one it is.
+Now you'll notice that there's already some confusion here, because how can you tell the difference between an and node and an or node.
+So the universal convention is, you draw an arc over the and nodes.
+And that makes it look like an A, so it's easy to remember.
+So those are and nodes.
+And now, we have the method of problem reduction, and this is sometimes called a problem reduction tree.
+Sometimes it's called an and/or tree, and sometimes it's called a goal tree, because this tree of problems is a tree that shows how our goals are related to one another.
+So these are items for your vocabulary that are all synonymous.
+Problem reduction tree, and/or tree, goal tree, all the same thing.
+Now you have a name for it, you've got some power over it.
+So when we get a situation like this, unlike the previous situation, which we suggested might come up in transformation A.
+因为现在我们有一个可以用两种不同方法解决的例子，而且我们不在乎哪一种方法。
+现在你会注意到这里已经有一些混乱了，因为你如何区分and节点和or节点之间的区别。
+因此，普遍的约定是，在and节点上画一条弧线。
+这使它看起来像一个A，因此很容易记住。
+所以这些都是and节点。
+现在，我们有了问题化简法，有时也称为问题化简树。
+有时它被称为and/or树，有时它被称为目标树，因为这个问题树展示了我们的目标是如何相关的。
+所以这些词汇都是同义词。
+问题化简树、and/or树、目标树，都是同一件事。
+现在你已经有了一个名字，你对它有了一些掌控力。
+所以当我们遇到像这样的情况时，与之前的情况不同，以前的情况我们认为可能发生在转变A中。
+
+ Let's see, we've got one, two, C, and this one is A, it's an or node.
+Which one of these problems do we work on? Well Slegle, who considered himself to be modeling a freshman, modeling the intelligence of a freshman, modeling something that, after all, you have to be pretty smart to do, right.
+Most people don't know how to do integration.
+Everybody at MIT knows how to do integration.
+You would think that somebody, therefore, that knows how to do integration is pretty smart.
+What would a smart person do, when faced with this choice? Well, a smart person would say, which of these two problems is easier? So how do you think you might determine which of two, or many algebraic expressions is the easiest to integrate? What's your name? AUDIENCE: Andrew Carrol.
+SPEAKER 1: Andrew, what do you think? AUDIENCE: Based on whichever one feels more familiar.
+SPEAKER 1: Feels.
+AUDIENCE: Yes.
+SPEAKER 1: Feels.
+AUDIENCE: You asked, how would I decide.
+SPEAKER 1: Yeah, how would you decide? How would you feel it?
+让我们看看，我们有一个、二、C，这个是A，是一个或节点。
+这些问题中我们要解决哪一个？好吧，斯莱格尔认为自己在模拟一个大一新生的思维，模拟一个，说到底，你得相当聪明才能做到的事情，对吧。
+大多数人不知道如何进行积分。
+麻省理工学院的每个人都知道如何进行积分。
+因此，你会认为，知道如何进行积分的人就是聪明的。
+一个聪明的人在面临这个选择时会做什么？嗯，一个聪明的人会说，这两个问题中哪一个更容易？那么你如何确定哪个代数表达式更容易积分呢？你叫什么名字？观众：安德鲁·卡罗尔。
+发言人1：安德鲁，你觉得呢？观众：基于哪个更熟悉。
+发言人1：感觉。
+观众：是。
+发言人1：感觉。
+观众：你问，我会如何决定。
+发言人1：是啊，你会选择什么？你会感觉到什么？
+ AUDIENCE: I would feel that the tangent is more familiar.
+SPEAKER 1: Which one? AUDIENCE: I feel that the tangent [INAUDIBLE].
+SPEAKER 1: Yeah, but I wonder how we could make it a little bit more precise, this idea of simplicity.
+The young Turk has a suggestion.
+What? AUDIENCE: I had a suggestion until you said this idea of simplicity.
+So then I realized that what I was about to suggest wasn't going to clarify simplicity, but I was going to say, whichever one we've had more encounters with, or more experience with.
+SPEAKER 1: Yeah, if there was something here with a hyperbolic tangent, you might say, well, stay away from that.
+[? Yinid ?]? AUDIENCE: To which one of those the easier transformation is applied on the next step.
+SPEAKER 1: Like, somebody do a little look ahead, and see which kind of thing would be next to you? I don't know, maybe.
+Oh, we've got lots of people, all at the same time.
+I don't know all your names yet.
+Shoot.
+Erica, I know you.
+观众：我会觉得正切更加熟悉。
+
+发言人1：哪一个？
+观众：我觉得正切【不清楚】。
+
+发言人1：是的，但我想知道我们如何能让它更加精确，这个简单的想法。
+年轻人有建议。
+什么？
+观众：在你说这个简单的想法之前，我有一个建议。
+所以后来我意识到我原本要建议的不会阐明简洁，但我要说的是，我们遇到过哪一个更多次，或者有更多经验。
+
+发言人1：是的，如果这里有一个双曲正切，你可能会说，好吧，远离它。
+【? Yinid ?】？
+观众：应用于下一步变换的哪一个更容易。
+
+发言人1：像是有人先稍微往前看一下，看看接下来会有哪种情况？我不知道，也许。
+哦，我们同时有很多人。
+我还不知道你们的名字。
+该死。
+Erika，我知道你是谁。
+
+ AUDIENCE: What's look it up in the table and see [INAUDIBLE].
+SPEAKER 1: Oh, you could look it up in the table and see if something is in it, you could do that.
+But this is tangent to the fourth, so that's not in the table.
+Ariel? AUDIENCE: I choose the one without the reciprocal.
+SPEAKER 1: Why? AUDIENCE: It is because when people see one it's like, oh man, it jut not going to work.
+SPEAKER 1: Yeah, we're on the right track.
+Claire? AUDIENCE: On an extremely simple level, I choose whichever one has the least symbols in it.
+SPEAKER 1: The fewest symbols in it.
+Now we're really getting somewhere, because you can measure that, right, there's a little program Why Brett, there you are.
+AUDIENCE: I would say, every [INAUDIBLE] expression can be written as, having a number of functions, we could say all these functions, multiplied together, divided, and you can just choose with the least amount of [? iterations ?].
+观众：我们可以在表格中查找并查看【不可听清楚】。
+发言人1：噢，你可以在表格中查找并查看是否有相应的内容，你可以这样做。
+但是这是对于第四项的切线，所以不在表格中。
+Ariel？观众：我选择没有倒数的那个。
+发言人1：为什么？观众：因为当人们看到一个倒数的时候，就像是，哦，天啊，这不会起作用。
+发言人1：是的，我们正走在正确的道路上。
+Claire？观众：在一个极简单的层面上，我选择那个符号最少的。
+发言人1：符号最少的。
+现在我们真的有所进展，因为你可以衡量一下，对吧，有一个小程序。
+Brett，你在这儿啊。
+观众：我想说，每个【不可听清楚】表达式都可以写成，有一些函数的形式，我们可以说所有这些函数相乘再除，然后你只需要选择最少数量的【? 迭代】。
+
+ SPEAKER 1: Well I heard it, perhaps others didn't but what Brett said, is he suggested that we should measure depth of functional composition.
+So the number of symbols may not matter, because if you have x plus x plus x plus x, out to a hundred, that would not be hard to integrate.
+But if you've got something that is really deeply nested under a lot of functional compositions, that could be a problem.
+And that's in fact, what Slegle decided to use, after trying several alternatives.
+So if we measure the depth of the functional composition, this is the winner, and we put the other one on the shelf, at least for the moment.
+And now we have tangent to the fourth x dx.
+Do I need the safe transformation supply? No.
+Which of the-- you know something has to apply, otherwise it wouldn't be up here as an example.
+So what of the heuristic transformation supply? Elliott.
+AUDIENCE: [INAUDIBLE] SPEAKER 1: Yeah, B bravo.
+Military background or something like that.
+Maybe he flies airplanes.
+SPEAKER 1：嗯，我听到了，也许其他人没有听到，但是Brett说了，他建议我们应该测量功能组合的深度。
+所以符号的数量可能并不重要，因为如果你有x加x加x加x，一直到一百，那不难进行整合。
+但是如果你有一些嵌套在很多功能组合下面的东西，那可能是个问题。
+实际上，这就是Slegle在尝试了几种替代方法之后决定采用的。
+所以如果我们测量功能组合的深度，这个是获胜者，而把其他的放在书架上，至少暂时是这样。
+现在我们有正切的四次方x dx。
+我需要安全转换供应吗？不需要。
+哪个启发式转换供应？Elliott。
+听众：[无法听清] SPEAKER 1：是的，B，布拉沃。
+可能是军事背景或者其他什么原因。
+也许他开飞机。
+
+ OK so B says, it is in fact a function of the tangent.
+And when we do that, we've got to make a substitution, that y is equal to the tangent.
+So that means that this becomes the integral of y to the fourth over 1 plus y squared.
+And that's by transformation B, and the transformation is y equals tangent of x.
+The tangent-- I guess I've lost track of the fact that I've already transformed a y, but relabeling doesn't matter.
+All right so that's progress, maybe.
+But don't see this in any of the heuristic transformations, what do I do now? I didn't have to look in the heuristic transformations, because one of the safe transformations applies.
+Because this thing is a rational function and the degree of the numerator is greater that the degree of the denominator, so I have to divide.
+And when I divide, and that by the way is number four, I get what? Is anybody good high school algebra that can help me out with that?
+好的，B说，这实际上是一个正切函数。
+当我们这样做时，我们必须进行一个替换，即y等于正切。
+所以这意味着这变成了y的四次方除以1加上y的平方的积分。
+这是通过变换B得出的，变换是y等于x的正切。
+嗯，我想我已经忘记了我已经转换了一个y，但重命名并不重要。
+好的，这是进展，也许。
+但是在任何启发式变换中都没有看到这个，现在我该怎么办？我没必要查看启发式变换，因为安全变换之一适用。
+因为这个东西是一个有理函数，而且分子的次数大于分母的次数，所以我得除以它。
+当我除以它，对了，这是第四步，我得到了什么？有没有擅长高中代数的人能够帮助我？
+ AUDIENCE: Y squared minus 2 plus negative 2 over 1 plus y squared SPEAKER 1: Exactly, y squared minus 1 plus 1 over 1 plus y squared, I think.
+Now what? Now we're really getting close to getting through this, because that is a sum.
+And by virtue of the fact that it's a sum, that divides into three pieces, and the top piece is the integral of y squared, the middle piece is the integral of minus 1, and the bottom piece is the integral of 1 over 1 plus y squared dy in all cases.
+Gosh, if I look this up, I've found it.
+That's up there, that's letter B.
+So I'm done with that.
+This one I can transform again, by virtue of 1, and now I get the integral dy.
+That's in there, that's B as well.
+As this one, I don't know.
+But I'd better keep track of what I'm doing here.
+This is in the and node, so I've got to do all of those.
+I can't give up on that last thing.
+And that and transformation is transformation number 3.
+观众：Y的平方减去2加负2除以1加Y的平方。
+
+发言者1：没错，Y的平方减去1加1除以1加Y的平方，我认为是这样的。
+现在怎么办？现在我们离成功越来越近了，因为这是一个求和。
+根据它是一个求和的事实，它可以分成三个部分，顶部部分是Y的平方的积分，中间部分是-1的积分，底部部分是1除以1加Y的平方的积分，在所有情况下都是如此。
+天哪，如果我查一下，我就找到了。
+那在那里，那是B。
+所以我完成了。
+我可以通过1再次进行转换，现在我得到的是dy的积分，那也是B。
+至于这个，我不知道。
+但我最好仔细记录自己在做什么。
+这是在节点内，所以我必须完成所有这些。
+对于最后一件事我不能放弃。
+而这个和转换是第3个转换。
+
+ So this is in the table, this is in the table, we still have this to do, but that's C, heuristic transformation C.
+We have 1, plus y squared, then with the transformation C, with y-- this is y squared-- y equals tangent of z And then we get to the integral of dz and that's in the table and, we're done.
+So now we've solved the problem.
+It's the hardest problem that appeared in that half decade on MIT 18 01 finals.
+This is exactly the problem that was given, except that it started here.
+I put the other two pieces on just to illustrate a couple of the transformations.
+But that's a problem that it solved.
+And now that we've seen an example, we can finish up what we talked about a little bit ago, having to do with the architecture of this thing.
+So far, all we've done is talk about the safe transformations, but now we know that if we're not done, we need to find a problem to work on using that depth of functional composition business.
+And then after that we apply heuristic transformation.
+这是在表格中的内容，这是在表格中的内容，我们还有这个要做，但那是C，启发式转换C。
+我们有1，加上y的平方，然后通过转换C，通过y - 这是y的平方 - y等于z的正切，然后我们得到dz的积分，而且这在表格中，并且我们完成了。
+所以现在我们解决了问题。
+这是在麻省理工学院18 01期末考试中出现的最困难的问题。
+这正是给出的问题，只是它从这里开始。
+我加上了另外两个部分，只是为了说明一些转换。
+但这是一个解决的问题。
+既然我们已经看到一个例子，我们可以完成我们之前讨论的与这个事物的架构有关的部分。
+到目前为止，我们所做的只是讨论安全的转换，但现在我们知道，如果我们还没有完成，我们需要找一个使用这个函数组合深度的问题进行工作，然后在此之后应用启发式转换。
+
+ And the way Slagle designed his program is, he found just one problem to work on, did one transformation, then went back around the loop.
+Because these heuristic transformations are a little harder to apply than the safe ones.
+So I'll given you an accurate portrayal of what this program did, except for one thing.
+Which I would like, now, to go back and patch up.
+And that thing is over here.
+What to do with something like this.
+Well we got to that in a board that's disappeared, but when we tried to deal with this, we had to find a heuristic transformation.
+And when we decided to work on this, it must have been the case that this was the simplest problem at a leaf node that has not yet been solved.
+So what's the functional composition depth of this? It's 3.
+Back over here, we have something that has a depth of functional composition of 2.
+揚納古伊德（Slagle）設計他的程序的方式是，他只找到一個問題進行處理，進行一次轉換，然後再回到循環中。
+因為這些啟發式轉換比安全轉換要難一些。
+所以，除了一件事外，我將給出有關這個程序的準確描述。
+現在，我想要回頭修補這個東西。
+這個東西在這裡。
+像這樣的東西該怎麼辦呢？我們在一個已經消失的板子上解決了這個問題，但當我們試圖處理這個問題時，我們必須找到一個啟發式的轉換。
+當我們決定處理這個問題時，這可能是在一個葉子節點上仍未解決的最簡單的問題。
+那麼，這個問題的功能組合深度是多少？是3。
+回到這裡，我們有一個功能組合深度為2的東西。
+
+ So when the program actually ran on this particular problem, it stopped a few inches short of the finish line, And went back and screwed around with that other problem for a little bit, before it gave up and came back here.
+So it's always looking across the whole tree, the leaves of the tree.
+Whenever it has to find a place to work on with the heuristic transformation, it happened to look at all the leaves of the tree that had not yet been dealt with, tried to find the easiest one, and that could involve a lot of backing up and starting over on a branch of the tree that it had previously ignored.
+A small detail, not a particularly important one.
+Now where are we.
+We've got that guy there.
+We've got our complete architecture.
+We've got our solved problem.
+And now we can start reflecting on what we've done.
+We can say, for example, how good an integration program is this? And the answer is, it was pretty good.
+This machine that Slagle was using was a machine that was over in building 26.
+因此，当该程序在这个特定的问题上运行时，它在终点线前停了几英寸，然后回到那个其他的问题上闲逛了一会儿，然后放弃并回到这里。
+因此，它总是在整棵树上查找，树的叶子。
+每当它需要找到一个可以应用启发式转换的地方时，它恰好查看了尚未处理的所有树叶子，试图找到最容易的一个，这可能涉及到在以前忽略的树枝上进行许多回退和重启。
+这是一个细节，不是特别重要的细节。
+现在我们在哪里。
+我们有那个人在那里。
+我们有我们完整的架构。
+我们解决了问题。
+现在我们可以开始反思我们所做的事情。
+我们可以说，例如，这个集成程序有多好？答案是，它非常不错。
+Slagle使用的这台机器在26号楼里。
+
+ And we were so proud of it, that it was behind glass, and you could go there and watch the tape spin, it was really a delight.
+32k of memory, that's 32k of memory.
+It's amazing that he was able to do anything with a machine of that size.
+Let's see, let's get us a clean one.
+Can't do board geometry and talk at the same time.
+We can now ask some questions about how well the program performed.
+It was given 56 of the hardest problems, and it got 54 right.
+What happened when it didn't get the other two? Well, you might be right if you said, oh it probably ran out of memory, since it had 32k.
+But in fact, it just was lacking 2 transformations that were needed, in order to solve the whole entire set of final quiz problems.
+So when a program fails, that's often the most interesting question you can ask.
+This is an exception.
+This failed for uninteresting reasons on 2 of the 56 problems that it was given to.
+And now the next question you can say is, what is the depth of the tree in the maximal case?
+我们为此感到非常自豪，它被放在玻璃后面，你可以去那里观看磁带旋转，真是令人愉快。
+32k的存储器，就是32k的存储器。
+能用这样大小的机器做任何事情真是太不可思议了。
+让我们看看，让我们找一个干净的。
+边谈话边进行板子几何是做不到的。
+我们现在可以就程序的性能提出一些问题了。
+它给出了56个最难的问题，答对了54个。
+当它没有答对另外两个时发生了什么？嗯，如果你说它可能内存用完了，因为它只有32k，那么你也许是对的。
+但事实上，它只是缺了2个需要的转换来解决整个最后一套测验问题。
+所以当一个程序失败时，这通常是你可以问的最有趣的问题。
+这是一个例外。
+这个程序在56个问题中的2个上失败是无趣的原因。
+现在你可以问的下一个问题是，在最大情况下树的深度是多少？
+ And the answer is, it's that case we just worked out.
+And since I've once again lost the whole tree, I'll tell you that it's depth was 7 when you take off that minus 5.
+So in the worst case, this thing had to get down seven levels.
+That's the worst case, a more interesting question is what was the average depth? And that was approximately 3.
+And now we're beginning to say something, not only about Slagle's model of how a freshman works, but we're beginning to say something about the nature of the domain.
+In the domain of calculus problems, integrals expressions that are given to freshman, in that domain, the average depth of problem reduction needed to solve the problem was 3.
+So that's not very complicated.
+If it were 10, you would say, wow, how can anybody ever do those problems? If it were 5, you'd say, well only people destined to be math professors are going to get anything right.
+If it's 3, us ordinary mortals can do a pretty good job.
+答案是，就是我们刚刚解决的那个案例。
+由于我又一次把整个树丢了，我告诉你，当你减去那个负5时，它的深度是7。
+ 所以在最坏的情况下，这个问题必须降到七个层次。
+ 这是最坏的情况，一个更有趣的问题是平均深度是多少？大约是3.
+现在我们开始说些什么，不仅关于斯拉格尔对大一学生工作方式的模型，而且我们开始谈论领域的本质。
+ 在微积分问题领域，给大一学生的积分表达式，在这个领域中，解决问题所需的平均问题降低的深度是3。
+ 所以这并不是很复杂。
+如果是10，你会说，哇，任何人都怎么能解决这些问题？ 如果是5，你会说，只有命中注定要成为数学教授的人才能做对任何事情。
+ 如果是3，我们这些普通的凡人能做得很好。
+
+ Another question of even greater interest is, how many branches were unused? Here's a branch that turned out to be unused, it didn't pursue that.
+And so you might say, well maybe there are a lot of unused branches.
+Maybe you have to be pretty smart about your method for determining what problem to work on, because otherwise you'll go down a lot of rat holes.
+And guess what, here's another statement about the domain.
+In the domain of problems that freshmen could work on a final, the number of unused branches is about 1.
+So that means this tree keeps itself together, and doesn't run down to a very large, bushy, useless tree.
+So this means that the depth of functional composition, which Brett suggested as a technique for recognizing the right problem work on, was a choice that didn't actually matter.
+Because the tree doesn't grow deep, it doesn't go broad.
+It doesn't matter what you use to decide what to work on, because in the worst case, you'll just generate a couple of extra, useless nodes.
+更加有趣的另一个问题是，有多少个分支是未使用的？这是一个未使用的分支，它没有追求那个方向。
+所以你可能会说，也许有很多未使用的分支。
+也许你必须对确定要解决的问题的方法非常聪明，否则你会陷入很多死胡同。
+猜猜，这里还有一个关于领域的陈述。
+在大学新生可以完成的问题领域中，未使用的分支数量约为1。
+这意味着这棵树保持自身的完整性，不会变成一个非常庞大、毫无用处的树。
+所以这意味着，布雷特提出的将功能组合的深度作为识别问题的正确方法，实际上并不重要。
+因为树不会变得很深，也不会变得很宽。
+无论你用什么来决定要解决的问题，最坏的情况下，你只会生成几个额外的、无用的节点。
+
+ But they very quickly run to find a dead end, so you don't have to do anything more with them.
+So now the next thing we need to do is back even further away from this program, and ask ourselves some questions about the nature of what we've been doing.
+And that brings me to the things I've got on that upper right- hand board.
+One of those things as a catechism having to do with knowledge.
+And what we've done informally as we went through this program was, we've asked questions such as, what kind of knowledge is involved in doing this? Well knowledge about transformation.
+Knowledge about how goal trees work and when we're done with a problem.
+Knowledge about what things don't need to be transformed, because you can look them up in a table.
+That's the kind of knowledge that is involved in doing 18 01.
+And if you do 18 0 circuit theory, 6 0 circuit theory or 6 0 Maxwell's equations, this is the same thing.
+但他们很快就会陷入死胡同，所以你不需要再和他们有关系了。
+现在我们要做的下一件事是离开这个程序，进一步思考我们所做的事情的本质。
+这就让我想起了我在右上角黑板上写的东西。
+其中之一是与知识有关的教义问答。
+在我们进行这个程序的过程中，我们以非正式的方式提出了一些问题，比如，参与这个过程需要什么样的知识？嗯，关于转化的知识。
+关于目标树如何工作以及何时完成问题的知识。
+关于哪些事物不需要转化，因为你可以在表格中查找。
+这就是进行18 01所涉及的知识类型。
+如果你进行18 0电路理论、6 0电路理论或6 0麦克斯韦方程，这都是同样的情况。
+
+ You have to ask questions of this sort, about the nature of the knowledge involved, and question number one is always, what kind of knowledge is involved? Is it Kirchhoff's laws, Maxwell's equations, what is it? The next question is, how is the knowledge represented? And our answers here are, well all this stuff, ultimately was represented in list best expressions.
+Some of the knowledge was recorded in a table [? of best ?] expressions to show what transformations there are.
+There was a similar table of integrals.
+Knowledge about goal trees was embedded in the procedure, so it was procedurally represented.
+And so for each of the categories of knowledge, there's a way it gets represented.
+How is it used? Straightforward, transformations are used to make the problem simpler.
+The table is used to trim off and to serve as the bottom of the tree.
+Those are the ways in which the knowledge is used.
+And then there's the question of course of, how much knowledge is required.
+你必须提出这类问题，关于所涉及知识的性质，第一个问题总是，所涉及的是什么类型的知识？是基尔霍夫定律，还是麦克斯韦方程？下一个问题是，这些知识如何表示？我们的答案是，所有这些东西最终都以列表形式表示。
+一些知识被记录在一个表格中，显示出有哪些转换。
+还有一个类似的积分表。
+目标树的知识被嵌入到程序中，因此它是以过程性表示的。
+因此，对于每一类知识，它都有一种特定的表示方式。
+它是如何使用的？简单直接，转换用于简化问题。
+表格用于削减和作为树底。
+这些都是知识的使用方式。
+然后当然还有知识的需求量的问题。
+
+ Something that's useful to know if it's late at night, you have 2 finals the next day, and you're not sure which course you should study.
+So how much knowledge might you suppose was actually in this program? I've shown you a glimpse of the kind of knowledge that's involved in the program.
+I've answered a little bit of question 5, what exactly.
+But how much knowledge was involved.
+You might be surprised by the answer.
+First of all, the table of integrals.
+I've listed only 3 things there.
+There are lots of other things you can think of, like integral of e to the x is e to the x.
+But in the end, what Slagle found is, a table only 26 elements was enough to solve all of these problems.
+How about the transformations here, the safe ones, about 12.
+How about the heuristic ones, about 12.
+So just a few bits and pieces of knowledge, here and there, are sufficient to do everything you need to do, in order to do the integration problems on a calculus final.
+That was a surprise.
+如果是深夜，第二天有两场期末考试，而且你不确定该学习哪门课程，那么有些有用的事情需要知道。
+那么你认为这个项目中实际涉及了多少知识呢？我已经给你展示了项目中涉及到的一些知识。
+我已经回答了第五个问题的一部分，确切地说。
+但其中涉及了多少知识呢？答案可能会让你惊讶。
+首先，是积分表。
+我只列出了其中的三个内容。
+还有很多其他的内容，比如 e 的 x 次方的积分是 e 的 x 次方。
+但最终，Slagle 发现，一个只有 26 个元素的表足以解决所有这些问题。
+那关于这里的变换，安全变换大约有 12 个，启发式变换大约也有 12 个。
+因此，只要零零散散的一些零碎知识就足以完成你需要在微积分期末考试中解决的所有积分问题。
+这真是令人惊讶。
+
+ Another surprise of a similar kind, also about knowledge, is that the relationship between the method to be used, and the characteristics of the problem, was almost a diagonal table.
+That means that you could, in this domain, make the right transformation almost all the time if you're a little bit smart, and never back up.
+That was an observation made by Joel Moses, who became subsequently our provost here at MIT for a while.
+And he wrote a program that could solve anything.
+It would beat the most dedicated mathematicians at integration.
+And its descendents are in MATLAB today.
+But this is how it all works.
+And now you can write one of these things yourself.
+Partly because you now have this catechism.
+This is the kind of stuff you should ask any time you're dealing with a new domain.
+It will make you smarter.
+And this is of course, meta knowledge, this is knowledge about knowledge.
+So this tired aphorism isn't quite what we are going to complete ourselves with.
+另一个相似的惊喜，同样关于知识的，是使用方法和问题特性之间的关系几乎是一个对角线的表格。
+这意味着如果你有一点聪明，几乎所有的时间都能正确地进行转化，而且不需要倒退。
+这是Joel Moses提出的一个观察，他后来成为我们在麻省理工学院的总务长一段时间。
+他编写了一款能够解决任何问题的程序。
+它能够在积分方面击败最专注的数学家。
+而现在的MATLAB就是它的后代。
+这就是它的工作原理。
+现在你也能够自己编写这样的程序。
+部分原因是因为你现在有了这本教科书。
+无论何时你处理一个新的领域，这都是你应该询问的东西。
+它会让你更聪明。
+当然，这是元知识，也就是对知识的认知。
+所以这句陈腐的格言并不能完全描述我们所要完成的。
+
+ We're going to say that knowledge about knowledge is where the real power is.
+Now there's one final thing that this program does for us.
+It tells us something about our appreciation of what it means to be intelligent.
+You know that in the beginning of this hour, I asked you to think about whether a program that could do symbolic integration would be, in any way, or should be considered to any degree, intelligent.
+And I'm imagining that even in these days of MATLAB, and whatnot, many of you said well, yes, I learned how to do that at MIT, or late in high school, so it must be smart.
+But now that we've completed this discussion, I also expect that your feeling of intelligence in this program is somewhat diminished.
+Because what happens is that, when we understand how something works, it's intelligence seems to vanish.
+You've seen this in your friends, right? They solve some problem, they seem super smart.
+Then they tell you how they did it, and they don't seem so smart anymore.
+我们要说，关于知识的知识才是真正的力量所在。
+现在，这个节目还为我们做了最后一件事。
+它告诉我们关于智慧的意义的一些东西。
+你知道，在这一个小时的开始，我问过你们是否认为一个能做符号积分的程序，在某种程度上应该被认为是智能的。
+我想，即使在这些MATLAB等技术发达的日子里，你们中的许多人都说：是的，我在MIT学习过，或者在高中晚期学到了这些，所以它一定很聪明。
+但是现在，我们完成了这个讨论，我也预计你们对这个程序的智能感觉会有所减弱。
+因为当我们了解某件事情的工作方式时，它的智能似乎会消失。
+你们在朋友身上也见过这种情况，对吧？他们解决了一些问题，看起来非常聪明。
+然后他们告诉你他们是怎么做的，再看起来就不那么聪明了。
+
+ So let's conclude our discussion today was a little story.
+A long time ago I was talking with a student who said, computers cannot be intelligent.
+And I said, OK, maybe you're right, but let me show you this program.
+So I showed him the integration program, working on problems like this.
+And after I showed him a couple of those examples, he says, well, all right, I guess maybe they can be intelligent.
+I'm learning how to do that, and it's not always easy.
+Then I made a fatal mistake.
+I said let me show you how it works, and we spent an hour going through it like this.
+And at the end of that time, he turned to me and said, I take it back, it's not intelligent after all.
+It does integration the same way I do.
+所以，让我们总结一下今天的讨论，用一个小故事来做结。
+很久以前，我和一个学生说过，计算机不能智能。
+我说，好吧，也许你是对的，但是让我给你展示一下这个程序。
+于是我给他展示了计算积分的程序，并解决了这类问题。
+在我给他展示了几个例子之后，他说，好吧，我猜也许它们确实可以变得智能。
+我正在学习如何做到这一点，但并不总是容易的。
+然后我犯了一个致命的错误。
+我说，让我给你演示一下它是如何工作的，然后我们花了一个小时像这样详细讨论它。
+在那段时间结束后，他转身对我说，我收回我的话，它实际上并不聪明。
+它进行积分的方式和我一样。
+
