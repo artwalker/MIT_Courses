@@ -2,12 +2,12 @@ MITOCW | Lec-01 PATRICK WINSTON: Welcome to 6034.
 I don't know if I can deal with this microphone.
 We'll see what happens.
 It's going to be a good year.
-We've got [INAUDIBLE] a bunch of interesting people.
+We've got a bunch of interesting people.
 It's always interesting to see what people named their children two decades ago.
 And I find they were overwhelmed with Emilys.
 And there are not too many Peters, Pauls, and Marys, but enough to call forth a suitable song at some point.
 We have lots of Jesses of both genders.
-We have a [INAUDIBLE] of both genders.
+We have a of both genders.
 And we have a Duncan, where's Duncan? There you are, Duncan.
 You've changed your hairstyle.
 I want to assure use that the Thane of Cawdor is not taking the course this semester.
@@ -49,7 +49,7 @@ It's also about perception, and it's about action.
 然后我会简单介绍一下人工智能的历史，并在最后总结一些我们课程运行的条约。
 其中一个是，请不要使用笔记本电脑。
 我会在最后解释为什么我们有这些条约。
-那么，它到底是什么呢？嗯，它肯定与思考有关。
+那么，它到底是什么呢？嗯，它肯定与思考有关
 所以让我们从这里开始，通过给出一个关于人工智能的定义来说，它是关于思考的，不管那是什么意思。
 我的人工智能定义必须相当宽泛。
 所以我们要说它不仅仅与思考有关。
@@ -76,13 +76,13 @@ Even in humanities class, MIT approach is to make models that we can use to expl
 所以我们需要更多的东西。
 因此，我们将讨论针对思考、感知和行动的模型。
 这对你来说应该不陌生，因为模型制作是麻省理工学院的特色。
-当你在酒吧遇到有人问你在麻省理工学院做什么，正确的反应是说，我们学习如何建立模型。
+当你在酒吧遇到有人问你，或者亲戚问你，在麻省理工学院做什么，正确的反应是说，我们学习如何建立模型。
 那就是我们在麻省理工学院做的事情。
 我们使用微分方程来建立模型。
 我们使用概率来建立模型。
 我们使用物理和计算模拟来建立模型。
 无论我们做什么，我们都在建立模型。
-即使在人文课上，麻省理工学院的方法也是制作我们可以用来解释过去、预测未来、理解主题和控制世界的模型。
+即使在人文课上，麻省理工学院的方法也是制作我们可以用来解释过去、预测未来、理解主题和控制世界的模型。**
 
  That's what MIT is about.
 And that's what this subject is about, too.
@@ -231,7 +231,7 @@ And it's such a simple idea, you'll never hear it again in this subject.
 这些就是人工智能的核心内容--方法、算法、表示。
 我想再给你一个例子。
 这是我们在人工智能中称之为生成测试。
-这是一个非常简单的想法，在这个主题中你以后再也不会听到它了。
+这是一个非常简单的想法，在这个主题中你以后再也不会听到它了。**
 
  But it's an idea you need to add to your repertoire of problem solving methods, techniques, procedures, and algorithms.
 So here's how it works.
