@@ -82,7 +82,7 @@ Even in humanities class, MIT approach is to make models that we can use to expl
 我们使用概率来建立模型。
 我们使用物理和计算模拟来建立模型。
 无论我们做什么，我们都在建立模型。
-即使在人文课上，麻省理工学院的方法也是制作我们可以用来解释过去、预测未来、理解主题和控制世界的模型。**
+即使在人文课上，麻省理工学院的方法也是制作我们可以用来解释过去、预测未来、理解主题和控制世界的模型。
 
  That's what MIT is about.
 And that's what this subject is about, too.
@@ -107,7 +107,7 @@ One of the best ways embarrass them is to say here's a bicycle wheel.
 所以我们可以说，人工智能是关于支持构建模型的表示，以促进对思考、感知和行动的理解。
 现在你可能会问我，什么是表示？它有什么作用？所以我想花一点时间告诉你一个关于陀螺仪的故事。
 你们当中有很多人的朋友是学机械工程的。
-最好的方法之一就是给他们看一辆自行车轮。
+让他们尴尬的最好方式之一就是说这里有一个自行车轮子。
 
  And if I spin it, and blow hard on it right here, on the edge of the wheel, is going to turn over this way or this way? I guarantee that what they will do is they'll put their hand in an arthritic posture called the right hand screw rule, aptly named because people who use it tend to get the right answer about 50% of the time.
 But we're never going to make that mistake again.
@@ -127,7 +127,8 @@ Try it.
 我们了解表示法。
 我们要做的是稍微思考一下。
 并使用一些胶带帮助我们仅考虑轮子的一部分。
-所以当轮子飞过顶部时，我想你只需考虑那一部分，当我这样吹它时，那部分会发生什么？它会朝那边飞出，对吗？下一个部分也会朝那边。
+所以当轮子飞过顶部时，我想你只需考虑那一部分，当我这样吹它时，
+那部分会发生什么？它会朝那边飞出，对吗？下一个部分也会朝那边。
 所以当它过来时，它必须朝那个方向去。
 让我做一些地面工作，以确保。
 这感觉非常强大。
@@ -156,7 +157,8 @@ We know that those are not the right representation.
 但这个例子在大多数情况下，你上一年级的时候就非常熟悉了。
 这个问题涉及农夫、狐狸、鹅和谷物。
 河上有一艘漏水的小船，只能载着农夫和他的四个物品中的一个。
-那么这个问题的正确表征是什么呢？可能是一个农夫的图片，也可能是一首关于这种情况的诗，或许是一首俳句。
+那么这个问题的正确表征是什么呢？可能是一个农夫的图片，
+也可能是一首关于这种情况的诗，或许是一首俳句。
 我们知道这些都不是正确的表征。
 
  Somehow, we get the sense that the right representation most involve something about the location of the participants in this scenario.
@@ -175,6 +177,7 @@ How many such situations are there? What do you think, Tanya? It looks to me lik
 不知何故，我们得到的感觉是，正确的描绘最好包括与参与者在这种情景中的位置有关的内容。
 因此，我们可能会画出这样一个图画。
 这是情景，这里是我们的河流，草泥爬满了整个河流，望之令人赞叹。
+(这是一个场景，在这里，以光彩绿色的形式展现着我们富含藻类的河流。)
 这是农夫、狐狸、鹅和谷物。
 一个最初的情况。
 现在还有其他类似的情况，例如。
@@ -201,7 +204,9 @@ So having got the representation, something magical has happened.
 We've got our constraints exposed.
 And that's why we build representations.
 农夫所处的位置是固定的，与其它物品相比，它们可以在河的两边任意一边。
-所以，她坚决地、毫不犹豫地说，有16种可能性，即2的4次方。
+(所以对于农民可能的每个位置，其他事物都可以在河的任一侧。)
+所以，她坚决地、毫不犹豫地说，有16种可能性，
+即2的4次方。
 实际上，我们可以绘制出整个图表，因为它足够小。
 这里有另一个位置，有农夫、狐狸、鹅和谷物。
 实际上，这就是我们想要的位置。
