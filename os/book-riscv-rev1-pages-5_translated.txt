@@ -1,0 +1,500 @@
+Chapter 4 Traps and system calls There are three kinds of event which cause the CPU to set aside ordinary execution of instructions and force a transfer of control to special code that handles the event.
+One situation is a system call, when a user program executes the ecall instruction to ask the kernel to do something for it.
+Another situation is an exception: an instruction (user or kernel) does something illegal, such as divide by zero or use an invalid virtual address.
+The third situation is a device interrupt, when a device signals that it needs attention, for example when the disk hardware ﬁnishes a read or write request.
+This book uses trap as a generic term for these situations.
+Typically whatever code was execut- ing at the time of the trap will later need to resume, and shouldn’t need to be aware that anything special happened.
+That is, we often want traps to be transparent; this is particularly important for interrupts, which the interrupted code typically doesn’t expect.
+第4章 陷阱和系统调用 有三种事件会导致CPU暂停普通指令的执行，并强制转移到处理该事件的特殊代码。
+一种情况是系统调用，当用户程序执行ecall指令请求内核为其执行某些操作。
+另一种情况是异常：指令（用户或内核）执行了非法操作，例如除以零或使用无效的虚拟地址。
+第三种情况是设备中断，当设备发出需要注意的信号时，例如磁盘硬件完成读取或写入请求。
+本书将陷阱作为这些情况的通用术语。
+通常，在陷阱发生时执行的代码通常需要恢复，并且不应该意识到发生了任何特殊情况。
+也就是说，我们通常希望陷阱是透明的；这对于中断尤为重要，因为被中断的代码通常不会预料到中断的发生。
+
+ The usual sequence is that a trap forces a transfer of control into the kernel; the kernel saves registers and other state so that execution can be resumed; the kernel executes appropriate handler code (e.g., a system call imple- mentation or device driver); the kernel restores the saved state and returns from the trap; and the original code resumes where it left off.
+The xv6 kernel handles all traps.
+This is natural for system calls.
+It makes sense for interrupts since isolation demands that user processes not directly use devices, and because only the kernel has the state needed for device handling.
+It also makes sense for exceptions since xv6 responds to all exceptions from user space by killing the offending program.
+Xv6 trap handling proceeds in four stages: hardware actions taken by the RISC-V CPU, an assembly “vector” that prepares the way for kernel C code, a C trap handler that decides what to do with the trap, and the system call or device-driver service routine.
+通常的顺序是，陷阱强制将控制转移到内核；内核保存寄存器和其他状态，以便可以恢复执行；内核执行适当的处理程序代码（例如，系统调用实现或设备驱动程序）；内核恢复保存的状态并从陷阱返回；原始代码在离开的地方继续执行。
+xv6内核处理所有陷阱。
+这对于系统调用是自然的。
+对于中断来说是有意义的，因为隔离要求用户进程不能直接使用设备，并且只有内核具有处理设备所需的状态。
+对于异常来说也是有意义的，因为xv6对来自用户空间的所有异常都会响应并终止有问题的程序。
+Xv6陷阱处理分为四个阶段：由RISC-V CPU执行的硬件操作，准备内核C代码的汇编“向量”，决定如何处理陷阱的C陷阱处理程序，以及系统调用或设备驱动程序服务例程。
+
+ While commonality among the three trap types suggests that a kernel could handle all traps with a single code path, it turns out to be convenient to have separate assembly vectors and C trap handlers for three distinct cases: traps from user space, traps from kernel space, and timer interrupts.
+41 4.1 RISC-V trap machinery Each RISC-V CPU has a set of control registers that the kernel writes to tell the CPU how to handle traps, and that the kernel can read to ﬁnd out about a trap that has occured.
+The RISC-V documents contain the full story [1].
+riscv.h (kernel/riscv.h:1) contains deﬁnitions that xv6 uses.
+Here’s an outline of the most important registers: • stvec: The kernel writes the address of its trap handler here; the RISC-V jumps here to handle a trap.
+• sepc: When a trap occurs, RISC-V saves the program counter here (since the pc is then overwritten with stvec).
+The sret (return from trap) instruction copies sepc to the pc.
+The kernel can write to sepc to control where sret goes.
+尽管三种陷阱类型之间的共性表明内核可以使用单个代码路径处理所有陷阱，但事实证明为三种不同情况分别设置独立的汇编向量和C陷阱处理程序更加方便：来自用户空间的陷阱、来自内核空间的陷阱和定时器中断。
+41 4.1 RISC-V陷阱机制每个RISC-V CPU都有一组控制寄存器，内核写入这些寄存器以告诉CPU如何处理陷阱，并且内核可以读取这些寄存器以了解发生的陷阱的情况。
+RISC-V文档包含了完整的信息[1]。
+riscv.h（kernel/riscv.h:1）包含了xv6使用的定义。
+以下是最重要的寄存器概述：• stvec：内核在这里写入其陷阱处理程序的地址；RISC-V跳转到这里处理陷阱。
+• sepc：当发生陷阱时，RISC-V将程序计数器保存在这里（因为pc然后被stvec覆盖）。
+sret（从陷阱返回）指令将sepc复制到pc。
+内核可以写入sepc来控制sret的跳转位置。
+
+ • scause: The RISC-V puts a number here that describes the reason for the trap.
+• sscratch: The kernel places a value here that comes in handy at the very start of a trap handler.
+• sstatus: The SIE bit in sstatus controls whether device interrupts are enabled.
+If the kernel clears SIE, the RISC-V will defer device interrupts until the kernel sets SIE.
+The SPP bit indicates whether a trap came from user mode or supervisor mode, and controls to what mode sret returns.
+The above registers relate to traps handled in supervisor mode, and they cannot be read or written in user mode.
+There is an equivalent set of control registers for traps handled in machine mode; xv6 uses them only for the special case of timer interrupts.
+Each CPU on a multi-core chip has its own set of these registers, and more than one CPU may be handling a trap at any given time.
+When it needs to force a trap, the RISC-V hardware does the following for all trap types (other than timer interrupts): 1.
+• scause：RISC-V在这里放置一个数字，描述陷阱的原因。
+
+• sscratch：内核在这里放置一个有用的值，用于陷阱处理程序的起始。
+
+• sstatus：sstatus中的SIE位控制设备中断是否启用。
+如果内核清除SIE，RISC-V将推迟设备中断，直到内核设置SIE。
+SPP位指示陷阱是来自用户模式还是监管模式，并控制sret返回的模式。
+上述寄存器与在监管模式下处理的陷阱相关，不能在用户模式下读取或写入。
+对于在机器模式下处理的陷阱，也有一组等效的控制寄存器；xv6仅将其用于定时器中断的特殊情况。
+多核芯片上的每个CPU都有自己的这些寄存器集，任何时候可能有多个CPU处理陷阱。
+当需要强制触发陷阱时，RISC-V硬件对于除定时器中断之外的所有陷阱类型执行以下操作：1.
+ If the trap is a device interrupt, and the sstatus SIE bit is clear, don’t do any of the following.
+2.
+Disable interrupts by clearing SIE.
+3.
+Copy the pc to sepc.
+4.
+Save the current mode (user or supervisor) in the SPP bit in sstatus.
+5.
+Set scause to reﬂect the trap’s cause.
+6.
+Set the mode to supervisor.
+7.
+Copy stvec to the pc.
+42 8.
+Start executing at the new pc.
+Note that the CPU doesn’t switch to the kernel page table, doesn’t switch to a stack in the kernel, and doesn’t save any registers other than the pc.
+Kernel software must perform these tasks.
+One reason that the CPU does minimal work during a trap is to provide ﬂexibility to software; for example, some operating systems don’t require a page table switch in some situations, which can increase performance.
+You might wonder whether the CPU hardware’s trap handling sequence could be further simpli- ﬁed.
+For example, suppose that the CPU didn’t switch program counters.
+如果陷阱是一个设备中断，并且sstatus的SIE位清除，不要执行以下任何操作。
+2.
+通过清除SIE来禁用中断。
+3.
+将pc复制到sepc。
+4.
+将当前模式（用户或超级用户）保存在sstatus的SPP位中。
+5.
+将scause设置为反映陷阱的原因。
+6.
+将模式设置为超级用户。
+7.
+将stvec复制到pc。
+42 8.
+从新的pc开始执行。
+请注意，CPU不会切换到内核页表，不会切换到内核中的堆栈，并且不会保存除了pc之外的任何寄存器。
+内核软件必须执行这些任务。
+ CPU在陷阱期间执行最少的工作之一是为软件提供灵活性；例如，某些操作系统在某些情况下不需要进行页表切换，这可以提高性能。
+您可能想知道CPU硬件的陷阱处理序列是否可以进一步简化。
+例如，假设CPU不切换程序计数器。
+
+ Then a trap could switch to supervisor mode while still running user instructions.
+Those user instructions could break the user/kernel isolation, for example by modifying the satp register to point to a page table that allowed accessing all of physical memory.
+It is thus important that the CPU switch to a kernel- speciﬁed instruction address, namely stvec.
+4.2 Traps from user space A trap may occur while executing in user space if the user program makes a system call (ecall instruction), or does something illegal, or if a device interrupts.
+The high-level path of a trap from user space is uservec (kernel/trampoline.S:16), then usertrap (kernel/trap.c:37); and when re- turning, usertrapret (kernel/trap.c:90) and then userret (kernel/trampoline.S:16).
+Traps from user code are more challenging than from the kernel, since satp points to a user page table that doesn’t map the kernel, and the stack pointer may contain an invalid or even mali- cious value.
+然后，一个陷阱可以在运行用户指令的同时切换到监管模式。
+这些用户指令可能会破坏用户/内核隔离，例如通过修改satp寄存器来指向一个允许访问所有物理内存的页表。
+因此，CPU切换到内核指定的指令地址stvec非常重要。
+4.2 用户空间的陷阱 如果用户程序进行系统调用（ecall指令），或者执行非法操作，或者设备中断，都可能在用户空间执行时发生陷阱。
+从用户空间发生陷阱的高级路径是uservec（kernel/trampoline.S:16），然后是usertrap（kernel/trap.c:37）；返回时是usertrapret（kernel/trap.c:90），然后是userret（kernel/trampoline.S:16）。
+与内核代码相比，来自用户代码的陷阱更具挑战性，因为satp指向一个不映射内核的用户页表，而堆栈指针可能包含无效甚至恶意的值。
+
+ Because the RISC-V hardware doesn’t switch page tables during a trap, the user page table must include a mapping for uservec, the trap vector instructions that stvec points to.
+uservec must switch satp to point to the kernel page table; in order to continue executing instructions after the switch, uservec must be mapped at the same address in the kernel page table as in the user page table.
+Xv6 satisﬁes these constraints with a trampoline page that contains uservec.
+Xv6 maps the trampoline page at the same virtual address in the kernel page table and in every user page table.
+This virtual address is TRAMPOLINE (as we saw in Figure 2.3 and in Figure 3.3).
+The trampoline contents are set in trampoline.S, and (when executing user code) stvec is set to uservec (kernel/trampoline.S:16).
+When uservec starts, all 32 registers contain values owned by the interrupted code.
+But uservec needs to be able to modify some registers in order to set satp and generate addresses at which to save the registers.
+因为RISC-V硬件在陷阱期间不会切换页表，所以用户页表必须包含一个映射到uservec的条目，uservec是由stvec指向的陷阱向量指令。
+uservec必须切换satp以指向内核页表；为了在切换后继续执行指令，uservec必须在内核页表中与用户页表中的相同地址映射。
+Xv6通过一个包含uservec的跳板页来满足这些约束条件。
+Xv6在内核页表和每个用户页表中将跳板页映射到相同的虚拟地址。
+这个虚拟地址是TRAMPOLINE（如我们在图2.3和图3.3中所见）。
+跳板页的内容在trampoline.S中设置，并且（在执行用户代码时）将stvec设置为uservec（kernel/trampoline.S:16）。
+当uservec开始执行时，所有32个寄存器都包含被中断代码拥有的值。
+但是uservec需要能够修改一些寄存器，以便设置satp并生成用于保存寄存器的地址。
+
+ RISC-V provides a helping hand in the form of the sscratch register.
+The csrrw instruction at the start of uservec swaps the contents of a0 and sscratch.
+Now the user code’s a0 is saved; uservec has one register (a0) to play with; and a0 contains the value the kernel previously placed in sscratch.
+uservec’s next task is to save the user registers.
+Before entering user space, the kernel previously set sscratch to point to a per-process trapframe that (among other things) has space to save all the user registers (kernel/proc.h:44).
+Because satp still refers to the user page 43 table, uservec needs the trapframe to be mapped in the user address space.
+When creating each process, xv6 allocates a page for the process’s trapframe, and arranges for it always to be mapped at user virtual address TRAPFRAME, which is just below TRAMPOLINE.
+The process’s p->trapframe also points to the trapframe, though at its physical address so the kernel can use it through the kernel page table.
+RISC-V通过sscratch寄存器提供了帮助。
+在uservec开始的时候，csrrw指令交换了a0和sscratch的内容。
+现在用户代码的a0被保存了；uservec有一个寄存器（a0）可以使用；而a0包含了内核之前放在sscratch中的值。
+uservec的下一个任务是保存用户寄存器。
+在进入用户空间之前，内核之前将sscratch设置为指向每个进程的陷阱帧，其中（除其他内容外）有保存所有用户寄存器的空间（kernel/proc.h:44）。
+因为satp仍然指向用户页43表，uservec需要将陷阱帧映射到用户地址空间中。
+在创建每个进程时，xv6为进程的陷阱帧分配了一页，并安排它始终映射到用户虚拟地址TRAPFRAME，该地址正好位于TRAMPOLINE之下。
+进程的p->trapframe也指向陷阱帧，尽管它指向物理地址，以便内核可以通过内核页表使用它。
+
+ Thus after swapping a0 and sscratch, a0 holds a pointer to the current process’s trapframe.
+uservec now saves all user registers there, including the user’s a0, read from sscratch.
+The trapframe contains pointers to the current process’s kernel stack, the current CPU’s hartid, the address of usertrap, and the address of the kernel page table.
+uservec retrieves these values, switches satp to the kernel page table, and calls usertrap.
+The job of usertrap is to determine the cause of the trap, process it, and return (kernel/- trap.c:37).
+As mentioned above, it ﬁrst changes stvec so that a trap while in the kernel will be handled by kernelvec.
+It saves the sepc (the saved user program counter), again because there might be a process switch in usertrap that could cause sepc to be overwritten.
+If the trap is a system call, syscall handles it; if a device interrupt, devintr; otherwise it’s an exception, and the kernel kills the faulting process.
+因此，在交换a0和sscratch之后，a0保存了指向当前进程的陷阱帧的指针。
+uservec现在将所有用户寄存器保存在那里，包括从sscratch中读取的用户的a0。
+陷阱帧包含指向当前进程的内核堆栈、当前CPU的hartid、usertrap的地址和内核页表的地址的指针。
+uservec检索这些值，将satp切换到内核页表，并调用usertrap。
+usertrap的工作是确定陷阱的原因，处理它，并返回（kernel/- trap.c:37）。
+如上所述，它首先更改stvec，以便在内核中发生陷阱时由kernelvec处理。
+它保存sepc（保存的用户程序计数器），因为在usertrap中可能会发生进程切换，可能会导致sepc被覆盖。
+如果陷阱是系统调用，则由syscall处理；如果是设备中断，则由devintr处理；否则，它是一个异常，内核将终止出错的进程。
+
+ The system call path adds four to the saved user pc because RISC-V, in the case of a system call, leaves the program pointer pointing to the ecall instruction.
+On the way out, usertrap checks if the process has been killed or should yield the CPU (if this trap is a timer interrupt).
+The ﬁrst step in returning to user space is the call to usertrapret (kernel/trap.c:90).
+This function sets up the RISC-V control registers to prepare for a future trap from user space.
+This in- volves changing stvec to refer to uservec, preparing the trapframe ﬁelds that uservec relies on, and setting sepc to the previously saved user program counter.
+At the end, usertrapret calls userret on the trampoline page that is mapped in both user and kernel page tables; the reason is that assembly code in userret will switch page tables.
+usertrapret’s call to userret passes a pointer to the process’s user page table in a0 and TRAPFRAME in a1 (kernel/trampoline.S:88).
+userret switches satp to the process’s user page table.
+系统调用路径会将保存的用户程序计数器加上四，因为在RISC-V中，系统调用会将程序指针指向ecall指令。
+在返回用户空间的过程中，usertrap会检查进程是否被终止或者是否应该让出CPU（如果这个陷阱是一个定时器中断）。
+返回用户空间的第一步是调用usertrapret函数（kernel/trap.c:90）。
+这个函数会设置RISC-V控制寄存器，为将来从用户空间发生的陷阱做准备。
+这包括将stvec改为指向uservec，准备uservec所依赖的trapframe字段，并将sepc设置为之前保存的用户程序计数器。
+最后，usertrapret在用户和内核页表中都映射的跳板页上调用userret；原因是userret中的汇编代码会切换页表。
+usertrapret调用userret时，在a0中传递了指向进程的用户页表的指针，在a1中传递了TRAPFRAME（kernel/trampoline.S:88）。
+userret会将satp切换到进程的用户页表。
+
+ Recall that the user page table maps both the trampoline page and TRAPFRAME, but nothing else from the kernel.
+Again, the fact that the trampoline page is mapped at the same virtual address in user and kernel page tables is what allows uservec to keep executing after changing satp.
+userret copies the trapframe’s saved user a0 to sscratch in preparation for a later swap with TRAPFRAME.
+From this point on, the only data userret can use is the register contents and the content of the trapframe.
+Next userret restores saved user registers from the trapframe, does a ﬁnal swap of a0 and sscratch to restore the user a0 and save TRAPFRAME for the next trap, and uses sret to return to user space.
+4.3 Code: Calling system calls Chapter 2 ended with initcode.S invoking the exec system call (user/initcode.S:11).
+Let’s look at how the user call makes its way to the exec system call’s implementation in the kernel.
+The user code places the arguments for exec in registers a0 and a1, and puts the system call number in a7.
+回想一下，用户页表将跳板页和TRAPFRAME映射到同一个虚拟地址，但没有将内核中的其他内容映射进来。
+再次强调，跳板页在用户页表和内核页表中映射到相同的虚拟地址，这使得在更改satp后，uservec能够继续执行。
+userret将trapframe中保存的用户a0复制到sscratch中，为之后与TRAPFRAME进行交换做准备。
+从这一点开始，userret只能使用寄存器内容和trapframe的内容。
+接下来，userret从trapframe中恢复保存的用户寄存器，最后交换a0和sscratch以恢复用户a0并保存TRAPFRAME用于下一个陷阱，并使用sret返回到用户空间。
+4.3代码：调用系统调用第2章以initcode.S调用exec系统调用结束（user/initcode.S:11）。
+让我们看看用户调用如何传递到内核中exec系统调用的实现。
+用户代码将exec的参数放在寄存器a0和a1中，并将系统调用号放在a7中。
+
+ System call numbers match the entries in the syscalls array, a table of function 44 pointers (kernel/syscall.c:108).
+The ecall instruction traps into the kernel and executes uservec, usertrap, and then syscall, as we saw above.
+syscall (kernel/syscall.c:133) retrieves the system call number from the saved a7 in the trapframe and uses it to index into syscalls.
+For the ﬁrst system call, a7 contains SYS_exec (ker- nel/syscall.h:8), resulting in a call to the system call implementation function sys_exec.
+When the system call implementation function returns, syscall records its return value in p->trapframe->a0.
+This will cause the original user-space call to exec() to return that value, since the C calling convention on RISC-V places return values in a0.
+System calls conventionally return negative numbers to indicate errors, and zero or positive numbers for success.
+If the system call number is invalid, syscall prints an error and returns −1.
+4.
+系统调用号与syscalls数组中的条目匹配，syscalls是一个函数指针表（kernel/syscall.c:108）。
+ecall指令陷入内核并执行uservec、usertrap，然后执行syscall，就像我们之前看到的那样。
+syscall（kernel/syscall.c:133）从陷阱帧中的保存的a7中检索系统调用号，并使用它来索引syscalls。
+对于第一个系统调用，a7包含SYS_exec（kernel/syscall.h:8），导致调用系统调用实现函数sys_exec。
+当系统调用实现函数返回时，syscall将其返回值记录在p->trapframe->a0中。
+这将导致原始的用户空间调用exec()返回该值，因为RISC-V上的C调用约定将返回值放在a0中。
+系统调用通常返回负数表示错误，返回零或正数表示成功。
+如果系统调用号无效，syscall打印错误并返回-1。
+4.
+4 Code: System call arguments System call implementations in the kernel need to ﬁnd the arguments passed by user code.
+Because user code calls system call wrapper functions, the arguments are initially where the RISC-V C calling convention places them: in registers.
+The kernel trap code saves user registers to the current process’s trap frame, where kernel code can ﬁnd them.
+The functions argint, argaddr, and argfd retrieve the n ’th system call argument from the trap frame as an integer, pointer, or a ﬁle descriptor.
+They all call argraw to retrieve the appropriate saved user register (kernel/syscall.c:35).
+Some system calls pass pointers as arguments, and the kernel must use those pointers to read or write user memory.
+The exec system call, for example, passes the kernel an array of pointers referring to string arguments in user space.
+These pointers pose two challenges.
+4 代码：系统调用参数 内核中的系统调用实现需要找到用户代码传递的参数。
+因为用户代码调用系统调用包装函数，所以参数最初位于RISC-V C调用约定放置的寄存器中。
+内核陷阱代码将用户寄存器保存到当前进程的陷阱帧中，内核代码可以在其中找到它们。
+函数argint、argaddr和argfd从陷阱帧中检索第n个系统调用参数，作为整数、指针或文件描述符。
+它们都调用argraw来检索适当保存的用户寄存器（kernel/syscall.c:35）。
+一些系统调用将指针作为参数传递，内核必须使用这些指针来读取或写入用户内存。
+例如，exec系统调用将一个指向用户空间字符串参数的指针数组传递给内核。
+这些指针带来了两个挑战。
+
+ First, the user pro- gram may be buggy or malicious, and may pass the kernel an invalid pointer or a pointer intended to trick the kernel into accessing kernel memory instead of user memory.
+Second, the xv6 kernel page table mappings are not the same as the user page table mappings, so the kernel cannot use ordinary instructions to load or store from user-supplied addresses.
+The kernel implements functions that safely transfer data to and from user-supplied addresses.
+fetchstr is an example (kernel/syscall.c:25).
+File system calls such as exec use fetchstr to retrieve string ﬁle-name arguments from user space.
+fetchstr calls copyinstr to do the hard work.
+copyinstr (kernel/vm.c:406) copies up to max bytes to dst from virtual address srcva in the user page table pagetable.
+It uses walkaddr (which calls walk) to walk the page table in software to determine the physical address pa0 for srcva.
+首先，用户程序可能存在错误或恶意，可能会向内核传递无效的指针或意图欺骗内核以访问内核内存而不是用户内存的指针。
+其次，xv6内核的页表映射与用户页表映射不同，因此内核无法使用普通指令从用户提供的地址加载或存储。
+内核实现了安全传输数据到用户提供的地址的函数。
+fetchstr是一个例子（kernel/syscall.c:25）。
+文件系统调用（如exec）使用fetchstr从用户空间检索字符串文件名参数。
+fetchstr调用copyinstr来完成艰巨的工作。
+copyinstr（kernel/vm.c:406）从用户页表pagetable的虚拟地址srcva复制最多max字节到dst。
+它使用walkaddr（调用walk）在软件中遍历页表以确定srcva的物理地址pa0。
+
+ Since the kernel maps all physical RAM addresses to the same kernel virtual address, copyinstr can directly copy string bytes from pa0 to dst.
+walkaddr (kernel/vm.c:95) checks that the user-supplied virtual address is part of the process’s user address space, so programs cannot trick the kernel into reading other memory.
+A similar function, copyout, copies data from the kernel to a user-supplied address.
+45 4.5 Traps from kernel space Xv6 conﬁgures the CPU trap registers somewhat differently depending on whether user or kernel code is executing.
+When the kernel is executing on a CPU, the kernel points stvec to the assembly code at kernelvec (kernel/kernelvec.S:10).
+Since xv6 is already in the kernel, kernelvec can rely on satp being set to the kernel page table, and on the stack pointer referring to a valid kernel stack.
+kernelvec saves all registers so that the interrupted code can eventually resume without disturbance.
+由于内核将所有物理RAM地址映射到相同的内核虚拟地址，copyinstr可以直接从pa0复制字符串字节到dst。
+walkaddr（kernel/vm.c:95）检查用户提供的虚拟地址是否属于进程的用户地址空间，因此程序无法欺骗内核读取其他内存。
+类似的函数copyout将数据从内核复制到用户提供的地址。
+45 4.5内核空间的陷阱Xv6根据用户或内核代码的执行方式在CPU陷阱寄存器上进行了一些不同的配置。
+当内核在CPU上执行时，内核将stvec指向kernelvec的汇编代码（kernel/kernelvec.S:10）。
+由于xv6已经在内核中，kernelvec可以依赖于satp被设置为内核页表，并且堆栈指针指向有效的内核堆栈。
+kernelvec保存所有寄存器，以便中断的代码最终可以无干扰地恢复执行。
+
+ kernelvec saves the registers on the stack of the interrupted kernel thread, which makes sense because the register values belong to that thread.
+This is particularly important if the trap causes a switch to a different thread – in that case the trap will actually return on the stack of the new thread, leaving the interrupted thread’s saved registers safely on its stack.
+kernelvec jumps to kerneltrap (kernel/trap.c:134) after saving registers.
+kerneltrap is prepared for two types of traps: device interrrupts and exceptions.
+It calls devintr (kernel/- trap.c:177) to check for and handle the former.
+If the trap isn’t a device interrupt, it must be an exception, and that is always a fatal error if it occurs in the xv6 kernel; the kernel calls panic and stops executing.
+If kerneltrap was called due to a timer interrupt, and a process’s kernel thread is running (rather than a scheduler thread), kerneltrap calls yield to give other threads a chance to run.
+kernelvec将寄存器保存在被中断的内核线程的堆栈上，这是有道理的，因为寄存器的值属于该线程。
+如果陷阱导致切换到另一个线程，这一点尤为重要-在这种情况下，陷阱实际上将返回到新线程的堆栈上，将中断线程的保存寄存器安全地留在其堆栈上。
+kernelvec在保存寄存器后跳转到kerneltrap（kernel/trap.c:134）。
+kerneltrap准备处理两种类型的陷阱：设备中断和异常。
+它调用devintr（kernel/- trap.c:177）来检查并处理前者。
+如果陷阱不是设备中断，那么它必须是异常，如果在xv6内核中发生异常，这总是一个致命错误；内核调用panic并停止执行。
+如果kerneltrap是由于定时器中断而被调用的，并且一个进程的内核线程正在运行（而不是调度器线程），kerneltrap调用yield来给其他线程一个运行的机会。
+
+ At some point one of those threads will yield, and let our thread and its kerneltrap resume again.
+Chapter 7 explains what happens in yield.
+When kerneltrap’s work is done, it needs to return to whatever code was interrupted by the trap.
+Because a yield may have disturbed the saved sepc and the saved previous mode in sstatus, kerneltrap saves them when it starts.
+It now restores those control registers and returns to kernelvec (kernel/kernelvec.S:48).
+kernelvec pops the saved registers from the stack and executes sret, which copies sepc to pc and resumes the interrupted kernel code.
+It’s worth thinking through how the trap return happens if kerneltrap called yield due to a timer interrupt.
+Xv6 sets a CPU’s stvec to kernelvec when that CPU enters the kernel from user space; you can see this in usertrap (kernel/trap.c:29).
+There’s a window of time when the kernel is executing but stvec is set to uservec, and it’s crucial that device interrupts be disabled during that window.
+在某个时刻，其中一个线程将会让步，让我们的线程和它的内核陷阱再次恢复。
+第7章解释了让步发生的情况。
+当内核陷阱的工作完成后，它需要返回到被陷阱中断的代码。
+因为让步可能会破坏保存的sepc和sstatus中的保存的先前模式，所以内核陷阱在开始时保存它们。
+现在它恢复这些控制寄存器并返回到kernelvec（kernel/kernelvec.S:48）。
+kernelvec从堆栈中弹出保存的寄存器并执行sret，将sepc复制到pc并恢复中断的内核代码。
+值得思考的是，如果kerneltrap由于定时器中断调用了yield，陷阱返回是如何发生的。
+当一个CPU从用户空间进入内核时，Xv6将该CPU的stvec设置为kernelvec；你可以在usertrap（kernel/trap.c:29）中看到这一点。
+在内核执行但stvec设置为uservec的时间窗口中，设备中断被禁用是至关重要的。
+
+ Luckily the RISC-V always disables interrupts when it starts to take a trap, and xv6 doesn’t enable them again until after it sets stvec.
+4.6 Page-fault exceptions Xv6’s response to exceptions is quite boring: if an exception happens in user space, the kernel kills the faulting process.
+If an exception happens in the kernel, the kernel panics.
+Real operating systems often respond in much more interesting ways.
+As an example, many kernels use page faults to implement copy-on-write (COW) fork.
+To explain copy-on-write fork, consider xv6’s fork, described in Chapter 3.
+fork causes the child to have the same memory content as the parent, by calling uvmcopy (kernel/vm.c:309) to allocate 46 physical memory for the child and copy the parent’s memory into it.
+It would be more efﬁcient if the child and parent could share the parent’s physical memory.
+幸运的是，当RISC-V开始进行陷阱处理时，它总是禁用中断，而xv6在设置stvec之后才重新启用中断。
+4.6页错误异常Xv6对异常的响应非常无聊：如果异常发生在用户空间，内核会终止出错的进程。
+如果异常发生在内核中，内核会发生恐慌。
+真正的操作系统通常会以更有趣的方式响应。
+例如，许多内核使用页错误来实现写时复制（COW）fork。
+为了解释写时复制fork，考虑xv6的fork，在第3章中有描述。
+通过调用uvmcopy（kernel/vm.c:309）为子进程分配46个物理内存，并将父进程的内存复制到其中，使得子进程具有与父进程相同的内存内容。
+如果子进程和父进程可以共享父进程的物理内存，那将更高效。
+
+ A straightforward implementation of this would not work, however, since it would cause the parent and child to disrupt each other’s execution with their writes to the shared stack and heap.
+Parent and child can safely share phyical memory using copy-on-write fork, driven by page faults.
+When a CPU cannot translate a virtual address to a physical address, the CPU generates a page-fault exception.
+RISC-V has three different kinds of page fault: load page faults (when a load instruction cannot translate its virtual address), store page faults (when a store instruction cannot translate its virtual address), and instruction page faults (when the address for an instruction doesn’t translate).
+The value in the scause register indicates the type of the page fault and the stval register contains the address that couldn’t be translated.
+The basic plan in COW fork is for the parent and child to initially share all physical pages, but to map them read-only.
+这种直接的实现方式是行不通的，因为它会导致父进程和子进程在对共享的栈和堆进行写操作时相互干扰。
+父进程和子进程可以通过写时复制（copy-on-write）的fork方式安全地共享物理内存，这是由页面错误驱动的。
+当CPU无法将虚拟地址转换为物理地址时，CPU会生成一个页面错误异常。
+RISC-V有三种不同类型的页面错误：加载页面错误（当加载指令无法将其虚拟地址转换为物理地址时）、存储页面错误（当存储指令无法将其虚拟地址转换为物理地址时）和指令页面错误（当指令的地址无法转换时）。
+scause寄存器中的值表示页面错误的类型，而stval寄存器中包含无法转换的地址。
+COW fork的基本计划是父进程和子进程最初共享所有物理页面，但将它们映射为只读。
+
+ Thus, when the child or parent executes a store instruction, the RISC-V CPU raises a page-fault exception.
+In response to this exception, the kernel makes a copy of the page that contains the faulted address.
+It maps one copy read/write in the child’s address space and the other copy read/write in the parent’s address space.
+After updating the page tables, the kernel resumes the faulting process at the instruction that caused the fault.
+Because the kernel has updated the relevant PTE to allow writes, the faulting instruction will now execute without a fault.
+This COW plan works well for fork, because often the child calls exec immediately after the fork, replacing its address space with a new address space.
+In that common case, the child will experience only a few page faults, and the kernel can avoid making a complete copy.
+Furthermore, COW fork is transparent: no modiﬁcations to applications are necessary for them to beneﬁt.
+因此，当子进程或父进程执行存储指令时，RISC-V CPU会引发一个页错误异常。
+作为对该异常的响应，内核会复制包含错误地址的页面。
+它将一个副本映射为子进程地址空间中的读/写，将另一个副本映射为父进程地址空间中的读/写。
+在更新页表后，内核会在导致错误的指令处恢复故障进程的执行。
+由于内核已经更新了相关的PTE以允许写入，因此故障指令现在将无故障地执行。
+这种写时复制的计划对于fork操作非常有效，因为通常子进程在fork之后立即调用exec，用新的地址空间替换自己的地址空间。
+在这种常见情况下，子进程只会遇到少数页面错误，并且内核可以避免进行完全复制。
+此外，写时复制的fork是透明的：应用程序不需要进行任何修改即可受益。
+
+ The combination of page tables and page faults opens up a wide-range of interesting possibil- ities other than COW fork.
+Another widely-used feature is called lazy allocation, which has two parts.
+First, when an application calls sbrk, the kernel grows the address space, but marks the new addresses as not valid in the page table.
+Second, on a page fault on one of those new addresses, the kernel allocates physical memory and maps it into the page table.
+Since applications often ask for more memory than they need, lazy allocation is a win: the kernel allocates memory only when the application actually uses it.
+Like COW fork, the kernel can implement this feature transparently to applications.
+Yet another widely-used feature that exploits page faults is paging from disk.
+If applications need more memory than the available physical RAM, the kernel can evict some pages: write them to a storage device such as a disk and mark their PTEs as not valid.
+页表和页面错误的组合开启了除了COW fork之外的一系列有趣的可能性。
+另一个广泛使用的功能叫做延迟分配，它有两个部分。
+首先，当应用程序调用sbrk时，内核会扩展地址空间，但在页表中将新地址标记为无效。
+其次，在这些新地址中发生页面错误时，内核会分配物理内存并将其映射到页表中。
+由于应用程序通常会请求比实际需要的内存更多，延迟分配是一个胜利：内核只在应用程序实际使用内存时才分配内存。
+与COW fork类似，内核可以对应用程序透明地实现这个功能。
+另一个广泛使用的利用页面错误的功能是从磁盘进行分页。
+如果应用程序需要的内存超过了可用的物理内存，内核可以驱逐一些页面：将它们写入存储设备（如磁盘）并将它们的PTE标记为无效。
+
+ If an application reads or writes an evicted page, the CPU will experience a page fault.
+The kernel can then inspect the faulting address.
+If the address belongs to a page that is on disk, the kernel allocates a page of physical memory, reads the page from disk to that memory, updates the PTE to be valid and refer to that memory, and resumes the application.
+To make room for the page, the kernel may have to evict another page.
+This feature requires no changes to applications, and works well if applications have locality of reference (i.e., they use only a subset of their memory at any given time).
+Other features that combine paging and page-fault exceptions include automatically extending stacks and memory-mapped ﬁles.
+47 4.7 Real world The need for special trampoline pages could be eliminated if kernel memory were mapped into ev- ery process’s user page table (with appropriate PTE permission ﬂags).
+That would also eliminate the need for a page table switch when trapping from user space into the kernel.
+如果一个应用程序读取或写入一个被驱逐的页面，CPU 将会发生页面错误。
+然后内核可以检查错误地址。
+如果地址属于一个在磁盘上的页面，内核会分配一个物理内存页面，将页面从磁盘读取到该内存中，更新 PTE 使其有效并引用该内存，并恢复应用程序的执行。
+为了腾出空间给页面，内核可能需要驱逐另一个页面。
+这个特性不需要对应用程序进行任何更改，并且在应用程序具有引用局部性（即它们在任何给定时间只使用其内存的子集）的情况下工作得很好。
+其他结合分页和页面错误异常的特性包括自动扩展堆栈和内存映射文件。
+47 4.7 现实世界如果内核内存被映射到每个进程的用户页表中（具有适当的 PTE 权限标志），就可以消除特殊跳板页面的需求。
+这也将消除从用户空间陷入内核时的页表切换的需要。
+
+ That in turn would allow system call implementations in the kernel to take advantage of the current process’s user memory being mapped, allowing kernel code to directly dereference user pointers.
+Many operat- ing systems have used these ideas to increase efﬁciency.
+Xv6 avoids them in order to reduce the chances of security bugs in the kernel due to inadvertent use of user pointers, and to reduce some complexity that would be required to ensure that user and kernel virtual addresses don’t overlap.
+4.8 Exercises 1.
+The functions copyin and copyinstr walk the user page table in software.
+Set up the kernel page table so that the kernel has the user program mapped, and copyin and copyinstr can use memcpy to copy system call arguments into kernel space, relying on the hardware to do the page table walk.
+2.
+Implement lazy memory allocation 3.
+这反过来将允许内核中的系统调用实现利用当前进程的用户内存映射，使内核代码能够直接引用用户指针。
+许多操作系统都使用了这些思想来提高效率。
+Xv6避免使用它们，以减少内核中由于无意中使用用户指针而导致的安全漏洞的可能性，并减少一些必须确保用户和内核虚拟地址不重叠的复杂性。
+4.8练习1.函数copyin和copyinstr在软件中遍历用户页表。
+设置内核页表，使内核将用户程序映射到其中，并且copyin和copyinstr可以使用memcpy将系统调用参数复制到内核空间，依靠硬件进行页表遍历。
+2.实现延迟内存分配3.
+ Implement COW fork 48 Chapter 5 Interrupts and device drivers A driver is the code in an operating system that manages a particular device: it conﬁgures the device hardware, tells the device to perform operations, handles the resulting interrupts, and interacts with processes that may be waiting for I/O from the device.
+Driver code can be tricky because a driver executes concurrently with the device that it manages.
+In addition, the driver must understand the device’s hardware interface, which can be complex and poorly documented.
+Devices that need attention from the operating system can usually be conﬁgured to generate interrupts, which are one type of trap.
+The kernel trap handling code recognizes when a device has raised an interrupt and calls the driver’s interrupt handler; in xv6, this dispatch happens in devintr (kernel/trap.c:177).
+Many device drivers execute code in two contexts: a top half that runs in a process’s kernel thread, and a bottom half that executes at interrupt time.
+实现COW fork 48章中断和设备驱动程序驱动程序是操作系统中管理特定设备的代码：它配置设备硬件，告诉设备执行操作，处理结果中断，并与可能正在等待设备的I/O的进程进行交互。
+驱动程序代码可能很棘手，因为驱动程序与其管理的设备同时执行。
+此外，驱动程序必须了解设备的硬件接口，这可能是复杂且文档不完善的。
+通常需要操作系统关注的设备可以配置为生成中断，这是一种陷阱的一种类型。
+内核陷阱处理代码在设备引发中断时识别并调用驱动程序的中断处理程序；在xv6中，这个调度发生在devintr（kernel/trap.c:177）中。
+许多设备驱动程序在两个上下文中执行代码：一个在进程的内核线程中运行的顶半部分，一个在中断时间执行的底半部分。
+
+ The top half is called via system calls such as read and write that want the device to perform I/O.
+This code may ask the hardware to start an operation (e.g., ask the disk to read a block); then the code waits for the operation to complete.
+Eventually the device completes the operation and raises an interrupt.
+The driver’s interrupt handler, acting as the bottom half, ﬁgures out what operation has completed, wakes up a waiting process if appropriate, and tells the hardware to start work on any waiting next operation.
+5.1 Code: Console input The console driver (console.c) is a simple illustration of driver structure.
+The console driver accepts characters typed by a human, via the UART serial-port hardware attached to the RISC-V.
+The console driver accumulates a line of input at a time, processing special input characters such as backspace and control-u.
+User processes, such as the shell, use the read system call to fetch lines of input from the console.
+顶部的一半通过诸如读取和写入的系统调用来调用，这些调用希望设备执行I/O操作。
+这段代码可能会要求硬件启动一个操作（例如，要求磁盘读取一个块），然后代码等待操作完成。
+最终，设备完成操作并引发中断。
+驱动程序的中断处理程序作为底部一半，确定完成了哪个操作，如果适当的话唤醒等待的进程，并告诉硬件开始处理任何等待的下一个操作。
+5.1 代码：控制台输入控制台驱动程序（console.c）是驱动程序结构的简单示例。
+控制台驱动程序通过连接到RISC-V的UART串口硬件接收人类输入的字符。
+控制台驱动程序一次累积一行输入，处理特殊的输入字符，如退格和控制-u。
+用户进程，如shell，使用读取系统调用从控制台获取输入行。
+
+ When you type input to xv6 in QEMU, your keystrokes are delivered to xv6 by way of QEMU’s simulated UART hardware.
+The UART hardware that the driver talks to is a 16550 chip [11] emulated by QEMU.
+On a real computer, a 16550 would manage an RS232 serial link connecting to a terminal or other computer.
+When running QEMU, it’s connected to your keyboard and display.
+The UART hardware appears to software as a set of memory-mapped control registers.
+That 49 is, there are some physical addresses that RISC-V hardware connects to the UART device, so that loads and stores interact with the device hardware rather than RAM.
+The memory-mapped ad- dresses for the UART start at 0x10000000, or UART0 (kernel/memlayout.h:21).
+There are a handful of UART control registers, each the width of a byte.
+Their offsets from UART0 are deﬁned in (kernel/uart.c:22).
+For example, the LSR register contain bits that indicate whether input characters are waiting to be read by the software.
+当您在QEMU中键入输入时，您的按键通过QEMU模拟的UART硬件传递给xv6。
+驱动程序所使用的UART硬件是由QEMU模拟的16550芯片[11]。
+在真实的计算机上，16550芯片会管理与终端或其他计算机连接的RS232串行链路。
+在运行QEMU时，它连接到您的键盘和显示器。
+UART硬件对软件来说是一组内存映射的控制寄存器。
+也就是说，有一些物理地址与RISC-V硬件连接到UART设备，以便加载和存储与设备硬件而不是RAM进行交互。
+UART的内存映射地址从0x10000000开始，即UART0（kernel/memlayout.h:21）。
+有几个UART控制寄存器，每个寄存器的宽度为一个字节。
+它们相对于UART0的偏移量在（kernel/uart.c:22）中定义。
+例如，LSR寄存器包含指示输入字符是否等待被软件读取的位。
+
+ These characters (if any) are available for reading from the RHR register.
+Each time one is read, the UART hardware deletes it from an internal FIFO of waiting characters, and clears the “ready” bit in LSR when the FIFO is empty.
+The UART transmit hardware is largely independent of the receive hardware; if software writes a byte to the THR, the UART transmit that byte.
+Xv6’s main calls consoleinit (kernel/console.c:184) to initialize the UART hardware.
+This code conﬁgures the UART to generate a receive interrupt when the UART receives each byte of input, and a transmit complete interrupt each time the UART ﬁnishes sending a byte of output (kernel/uart.c:53).
+The xv6 shell reads from the console by way of a ﬁle descriptor opened by init.c (user/init.c:19).
+Calls to the read system call make their way through the kernel to consoleread (kernel/con- sole.c:82).
+consoleread waits for input to arrive (via interrupts) and be buffered in cons.
+这些字符（如果有的话）可以从RHR寄存器中读取。
+每次读取一个字符时，UART硬件会从内部的等待字符FIFO中删除它，并在FIFO为空时清除LSR中的“就绪”位。
+UART发送硬件在很大程度上独立于接收硬件；如果软件向THR写入一个字节，UART会发送该字节。
+Xv6的主要调用consoleinit（kernel/console.c:184）来初始化UART硬件。
+这段代码配置UART，在UART接收到每个输入字节时生成一个接收中断，并在UART完成发送一个输出字节时生成一个传输完成中断（kernel/uart.c:53）。
+xv6 shell通过由init.c（user/init.c:19）打开的文件描述符从控制台读取。
+对read系统调用的调用通过内核传递到consoleread（kernel/console.c:82）。
+consoleread等待输入到达（通过中断）并缓冲在cons中。
+
+buf, copies the input to user space, and (after a whole line has arrived) returns to the user process.
+If the user hasn’t typed a full line yet, any reading processes will wait in the sleep call (kernel/con- sole.c:98) (Chapter 7 explains the details of sleep).
+When the user types a character, the UART hardware asks the RISC-V to raise an interrupt, which activates xv6’s trap handler.
+The trap handler calls devintr (kernel/trap.c:177), which looks at the RISC-V scause register to discover that the interrupt is from an external device.
+Then it asks a hardware unit called the PLIC [1] to tell it which device interrupted (kernel/trap.c:186).
+If it was the UART, devintr calls uartintr.
+uartintr (kernel/uart.c:180) reads any waiting input characters from the UART hardware and hands them to consoleintr (kernel/console.c:138); it doesn’t wait for characters, since future input will raise a new interrupt.
+The job of consoleintr is to accumulate input characters in cons.buf until a whole line arrives.
+buf，将输入复制到用户空间，并在整行到达后返回给用户进程。
+如果用户尚未输入完整的一行，任何读取进程都将在睡眠调用（kernel/console.c:98）中等待（第7章详细解释了睡眠的细节）。
+当用户键入一个字符时，UART硬件会请求RISC-V引发中断，这会激活xv6的陷阱处理程序。
+陷阱处理程序调用devintr（kernel/trap.c:177），它查看RISC-V scause寄存器以发现中断来自外部设备。
+然后它请求一个名为PLIC [1]的硬件单元告诉它哪个设备中断了（kernel/trap.c:186）。
+如果是UART，devintr调用uartintr。
+uartintr（kernel/uart.c:180）从UART硬件读取任何等待的输入字符，并将它们交给consoleintr（kernel/console.c:138）；它不会等待字符，因为未来的输入将引发新的中断。
+consoleintr的工作是将输入字符累积在cons.buf中，直到整行到达。
+
+ consoleintr treats backspace and a few other characters specially.
+When a newline arrives, consoleintr wakes up a waiting consoleread (if there is one).
+Once woken, consoleread will observe a full line in cons.buf, copy it to user space, and return (via the system call machinery) to user space.
+5.2 Code: Console output A write system call on a ﬁle descriptor connected to the console eventually arrives at uartputc (kernel/uart.c:87).
+The device driver maintains an output buffer (uart_tx_buf) so that writing processes do not have to wait for the UART to ﬁnish sending; instead, uartputc appends each character to the buffer, calls uartstart to start the device transmitting (if it isn’t already), and returns.
+The only situation in which uartputc waits is if the buffer is already full.
+Each time the UART ﬁnishes sending a byte, it generates an interrupt.
+consoleintr对退格键和其他一些字符进行特殊处理。
+当接收到换行符时，consoleintr会唤醒等待的consoleread（如果有的话）。
+一旦被唤醒，consoleread将观察到cons.buf中的完整行，将其复制到用户空间，并通过系统调用机制返回到用户空间。
+5.2代码：控制台输出对于连接到控制台的文件描述符上的写系统调用最终到达uartputc（kernel/uart.c:87）。
+设备驱动程序维护一个输出缓冲区（uart_tx_buf），以便写入进程不必等待UART完成发送；相反，uartputc将每个字符追加到缓冲区，调用uartstart启动设备传输（如果尚未启动），然后返回。
+唯一需要uartputc等待的情况是缓冲区已满。
+每当UART完成发送一个字节时，它会生成一个中断。
+

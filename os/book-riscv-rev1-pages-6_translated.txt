@@ -1,0 +1,426 @@
+which checks that the device really has ﬁnished sending, and hands the device the next buffered output character.
+Thus if a process writes multiple bytes to the console, typically the ﬁrst byte will be sent by uartputc’s call to uartstart, and the remaining buffered bytes will be sent by uartstart calls from uartintr as transmit complete interrupts arrive.
+A general pattern to note is the decoupling of device activity from process activity via buffering and interrupts.
+The console driver can process input even when no process is waiting to read it; a subsequent read will see the input.
+Similarly, processes can send output without having to wait for the device.
+This decoupling can increase performance by allowing processes to execute concur- rently with device I/O, and is particularly important when the device is slow (as with the UART) or needs immediate attention (as with echoing typed characters).
+This idea is sometimes called I/O concurrency.
+5.
+检查设备是否真的已经发送完成，并将下一个缓冲的输出字符交给设备。
+因此，如果一个进程向控制台写入多个字节，通常第一个字节将由uartputc调用uartstart发送，剩余的缓冲字节将由uartstart从uartintr调用发送，当传输完成中断到达时。
+一个要注意的一般模式是通过缓冲和中断将设备活动与进程活动解耦。
+即使没有进程等待读取输入，控制台驱动程序也可以处理输入；随后的读取将看到输入。
+同样，进程可以发送输出而无需等待设备。
+这种解耦可以通过允许进程与设备I/O并发执行来提高性能，并且在设备速度较慢（如UART）或需要立即处理（如回显键入的字符）时尤为重要。
+这个想法有时被称为I/O并发。
+
+3 Concurrency in drivers You may have noticed calls to acquire in consoleread and in consoleintr.
+These calls acquire a lock, which protects the console driver’s data structures from concurrent access.
+There are three concurrency dangers here: two processes on different CPUs might call consoleread at the same time; the hardware might ask a CPU to deliver a console (really UART) interrupt while that CPU is already executing inside consoleread; and the hardware might deliver a console interrupt on a different CPU while consoleread is executing.
+Chapter 6 explores how locks help in these scenarios.
+Another way in which concurrency requires care in drivers is that one process may be waiting for input from a device, but the interrupt signaling arrival of the input may arrive when a different process (or no process at all) is running.
+Thus interrupt handlers are not allowed to think about the process or code that they have interrupted.
+3 驱动程序中的并发性 您可能已经注意到在consoleread和consoleintr中调用了acquire。
+这些调用会获取一个锁，该锁保护控制台驱动程序的数据结构免受并发访问的影响。
+这里存在三个并发危险：不同CPU上的两个进程可能同时调用consoleread；当一个CPU已经在consoleread内部执行时，硬件可能要求该CPU传递控制台（实际上是UART）中断；并且当consoleread正在执行时，硬件可能在不同的CPU上传递控制台中断。
+第6章探讨了锁在这些场景中的帮助。
+驱动程序中并发性需要注意的另一种方式是，一个进程可能正在等待来自设备的输入，但是当不同的进程（或根本没有进程）正在运行时，表示输入到达的中断可能到达。
+因此，中断处理程序不允许考虑它们中断的进程或代码。
+
+ For example, an interrupt handler cannot safely call copyout with the current process’s page table.
+Interrupt handlers typically do relatively little work (e.g., just copy the input data to a buffer), and wake up top-half code to do the rest.
+5.4 Timer interrupts Xv6 uses timer interrupts to maintain its clock and to enable it to switch among compute-bound processes; the yield calls in usertrap and kerneltrap cause this switching.
+Timer inter- rupts come from clock hardware attached to each RISC-V CPU.
+Xv6 programs this clock hardware to interrupt each CPU periodically.
+RISC-V requires that timer interrupts be taken in machine mode, not supervisor mode.
+RISC- V machine mode executes without paging, and with a separate set of control registers, so it’s not practical to run ordinary xv6 kernel code in machine mode.
+As a result, xv6 handles timer interrupts completely separately from the trap mechanism laid out above.
+Code executed in machine mode in start.
+例如，中断处理程序不能安全地使用当前进程的页表调用copyout。
+中断处理程序通常只做一些相对较少的工作（例如，将输入数据复制到缓冲区），然后唤醒上半部分代码来完成剩下的工作。
+5.4定时器中断Xv6使用定时器中断来维护其时钟，并使其能够在计算密集型进程之间切换；usertrap和kerneltrap中的yield调用导致此切换。
+定时器中断来自连接到每个RISC-V CPU的时钟硬件。
+Xv6程序将此时钟硬件设置为定期中断每个CPU。
+RISC-V要求定时器中断在机器模式下进行处理，而不是在监管模式下进行处理。
+RISC-V机器模式在没有分页的情况下执行，并且具有一组单独的控制寄存器，因此在机器模式下运行普通的xv6内核代码是不可行的。
+因此，xv6完全独立地处理定时器中断，与上面介绍的陷阱机制完全分开。
+在启动时在机器模式下执行的代码。
+
+c, before main, sets up to receive timer interrupts (kernel/start.c:57).
+Part of the job is to program the CLINT hardware (core-local interruptor) to generate an interrupt after a certain delay.
+Another part is to set up a scratch area, analogous to the 51 trapframe, to help the timer interrupt handler save registers and the address of the CLINT registers.
+Finally, start sets mtvec to timervec and enables timer interrupts.
+A timer interrupt can occur at any point when user or kernel code is executing; there’s no way for the kernel to disable timer interrupts during critical operations.
+Thus the timer interrupt handler must do its job in a way guaranteed not to disturb interrupted kernel code.
+The basic strategy is for the handler to ask the RISC-V to raise a “software interrupt” and immediately return.
+The RISC-V delivers software interrupts to the kernel with the ordinary trap mechanism, and allows the kernel to disable them.
+c，在main函数之前，设置接收定时器中断的准备工作（kernel/start.c:57）。
+其中一部分工作是编程CLINT硬件（核心本地中断器），在一定延迟后生成中断。
+另一部分工作是设置一个临时区域，类似于51陷阱帧，用于帮助定时器中断处理程序保存寄存器和CLINT寄存器的地址。
+最后，start函数将mtvec设置为timervec，并启用定时器中断。
+定时器中断可以在用户或内核代码执行的任何时刻发生；内核无法在关键操作期间禁用定时器中断。
+因此，定时器中断处理程序必须以一种不会干扰被中断的内核代码的方式完成其工作。
+基本策略是让处理程序请求RISC-V引发“软件中断”并立即返回。
+RISC-V使用普通的陷阱机制将软件中断传递给内核，并允许内核禁用它们。
+
+ The code to handle the software interrupt generated by a timer interrupt can be seen in devintr (kernel/trap.c:204).
+The machine-mode timer interrupt vector is timervec (kernel/kernelvec.S:93).
+It saves a few registers in the scratch area prepared by start, tells the CLINT when to generate the next timer interrupt, asks the RISC-V to raise a software interrupt, restores registers, and returns.
+There’s no C code in the timer interrupt handler.
+5.5 Real world Xv6 allows device and timer interrupts while executing in the kernel, as well as when executing user programs.
+Timer interrupts force a thread switch (a call to yield) from the timer interrupt handler, even when executing in the kernel.
+The ability to time-slice the CPU fairly among kernel threads is useful if kernel threads sometimes spend a lot of time computing, without returning to user space.
+处理由定时器中断生成的软件中断的代码可以在devintr（kernel/trap.c:204）中找到。
+机器模式的定时器中断向量是timervec（kernel/kernelvec.S:93）。
+它在由start准备的临时区域中保存了一些寄存器，告诉CLINT何时生成下一个定时器中断，要求RISC-V引发一个软件中断，恢复寄存器并返回。
+定时器中断处理程序中没有C代码。
+5.5实际的Xv6允许在内核中执行时处理设备和定时器中断，以及在执行用户程序时处理。
+即使在内核中执行，定时器中断也会强制进行线程切换（调用yield）。
+在内核线程之间公平地对CPU进行时间片分配的能力对于内核线程有时需要花费大量时间计算而不返回用户空间是有用的。
+
+ However, the need for kernel code to be mindful that it might be suspended (due to a timer interrupt) and later resume on a different CPU is the source of some complexity in xv6.
+The kernel could be made somewhat simpler if device and timer interrupts only occurred while executing user code.
+Supporting all the devices on a typical computer in its full glory is much work, because there are many devices, the devices have many features, and the protocol between device and driver can be complex and poorly documented.
+In many operating systems, the drivers account for more code than the core kernel.
+The UART driver retrieves data a byte at a time by reading the UART control registers; this pattern is called programmed I/O, since software is driving the data movement.
+Programmed I/O is simple, but too slow to be used at high data rates.
+Devices that need to move lots of data at high speed typically use direct memory access (DMA).
+然而，内核代码需要注意的是它可能会被挂起（由于定时器中断）并在不同的CPU上恢复，这是xv6中一些复杂性的源头。
+如果只在执行用户代码时发生设备和定时器中断，内核可能会变得更简单一些。
+支持典型计算机上的所有设备的完整功能是一项艰巨的工作，因为设备很多，设备具有许多功能，并且设备和驱动程序之间的协议可能复杂且文档不完善。
+在许多操作系统中，驱动程序的代码量比核心内核还要多。
+UART驱动程序通过读取UART控制寄存器逐字节检索数据；这种模式称为编程I/O，因为软件驱动数据移动。
+编程I/O很简单，但在高数据速率下速度太慢。
+需要以高速移动大量数据的设备通常使用直接内存访问（DMA）。
+
+ DMA device hardware directly writes incoming data to RAM, and reads outgoing data from RAM.
+Modern disk and network devices use DMA.
+A driver for a DMA device would prepare data in RAM, and then use a single write to a control register to tell the device to process the prepared data.
+Interrupts make sense when a device needs attention at unpredictable times, and not too often.
+But interrupts have high CPU overhead.
+Thus high speed devices, such networks and disk con- trollers, use tricks that reduce the need for interrupts.
+One trick is to raise a single interrupt for a whole batch of incoming or outgoing requests.
+Another trick is for the driver to disable interrupts entirely, and to check the device periodically to see if it needs attention.
+This technique is called polling.
+Polling makes sense if the device performs operations very quickly, but it wastes CPU time if the device is mostly idle.
+Some drivers dynamically switch between polling and interrupts 52 depending on the current device load.
+DMA设备硬件直接将传入的数据写入RAM，并从RAM中读取传出的数据。
+现代磁盘和网络设备使用DMA。
+DMA设备的驱动程序会在RAM中准备数据，然后使用单个写操作将控制寄存器告知设备处理准备好的数据。
+中断在设备需要在不可预测的时间内进行处理时是有意义的，但中断会带来较高的CPU开销。
+因此，高速设备（如网络和磁盘控制器）使用一些技巧来减少对中断的需求。
+其中一种技巧是为整个批量的传入或传出请求引发单个中断。
+另一种技巧是驱动程序完全禁用中断，并定期检查设备是否需要处理。
+这种技术称为轮询。
+如果设备执行操作非常快，则轮询是有意义的，但如果设备大部分时间处于空闲状态，则会浪费CPU时间。
+一些驱动程序根据当前设备负载动态切换轮询和中断。
+
+ The UART driver copies incoming data ﬁrst to a buffer in the kernel, and then to user space.
+This makes sense at low data rates, but such a double copy can signiﬁcantly reduce performance for devices that generate or consume data very quickly.
+Some operating systems are able to directly move data between user-space buffers and device hardware, often with DMA.
+5.6 Exercises 1.
+Modify uart.c to not use interrupts at all.
+You may need to modify console.c as well.
+2.
+Add a driver for an Ethernet card.
+53 54 Chapter 6 Locking Most kernels, including xv6, interleave the execution of multiple activities.
+One source of inter- leaving is multiprocessor hardware: computers with multiple CPUs executing independently, such as xv6’s RISC-V.
+These multiple CPUs share physical RAM, and xv6 exploits the sharing to main- tain data structures that all CPUs read and write.
+UART驱动程序首先将传入的数据复制到内核中的缓冲区，然后再复制到用户空间。
+这在低数据速率下是有意义的，但对于生成或消耗数据非常快的设备来说，这种双重复制可能会显著降低性能。
+一些操作系统能够直接在用户空间缓冲区和设备硬件之间传输数据，通常使用DMA。
+5.6练习1.
+修改uart.c，完全不使用中断。
+您可能还需要修改console.c。
+2.
+添加一个以太网卡驱动程序。
+大多数内核，包括xv6，在执行多个活动时交错执行。
+一个交错的来源是多处理器硬件：具有多个独立执行的CPU的计算机，例如xv6的RISC-V。
+这些多个CPU共享物理RAM，xv6利用共享来维护所有CPU都读写的数据结构。
+
+ This sharing raises the possibility of one CPU reading a data structure while another CPU is mid-way through updating it, or even multiple CPUs updating the same data simultaneously; without careful design such parallel access is likely to yield incorrect results or a broken data structure.
+Even on a uniprocessor, the kernel may switch the CPU among a number of threads, causing their execution to be interleaved.
+Finally, a device interrupt handler that modiﬁes the same data as some interruptible code could damage the data if the interrupt occurs at just the wrong time.
+The word concurrency refers to situations in which multiple instruction streams are interleaved, due to multiprocessor parallelism, thread switching, or interrupts.
+Kernels are full of concurrently-accessed data.
+For example, two CPUs could simultaneously call kalloc, thereby concurrently popping from the head of the free list.
+这种共享可能导致一个CPU在另一个CPU正在更新数据结构时读取它，甚至多个CPU同时更新同一数据，如果没有仔细设计，这样的并行访问很可能会产生错误的结果或破坏数据结构。
+即使在单处理器上，内核也可能在多个线程之间切换CPU，导致它们的执行交错。
+最后，一个设备中断处理程序如果在恰好的时机发生中断并修改相同的数据，可能会损坏数据。
+并发这个词指的是多个指令流由于多处理器并行、线程切换或中断而交错的情况。
+内核中充满了同时访问的数据。
+例如，两个CPU可以同时调用kalloc，从而同时从空闲列表的头部弹出。
+
+ Kernel designers like to allow for lots of concurrency, since it can yield increased performance though parallelism, and increased responsiveness.
+However, as a result kernel designers spend a lot of effort convincing themselves of correctness despite such concurrency.
+There are many ways to arrive at correct code, some easier to reason about than others.
+Strategies aimed at correctness under concurrency, and abstractions that support them, are called concurrency control techniques.
+Xv6 uses a number of concurrency control techniques, depending on the situation; many more are possible.
+This chapter focuses on a widely used technique: the lock.
+A lock provides mutual exclusion, ensuring that only one CPU at a time can hold the lock.
+If the programmer associates a lock with each shared data item, and the code always holds the associated lock when using an item, then the item will be used by only one CPU at a time.
+In this situation, we say that the lock pro- tects the data item.
+内核设计师喜欢允许大量并发，因为它可以通过并行性提高性能和响应能力。
+然而，由于存在并发性，内核设计师需要花费大量精力来确保正确性。
+有许多方法可以编写正确的代码，其中一些更容易推理。
+旨在在并发情况下确保正确性的策略和支持它们的抽象称为并发控制技术。
+Xv6使用了许多并发控制技术，具体取决于情况；还有许多其他可能的技术。
+本章重点介绍一种广泛使用的技术：锁。
+锁提供互斥性，确保一次只有一个CPU可以持有锁。
+如果程序员将每个共享数据项与一个锁关联起来，并且在使用该项时始终持有关联的锁，则该项将一次只能被一个CPU使用。
+在这种情况下，我们说锁保护了数据项。
+
+ Although locks are an easy-to-understand concurrency control mechanism, the downside of locks is that they can kill performance, because they serialize concurrent operations.
+The rest of this chapter explains why xv6 needs locks, how xv6 implements them, and how it uses them.
+55 Figure 6.1: Simpliﬁed SMP architecture 6.1 Race conditions As an example of why we need locks, consider two processes calling wait on two different CPUs.
+wait frees the child’s memory.
+Thus on each CPU, the kernel will call kfree to free the chil- dren’s pages.
+The kernel allocator maintains a linked list: kalloc() (kernel/kalloc.c:69) pops a page of memory from a list of free pages, and kfree() (kernel/kalloc.c:47) pushes a page onto the free list.
+For best performance, we might hope that the kfrees of the two parent processes would execute in parallel without either having to wait for the other, but this would not be correct given xv6’s kfree implementation.
+Figure 6.
+尽管锁是一种易于理解的并发控制机制，但锁的缺点是它们会降低性能，因为它们会序列化并发操作。
+本章的其余部分将解释为什么xv6需要锁，xv6如何实现它们以及如何使用它们。
+图6.1：简化的SMP架构6.1竞争条件作为我们需要锁的一个例子，考虑两个进程在两个不同的CPU上调用wait。
+wait释放子进程的内存。
+因此，在每个CPU上，内核将调用kfree来释放子进程的页面。
+内核分配器维护一个链表：kalloc()（kernel/kalloc.c:69）从空闲页面列表中弹出一个内存页面，而kfree()（kernel/kalloc.c:47）将一个页面推入空闲列表。
+为了获得最佳性能，我们可能希望两个父进程的kfrees能够并行执行，而不需要等待对方，但是考虑到xv6的kfree实现，这是不正确的。
+图6.
+1 illustrates the setting in more detail: the linked list is in memory that is shared by the two CPUs, which manipulate the linked list using load and store instructions.
+(In reality, the processors have caches, but conceptually multiprocessor systems behave as if there were a single, shared memory.) If there were no concurrent requests, you might implement a list push operation as follows: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 struct element { int data; struct element *next; }; struct element *list = 0; void push(int data) { struct element *l; l = malloc(sizeof *l); l->data = data; l->next = list; list = l; 56 CPUCPUl->next = listl->next = listlistMemoryBUS Figure 6.2: Example race 17 } This implementation is correct if executed in isolation.
+However, the code is not correct if more than one copy executes concurrently.
+If two CPUs execute push at the same time, both might execute line 15 as shown in Fig 6.1, before either executes line 16, which results in an incorrect outcome as illustrated by Figure 6.2.
+1更详细地说明了设置：链表位于由两个CPU共享的内存中，这两个CPU使用加载和存储指令来操作链表。
+（实际上，处理器有缓存，但在概念上，多处理器系统的行为就像是有一个单一的共享内存。
+）如果没有并发请求，您可以按照以下方式实现列表推送操作：1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 结构元素{ int data; 结构元素*下一个; }; 结构元素*列表= 0; 空推（int数据）{ 结构元素* l; l = malloc（sizeof * l）; l->data =数据; l->next =列表; 列表= l; 56 CPUCPUl->next = listl->next = listlistMemoryBUS 图6.2：示例比赛17 } 如果在隔离环境中执行，此实现是正确的。
+然而，如果多个副本同时执行代码，则代码是不正确的。
+如果两个CPU同时执行推送操作，如图6.1所示，两者都可能在执行第15行之前执行第16行，这会导致不正确的结果，如图6.2所示。
+
+ There would then be two list elements with next set to the former value of list.
+When the two assignments to list happen at line 16, the second one will overwrite the ﬁrst; the element involved in the ﬁrst assignment will be lost.
+The lost update at line 16 is an example of a race condition.
+A race condition is a situation in which a memory location is accessed concurrently, and at least one access is a write.
+A race is often a sign of a bug, either a lost update (if the accesses are writes) or a read of an incompletely-updated data structure.
+The outcome of a race depends on the exact timing of the two CPUs involved and how their memory operations are ordered by the memory system, which can make race-induced errors difﬁcult to reproduce and debug.
+For example, adding print statements while debugging push might change the timing of the execution enough to make the race disappear.
+The usual way to avoid races is to use a lock.
+然后会有两个列表元素，next设置为列表的前一个值。
+当在第16行发生两次对列表的赋值时，第二次赋值将覆盖第一次；参与第一次赋值的元素将会丢失。
+第16行的丢失更新是竞态条件的一个例子。
+竞态条件是指在并发访问内存位置时，至少有一个访问是写操作的情况。
+竞争通常是一个错误的标志，可能是丢失更新（如果访问是写操作）或者是读取未完全更新的数据结构。
+竞争的结果取决于涉及的两个CPU的确切时序以及它们的内存操作在内存系统中的排序方式，这可能使得由竞争引起的错误难以重现和调试。
+例如，在调试push时添加打印语句可能会改变执行的时序，足以使竞争消失。
+避免竞争的常见方法是使用锁。
+
+ Locks ensure mutual exclusion, so that only one CPU at a time can execute the sensitive lines of push; this makes the scenario above impossible.
+The correctly locked version of the above code adds just a few lines (highlighted in yellow): struct element *list = 0; struct lock listlock; void push(int data) { struct element *l; l = malloc(sizeof *l); l->data = data; 6 7 8 9 10 11 12 13 14 15 57 MemoryCPU 1CPU215l->next16list1516listl->nextTime 16 17 18 19 20 } acquire(&listlock); l->next = list; list = l; release(&listlock); The sequence of instructions between acquire and release is often called a critical section.
+The lock is typically said to be protecting list.
+When we say that a lock protects data, we really mean that the lock protects some collection of invariants that apply to the data.
+Invariants are properties of data structures that are maintained across operations.
+Typically, an operation’s correct behavior depends on the invariants being true when the operation begins.
+锁确保互斥性，以便一次只有一个CPU可以执行push的敏感行。
+这使得上述情况不可能发生。
+上述代码的正确锁定版本只需添加几行代码（用黄色突出显示）：
+struct element *list = 0;
+struct lock listlock;
+void push(int data) {
+    struct element *l;
+    l = malloc(sizeof *l);
+    l->data = data;
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    57
+    内存
+    CPU 1
+    CPU2
+    15
+    l->next
+    16
+    list
+    15
+    16
+    list
+    l->next
+    时间
+    16
+    17
+    18
+    19
+    20
+}
+acquire(&listlock);
+l->next = list;
+list = l;
+release(&listlock);
+在acquire和release之间的指令序列通常被称为临界区。
+通常说锁保护列表。
+当我们说锁保护数据时，我们实际上是指锁保护适用于数据的一些不变量的集合。
+不变量是在操作中保持不变的数据结构的属性。
+通常，操作的正确行为取决于操作开始时不变量为真。
+
+ The operation may temporarily violate the invariants but must reestab- lish them before ﬁnishing.
+For example, in the linked list case, the invariant is that list points at the ﬁrst element in the list and that each element’s next ﬁeld points at the next element.
+The implementation of push violates this invariant temporarily: in line 17, l points to the next list ele- ment, but list does not point at l yet (reestablished at line 18).
+The race condition we examined above happened because a second CPU executed code that depended on the list invariants while they were (temporarily) violated.
+Proper use of a lock ensures that only one CPU at a time can operate on the data structure in the critical section, so that no CPU will execute a data structure operation when the data structure’s invariants do not hold.
+You can think of a lock as serializing concurrent critical sections so that they run one at a time, and thus preserve invariants (assuming the critical sections are correct in isolation).
+操作可能会暂时违反不变量，但必须在完成之前重新建立它们。
+例如，在链表的情况下，不变量是列表指向列表中的第一个元素，并且每个元素的下一个字段指向下一个元素。
+push的实现暂时违反了这个不变量：在第17行，l指向下一个列表元素，但list还没有指向l（在第18行重新建立）。
+我们上面讨论的竞争条件发生是因为第二个CPU执行了依赖于列表不变量的代码，而这些不变量在（暂时）被违反时。
+正确使用锁可以确保一次只有一个CPU可以在关键部分操作数据结构，这样当数据结构的不变量不成立时，没有CPU会执行数据结构操作。
+您可以将锁视为串行化并发关键部分，以便它们一次运行一个，从而保持不变量（假设关键部分在隔离中是正确的）。
+
+ You can also think of critical sections guarded by the same lock as being atomic with respect to each other, so that each sees only the complete set of changes from earlier critical sections, and never sees partially-completed updates.
+Although correct use of locks can make incorrect code correct, locks limit performance.
+For example, if two processes call kfree concurrently, the locks will serialize the two calls, and we obtain no beneﬁt from running them on different CPUs.
+We say that multiple processes conﬂict if they want the same lock at the same time, or that the lock experiences contention.
+A major challenge in kernel design is to avoid lock contention.
+Xv6 does little of that, but sophisticated kernels organize data structures and algorithms speciﬁcally to avoid lock contention.
+In the list example, a kernel may maintain a free list per CPU and only touch another CPU’s free list if the CPU’s list is empty and it must steal memory from another CPU.
+Other use cases may require more complicated designs.
+您还可以将由相同锁保护的临界区视为彼此之间的原子操作，以便每个临界区只看到来自先前临界区的完整更改集，并且永远不会看到部分完成的更新。
+尽管正确使用锁可以使错误的代码正确，但锁会限制性能。
+例如，如果两个进程同时调用kfree，锁将对这两个调用进行串行化，并且我们无法从在不同CPU上运行它们中获得任何好处。
+我们说多个进程冲突，如果它们同时想要相同的锁，或者锁经历争用。
+内核设计中的一个主要挑战是避免锁争用。
+Xv6在这方面做得很少，但是复杂的内核会专门组织数据结构和算法以避免锁争用。
+在列表示例中，内核可以为每个CPU维护一个空闲列表，只有在CPU的列表为空且必须从另一个CPU中窃取内存时，才会触及另一个CPU的空闲列表。
+其他用例可能需要更复杂的设计。
+
+ The placement of locks is also important for performance.
+For example, it would be correct to move acquire earlier in push: it is ﬁne to move the call to acquire up to before line 13.
+This may reduce performance because then the calls to malloc are also serialized.
+The section “Using locks” below provides some guidelines for where to insert acquire and release invocations.
+6.2 Code: Locks Xv6 has two types of locks: spinlocks and sleep-locks.
+We’ll start with spinlocks.
+Xv6 represents a spinlock as a struct spinlock (kernel/spinlock.h:2).
+The important ﬁeld in the structure is 58 locked, a word that is zero when the lock is available and non-zero when it is held.
+Logically, xv6 should acquire a lock by executing code like 21 22 23 24 25 26 27 28 29 30 void acquire(struct spinlock *lk) // does not work! { for(;;) { if(lk->locked == 0) { lk->locked = 1; break; } } } Unfortunately, this implementation does not guarantee mutual exclusion on a multiprocessor.
+锁的放置对性能也很重要。
+例如，在push中将acquire移动到更早的位置是正确的：将acquire的调用移动到第13行之前是可以的。
+这可能会降低性能，因为malloc的调用也会被串行化。
+下面的“使用锁”部分提供了一些关于何时插入acquire和release调用的指导方针。
+6.2 代码：锁 Xv6有两种类型的锁：自旋锁和睡眠锁。
+我们先从自旋锁开始。
+Xv6将自旋锁表示为一个结构体spinlock（kernel/spinlock.h:2）。
+结构体中的重要字段是locked，当锁可用时为零，持有时为非零。
+从逻辑上讲，xv6应该通过执行类似于以下代码来获取锁：
+void acquire(struct spinlock *lk) // does not work!
+{
+    for(;;)
+    {
+        if(lk->locked == 0)
+        {
+            lk->locked = 1;
+            break;
+        }
+    }
+}
+不幸的是，这种实现在多处理器上不能保证互斥。
+
+ It could happen that two CPUs simultaneously reach line 25, see that lk->locked is zero, and then both grab the lock by executing line 26.
+At this point, two different CPUs hold the lock, which violates the mutual exclusion property.
+What we need is a way to make lines 25 and 26 execute as an atomic (i.e., indivisible) step.
+Because locks are widely used, multi-core processors usually provide instructions that imple- ment an atomic version of lines 25 and 26.
+On the RISC-V this instruction is amoswap r, a.
+amoswap reads the value at the memory address a, writes the contents of register r to that address, and puts the value it read into r.
+That is, it swaps the contents of the register and the memory address.
+It performs this sequence atomically, using special hardware to prevent any other CPU from using the memory address between the read and the write.
+Xv6’s acquire (kernel/spinlock.
+可能发生的情况是，两个CPU同时到达第25行，看到lk->locked为零，然后通过执行第26行都获取了锁。
+此时，两个不同的CPU持有锁，违反了互斥属性。
+我们需要的是一种方法，使第25行和第26行作为一个原子（即不可分割的）步骤执行。
+由于锁被广泛使用，多核处理器通常提供实现第25行和第26行的原子版本的指令。
+在RISC-V上，这个指令是amoswap r, a。
+amoswap读取内存地址a处的值，将寄存器r的内容写入该地址，并将读取到的值放入r中。
+也就是说，它交换了寄存器和内存地址的内容。
+它使用特殊的硬件以原子方式执行此序列，防止任何其他CPU在读取和写入之间使用内存地址。
+Xv6的acquire（kernel/spinlock）。
+
+c:22) uses the portable C library call __sync_lock_test_and_set, which boils down to the amoswap instruction; the return value is the old (swapped) contents of lk->locked.
+The acquire function wraps the swap in a loop, retrying (spinning) until it has acquired the lock.
+Each iteration swaps one into lk->locked and checks the previous value; if the previous value is zero, then we’ve acquired the lock, and the swap will have set lk->locked to one.
+If the previous value is one, then some other CPU holds the lock, and the fact that we atomically swapped one into lk->locked didn’t change its value.
+Once the lock is acquired, acquire records, for debugging, the CPU that acquired the lock.
+The lk->cpu ﬁeld is protected by the lock and must only be changed while holding the lock.
+The function release (kernel/spinlock.c:47) is the opposite of acquire: it clears the lk->cpu ﬁeld and then releases the lock.
+Conceptually, the release just requires assigning zero to lk->locked.
+c:22) 使用可移植的C库调用__sync_lock_test_and_set，它归结为amoswap指令；返回值是lk->locked的旧（交换后的）内容。
+acquire函数将交换操作包装在一个循环中，重试（自旋）直到获得锁定。
+每次迭代将一个值交换到lk->locked并检查先前的值；如果先前的值为零，则表示已获得锁定，并且交换操作将lk->locked设置为一。
+如果先前的值为一，则表示其他CPU持有锁定，并且我们原子地将一个值交换到lk->locked并没有改变其值。
+一旦获得锁定，acquire函数会记录用于调试的获得锁定的CPU。
+lk->cpu字段受锁定保护，只能在持有锁定时更改。
+函数release（kernel/spinlock.c:47）是acquire的相反操作：它清除lk->cpu字段，然后释放锁定。
+从概念上讲，释放只需要将零赋值给lk->locked。
+
+ The C standard allows compilers to implement an assignment with multiple store instructions, so a C assignment might be non-atomic with respect to concurrent code.
+Instead, release uses the C library function __sync_lock_release that performs an atomic assignment.
+This function also boils down to a RISC-V amoswap instruction.
+59 6.3 Code: Using locks Xv6 uses locks in many places to avoid race conditions.
+As described above, kalloc (kernel/kalloc.c:69) and kfree (kernel/kalloc.c:47) form a good example.
+Try Exercises 1 and 2 to see what happens if those functions omit the locks.
+You’ll likely ﬁnd that it’s difﬁcult to trigger incorrect behavior, suggesting that it’s hard to reliably test whether code is free from locking errors and races.
+It is not unlikely that xv6 has some races.
+A hard part about using locks is deciding how many locks to use and which data and invariants each lock should protect.
+There are a few basic principles.
+C标准允许编译器使用多个存储指令来实现赋值，因此C赋值在并发代码方面可能是非原子的。
+相反，release使用C库函数__sync_lock_release来执行原子赋值。
+该函数最终会转化为RISC-V的amoswap指令。
+59 6.3 代码：使用锁 Xv6在许多地方使用锁来避免竞争条件。
+如上所述，kalloc（kernel/kalloc.c:69）和kfree（kernel/kalloc.c:47）是一个很好的例子。
+尝试练习1和2，看看如果这些函数省略了锁会发生什么。
+您可能会发现很难触发错误行为，这表明很难可靠地测试代码是否没有锁定错误和竞争。
+xv6很可能存在一些竞争条件。
+使用锁的一个困难之处在于决定使用多少个锁以及每个锁应该保护哪些数据和不变量。
+有一些基本原则。
+
+ First, any time a variable can be written by one CPU at the same time that another CPU can read or write it, a lock should be used to keep the two operations from overlapping.
+Second, remember that locks protect invariants: if an invariant involves multiple memory locations, typically all of them need to be protected by a single lock to ensure the invariant is maintained.
+The rules above say when locks are necessary but say nothing about when locks are unnec- essary, and it is important for efﬁciency not to lock too much, because locks reduce parallelism.
+If parallelism isn’t important, then one could arrange to have only a single thread and not worry about locks.
+A simple kernel can do this on a multiprocessor by having a single lock that must be acquired on entering the kernel and released on exiting the kernel (though system calls such as pipe reads or wait would pose a problem).
+首先，每当一个变量可以被一个CPU写入的同时另一个CPU可以读取或写入它时，应该使用锁来防止这两个操作重叠。
+其次，要记住锁保护不变量：如果一个不变量涉及多个内存位置，通常所有这些位置都需要由一个锁来保护，以确保不变量的维护。
+上述规则说明了何时需要锁，但没有说明何时不需要锁，对于效率来说，不要过多地使用锁非常重要，因为锁会降低并行性。
+如果并行性不重要，那么可以安排只有一个线程，并且不必担心锁。
+一个简单的内核可以在多处理器上通过拥有一个必须在进入内核时获取并在退出内核时释放的单个锁来实现这一点（尽管诸如管道读取或等待等系统调用可能会带来问题）。
+
+ Many uniprocessor operating systems have been converted to run on multiprocessors using this approach, sometimes called a “big kernel lock,” but the approach sacriﬁces parallelism: only one CPU can execute in the kernel at a time.
+If the kernel does any heavy computation, it would be more efﬁcient to use a larger set of more ﬁne-grained locks, so that the kernel could execute on multiple CPUs simultaneously.
+As an example of coarse-grained locking, xv6’s kalloc.c allocator has a single free list pro- tected by a single lock.
+If multiple processes on different CPUs try to allocate pages at the same time, each will have to wait for its turn by spinning in acquire.
+Spinning reduces performance, since it’s not useful work.
+If contention for the lock wasted a signiﬁcant fraction of CPU time, perhaps performance could be improved by changing the allocator design to have multiple free lists, each with its own lock, to allow truly parallel allocation.
+许多单处理器操作系统已经通过这种方法转换为在多处理器上运行，有时被称为“大内核锁”，但这种方法牺牲了并行性：只有一个CPU可以在内核中执行。
+如果内核进行任何重计算，使用更大的一组更细粒度的锁可能更有效，这样内核就可以同时在多个CPU上执行。
+作为粗粒度锁定的一个例子，xv6的kalloc.c分配器有一个由单个锁保护的自由列表。
+如果不同CPU上的多个进程同时尝试分配页面，每个进程都必须通过在acquire中旋转等待自己的轮次。
+旋转会降低性能，因为这不是有用的工作。
+如果对锁的争用浪费了大量的CPU时间，也许通过改变分配器设计以具有多个自由列表，每个列表都有自己的锁，可以改善性能，以实现真正的并行分配。
+
+ As an example of ﬁne-grained locking, xv6 has a separate lock for each ﬁle, so that processes that manipulate different ﬁles can often proceed without waiting for each other’s locks.
+The ﬁle locking scheme could be made even more ﬁne-grained if one wanted to allow processes to simul- taneously write different areas of the same ﬁle.
+Ultimately lock granularity decisions need to be driven by performance measurements as well as complexity considerations.
+As subsequent chapters explain each part of xv6, they will mention examples of xv6’s use of locks to deal with concurrency.
+As a preview, Figure 6.3 lists all of the locks in xv6.
+6.4 Deadlock and lock ordering If a code path through the kernel must hold several locks at the same time, it is important that all code paths acquire those locks in the same order.
+If they don’t, there is a risk of deadlock.
+作为细粒度锁的一个例子，xv6为每个文件都有一个单独的锁，这样处理不同文件的进程通常可以在不等待彼此的锁的情况下继续进行。
+如果希望允许进程同时写入同一文件的不同区域，文件锁定方案可以更加细粒度化。
+最终，锁的粒度决策需要根据性能测量和复杂性考虑来驱动。
+随后的章节将解释xv6的每个部分，并提到xv6在处理并发时使用锁的示例。
+作为预览，图6.3列出了xv6中的所有锁。
+6.4 死锁和锁顺序 如果内核中的代码路径必须同时持有多个锁，那么重要的是所有代码路径以相同的顺序获取这些锁。
+如果它们不这样做，就会有死锁的风险。
+

@@ -1,0 +1,181 @@
+implemented in hardware.
+Another is the started variable in main.c (kernel/main.c:7), used to prevent other CPUs from running until CPU zero has ﬁnished initializing xv6; the volatile ensures that the compiler actually generates load and store instructions.
+A third are some uses of p->parent in proc.c (kernel/proc.c:398) (kernel/proc.c:306) where proper locking could dead- lock, but it seems clear that no other process could be simultaneously modifying p->parent.
+A fourth example is p->killed, which is set while holding p->lock (kernel/proc.c:611), but checked without a holding lock (kernel/trap.c:56).
+Xv6 contains cases in which one CPU or thread writes some data, and another CPU or thread reads the data, but there is no speciﬁc lock dedicated to protecting that data.
+For example, in fork, the parent writes the child’s user memory pages, and the child (a different thread, perhaps on a different CPU) reads those pages; no lock explicitly protects those pages.
+在硬件中实现。
+另一个是main.c（kernel/main.c:7）中的started变量，用于防止其他CPU在CPU零完成初始化xv6之前运行；volatile确保编译器实际生成加载和存储指令。
+第三个是proc.c（kernel/proc.c:398）（kernel/proc.c:306）中对p->parent的一些使用，适当的锁定可能会导致死锁，但似乎明确没有其他进程可以同时修改p->parent。
+第四个例子是p->killed，在持有p->lock时设置，但在没有持有锁的情况下进行检查（kernel/trap.c:56）。
+Xv6包含一些情况，其中一个CPU或线程写入一些数据，另一个CPU或线程读取该数据，但没有专门用于保护该数据的锁。
+例如，在fork中，父进程写入子进程的用户内存页面，而子进程（可能在不同的CPU上的不同线程）读取这些页面；没有明确保护这些页面的锁。
+
+ This is not strictly a locking problem, since the child doesn’t start executing until after the parent has ﬁnished writing.
+It is a potential memory ordering problem (see Chapter 6), since without a memory barrier there’s no reason to expect one CPU to see another CPU’s writes.
+However, since the parent releases locks, and the child acquires locks as it starts up, the memory barriers in acquire and release ensure that the child’s CPU sees the parent’s writes.
+9.4 Parallelism Locking is primarily about suppressing parallelism in the interests of correctness.
+Because perfor- mance is also important, kernel designers often have to think about how to use locks in a way that achieves both correctness and good parallelism.
+While xv6 is not systematically designed for high performance, it’s still worth considering which xv6 operations can execute in parallel, and which might conﬂict on locks.
+Pipes in xv6 are an example of fairly good parallelism.
+这不是一个严格的锁问题，因为子进程在父进程完成写操作之后才开始执行。
+这是一个潜在的内存排序问题（参见第6章），因为没有内存屏障，没有理由期望一个CPU能看到另一个CPU的写操作。
+然而，由于父进程释放锁，子进程在启动时获取锁，acquire和release中的内存屏障确保子进程的CPU能看到父进程的写操作。
+9.4并行性锁主要是为了保证正确性而抑制并行性。
+由于性能也很重要，内核设计者通常需要考虑如何使用锁来同时实现正确性和良好的并行性。
+虽然xv6并不是为高性能而系统地设计的，但仍然值得考虑哪些xv6操作可以并行执行，哪些可能在锁上产生冲突。
+xv6中的管道就是一个相当好的并行性的例子。
+
+ Each pipe has its own lock, so that dif- ferent processes can read and write different pipes in parallel on different CPUs.
+For a given pipe, however, the writer and reader must wait for each other to release the lock; they can’t read/write the same pipe at the same time.
+It is also the case that a read from an empty pipe (or a write to a full pipe) must block, but this is not due to the locking scheme.
+Context switching is a more complex example.
+Two kernel threads, each executing on its own CPU, can call yield, sched, and swtch at the same time, and the calls will execute in parallel.
+The threads each hold a lock, but they are different locks, so they don’t have to wait for each other.
+Once in scheduler, however, the two CPUs may conﬂict on locks while searching the table of processes for one that is RUNNABLE.
+That is, xv6 is likely to get a performance beneﬁt from multiple CPUs during context switch, but perhaps not as much as it could.
+每个管道都有自己的锁，这样不同的进程可以在不同的CPU上并行读写不同的管道。
+然而，对于给定的管道，写入者和读取者必须等待对方释放锁；他们不能同时读/写同一个管道。
+当然，从空管道读取（或向满管道写入）时必须阻塞，但这不是由于锁定机制。
+上下文切换是一个更复杂的例子。
+两个内核线程，每个线程在自己的CPU上执行，可以同时调用yield、sched和swtch，并且这些调用将并行执行。
+这两个线程分别持有一个锁，但它们是不同的锁，所以它们不必等待对方。
+然而，一旦进入调度器，两个CPU可能会在搜索进程表以找到一个可运行的进程时发生锁冲突。
+也就是说，xv6在上下文切换期间可能会从多个CPU中获得性能优势，但可能不如它本应该的那么多。
+
+ Another example is concurrent calls to fork from different processes on different CPUs.
+The calls may have to wait for each other for pid_lock and kmem.lock, and for per-process locks needed to search the process table for an UNUSED process.
+On the other hand, the two forking processes can copy user memory pages and format page-table pages fully in parallel.
+The locking scheme in each of the above examples sacriﬁces parallel performance in certain cases.
+In each case it’s possible to obtain more parallelism using a more elaborate design.
+Whether it’s worthwhile depends on details: how often the relevant operations are invoked, how long the 101 code spends with a contended lock held, how many CPUs might be running conﬂicting operations at the same time, whether other parts of the code are more restrictive bottlenecks.
+另一个例子是来自不同进程在不同CPU上对fork的并发调用。
+这些调用可能需要等待pid_lock和kmem.lock的互斥锁，以及用于搜索未使用进程的进程表所需的每个进程锁。
+另一方面，两个fork进程可以并行地复制用户内存页并完全格式化页表页。
+上述示例中的每个锁定方案都在某些情况下牺牲了并行性能。
+在每种情况下，可以使用更复杂的设计来获得更多的并行性。
+是否值得取决于细节：相关操作被调用的频率如何，当一个有争议的锁被持有时，101代码花费的时间有多长，有多少个CPU可能同时运行冲突操作，代码的其他部分是否更具限制性的瓶颈。
+
+ It can be difﬁcult to guess whether a given locking scheme might cause performance problems, or whether a new design is signiﬁcantly better, so measurement on realistic workloads is often required.
+9.5 Exercises 1.
+Modify xv6’s pipe implementation to allow a read and a write to the same pipe to proceed in parallel on different cores.
+2.
+Modify xv6’s scheduler() to reduce lock contention when different cores are looking for runnable processes at the same time.
+3.
+Eliminate some of the serialization in xv6’s fork().
+102 Chapter 10 Summary This text introduced the main ideas in operating systems by studying one operating system, xv6, line by line.
+Some code lines embody the essence of the main ideas (e.g., context switching, user/k- ernel boundary, locks, etc.) and each line is important; other code lines provide an illustration of how to implement a particular operating system idea and could easily be done in different ways (e.g.
+对于一个给定的锁定方案是否会导致性能问题，或者一个新设计是否显著更好，往往需要在实际工作负载上进行测量才能猜测。
+9.5 练习 1.
+修改 xv6 的管道实现，允许在不同的核心上同时进行对同一管道的读和写。
+2.
+修改 xv6 的调度器（scheduler()），以减少在不同核心同时寻找可运行进程时的锁争用。
+3.
+消除 xv6 的 fork() 中的一些串行化。
+第 102 章 总结 本文通过逐行研究一个操作系统 xv6，介绍了操作系统的主要思想。
+一些代码行体现了主要思想的本质（例如上下文切换、用户/内核边界、锁等），每一行都很重要；其他代码行提供了如何实现特定操作系统思想的示例，并且可以用不同的方式轻松完成（例如。
+
+, a better algorithm for scheduling, better on-disk data structures to represent ﬁles, better log- ging to allow for concurrent transactions, etc.).
+All the ideas were illustrated in the context of one particular, very successful system call interface, the Unix interface, but those ideas carry over to the design of other operating systems.
+103 104 Bibliography [1] The RISC-V instruction set manual: privileged architecture.
+https://riscv.org/ specifications/privileged-isa/, 2019.
+[2] The RISC-V instruction set manual: user-level specifications/isa-spec-pdf/, 2019.
+ISA.
+https://riscv.org/ [3] Hans-J Boehm.
+Threads cannot be implemented as a library.
+ACM PLDI Conference, 2005.
+[4] Edsger Dijkstra.
+Cooperating sequential processes.
+https://www.cs.utexas.edu/ users/EWD/transcriptions/EWD01xx/EWD123.html, 1965.
+[5] Maurice Herlihy and Nir Shavit.
+The Art of Multiprocessor Programming, Revised Reprint.
+2012.
+[6] Brian W.
+Kernighan.
+The C Programming Language.
+，更好的调度算法，更好的磁盘数据结构来表示文件，更好的日志记录以支持并发事务等）。
+所有这些想法都是在一个特定的非常成功的系统调用接口——Unix接口的背景下进行阐述的，但这些想法也适用于其他操作系统的设计。
+103 104 参考文献 [1] RISC-V指令集手册：特权架构。
+https://riscv.org/specifications/privileged-isa/，2019年。
+ [2] RISC-V指令集手册：用户级ISA。
+https://riscv.org/specifications/isa-spec-pdf/，2019年。
+ [3] Hans-J Boehm。
+线程无法作为库实现。
+ACM PLDI会议，2005年。
+ [4] Edsger Dijkstra。
+合作的顺序进程。
+https://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html，1965年。
+ [5] Maurice Herlihy和Nir Shavit。
+多处理器编程的艺术，修订重印版。
+2012年。
+ [6] Brian W.
+Kernighan。
+C程序设计语言。
+
+ Prentice Hall Professional Technical Reference, 2nd edition, 1988.
+[7] Donald Knuth.
+Fundamental Algorithms.
+The Art of Computer Programming.
+(Second ed.), volume 1.
+1997.
+[8] L Lamport.
+A new solution of dijkstra’s concurrent programming problem.
+Communications of the ACM, 1974.
+[9] John Lions.
+Commentary on UNIX 6th Edition.
+Peer to Peer Communications, 2000.
+[10] Paul E.
+Mckenney, Silas Boyd-wickizer, and Jonathan Walpole.
+RCU usage in the linux kernel: One decade later, 2013.
+[11] Martin Michael and Daniel Durich.
+The NS16550A: UART design and application consid- erations.
+http://bitsavers.trailing-edge.com/components/national/ _appNotes/AN-0491.pdf, 1987.
+[12] David Patterson and Andrew Waterman.
+The RISC-V Reader: an open architecture Atlas.
+Strawberry Canyon, 2017.
+[13] Dave Presotto, Rob Pike, Ken Thompson, and Howard Trickey.
+Plan 9, a distributed system.
+In In Proceedings of the Spring 1991 EurOpen Conference, pages 43–50, 1991.
+105 [14] Dennis M.
+Ritchie and Ken Thompson.
+Prentice Hall Professional Technical Reference，第二版，1988年。
+[7] Donald Knuth.
+基本算法.
+计算机编程的艺术.
+(第二版)，卷1.
+1997年。
+[8] L Lamport.
+Dijkstra并发编程问题的新解决方案.
+ACM通信，1974年。
+[9] John Lions.
+UNIX第6版评论.
+Peer to Peer Communications，2000年。
+[10] Paul E.
+Mckenney，Silas Boyd-wickizer和Jonathan Walpole.
+Linux内核中的RCU使用：十年后，2013年。
+[11] Martin Michael和Daniel Durich.
+NS16550A：UART设计和应用考虑因素。
+http://bitsavers.trailing-edge.com/components/national/ _appNotes/AN-0491.pdf，1987年。
+[12] David Patterson和Andrew Waterman.
+RISC-V Reader：开放架构Atlas。
+Strawberry Canyon，2017年。
+[13] Dave Presotto，Rob Pike，Ken Thompson和Howard Trickey.
+Plan 9，一个分布式系统。
+在1991年春季EurOpen会议论文集中，第43-50页，1991年。
+[14] Dennis M.
+Ritchie和Ken Thompson.
+ The UNIX time-sharing system.
+Commun.
+ACM, 17(7):365–375, July 1974.
+106 Index ., 92, 94 .., 92, 94 /init, 28, 37 _entry, 27 absorption, 86 acquire, 59, 62 address space, 25 argc, 37 argv, 37 atomic, 59 balloc, 87, 89 batching, 85 bcache.
+UNIX 分时系统。
+Commun.
+ACM，17(7)：365-375，1974年7月。
+106索引。
+，92, 94 ..，92, 94 /init，28, 37 _entry，27吸收，86获取，59, 62地址空间，25 argc，37 argv，37原子，59 balloc，87, 89批处理，85 bcache。
+
+head, 83 begin_op, 86 bfree, 87 bget, 83 binit, 83 bmap, 91 bottom half, 49 bread, 82, 84 brelse, 82, 84 BSIZE, 91 buf, 82 busy waiting, 72 bwrite, 82, 84, 86 chan, 72, 74 child process, 10 commit, 84 concurrency, 55 concurrency control, 55 condition lock, 73 conditional synchronization, 71 conﬂict, 58 contention, 58 contexts, 68 convoys, 78 copy-on-write (COW) fork, 46 copyinstr, 45 copyout, 37 coroutines, 69 CPU, 9 cpu->scheduler, 68, 69 crash recovery, 81 create, 94 critical section, 58 current directory, 17 deadlock, 60 direct blocks, 91 direct memory access (DMA), 52 dirlink, 92 dirlookup, 91, 92, 94 DIRSIZ, 91 disk, 83 driver, 49 dup, 93 ecall, 23, 26 ELF format, 37 ELF_MAGIC, 37 end_op, 86 exception, 41 exec, 12, 14, 27, 37, 44 exit, 11, 70, 76 ﬁle descriptor, 13 107 filealloc, 93 fileclose, 93 filedup, 93 fileread, 93, 96 filestat, 93 filewrite, 87, 93, 96 fork, 10, 12, 14, 93 forkret, 69 freerange, 35 fsck, 95 fsinit, 86 ftable, 93 getcmd, 12 group commit, 85 guard page, 33 hartid, 70 I/O, 13 I/O concurrency, 51 I/O redirection, 14 ialloc, 89, 94 iget, 88, 89, 92 ilock, 88, 89, 92 indirect block, 91 initcode.
+头部，83 begin_op，86 bfree，87 bget，83 binit，83 bmap，91底部一半，49 bread，82, 84 brelse，82, 84 BSIZE，91 buf，82忙等待，72 bwrite，82, 84, 86 chan，72, 74子进程，10 commit，84并发，55并发控制，55条件锁，73条件同步，71冲突，58争用，58上下文，68车队，78写时复制（COW）fork，46 copyinstr，45 copyout，37协程，69 CPU，9 cpu->scheduler，68, 69崩溃恢复，81创建，94临界区，58当前目录，17死锁，60直接块，91直接内存访问（DMA），52 dirlink，92 dirlookup，91, 92, 94 DIRSIZ，91磁盘，83驱动程序，49 dup，93 ecall，23, 26 ELF格式，37 ELF_MAGIC，37 end_op，86异常，41 exec，12, 14, 27, 37, 44退出，11, 70, 76文件描述符，13 107 filealloc，93 fileclose，93 filedup，93 fileread，93, 96 filestat，93 filewrite，87, 93, 96 fork，10, 12, 14, 93 forkret，69 freerange，35 fsck，95 fsinit，86 ftable，93 getcmd，12组提交，85守护页，33 hartid，70 I/O，13 I/O并发，51 I/O重定向，14 ialloc，89, 94 iget，88, 89, 92 ilock，88, 89, 92间接块，91 initcode.
+S, 27, 44 initlog, 86 inode, 18, 82, 87 install_trans, 86 interface design, 9 interrupt, 41 iput, 88, 89 isolation, 21 itrunc, 89, 91 iunlock, 89 kalloc, 35 kernel, 9, 23 kernel space, 9, 23 kfree, 35 kinit, 35 kvminit, 33 kvminithart, 34 kvmmap, 33 lazy allocation, 47 links, 18 loadseg, 37 lock, 55 log, 84 log_write, 86 lost wake-up, 72 machine mode, 23 main, 33–35, 83 malloc, 13 mappages, 33 memory barrier, 63 memory model, 63 memory-mapped, 31, 49 metadata, 18 microkernel, 24 mkdev, 94 mkdir, 94 mkfs, 82 monolithic kernel, 21, 23 multi-core, 21 multiplexing, 67 multiprocessor, 21 mutual exclusion, 57 mycpu, 70 myproc, 71 namei, 37, 94 nameiparent, 92, 94 namex, 92 NBUF, 83 NDIRECT, 90, 91 NINDIRECT, 91 O_CREATE, 94 open, 93, 94 p->context, 70 p->killed, 77, 101 p->kstack, 26 p->lock, 69, 70, 74 108 p->pagetable, 26, 27 p->state, 27 p->xxx, 26 page, 29 page table entries (PTEs), 29 page-fault exception, 30, 47 paging from disk, 47 parent process, 10 path, 17 persistence, 81 PGROUNDUP, 35 physical address, 25 PHYSTOP, 33, 34 PID, 10 pipe, 15 piperead, 75 pipewrite, 75 polling, 52, 72 pop_off, 62 printf, 12 priority inversion, 78 privileged instructions, 23 proc_pagetable, 37 process, 9, 24 procinit, 34 programmed I/O, 52 PTE_R, 30 PTE_U, 30 PTE_V, 30 PTE_W, 30 PTE_X, 30 push_off, 62 race condition, 57 read, 93 readi, 37, 91 recover_from_log, 86 release, 59, 62 root, 17 round robin, 77 RUNNABLE, 70, 74, 76 satp, 30 sbrk, 13 scause, 42 sched, 68, 69, 74 scheduler, 69, 70 semaphore, 71 sepc, 42 sequence coordination, 71 serializing, 58 sfence.
+S，27，44 initlog，86 inode，18，82，87 install_trans，86接口设计，9中断，41 iput，88，89隔离，21 itrunc，89，91 iunlock，89 kalloc，35内核，9，23内核空间，9，23 kfree，35 kinit，35 kvminit，33 kvminithart，34 kvmmap，33懒惰分配，47链接，18 loadseg，37锁定，55日志，84 log_write，86丢失唤醒，72机器模式，23主要，33-35，83 malloc，13 mappages，33内存屏障，63内存模型，63内存映射，31，49元数据，18微内核，24 mkdev，94 mkdir，94 mkfs，82单内核，21，23多核，21多路复用，67多处理器，21互斥，57 mycpu，70 myproc，71 namei，37，94 nameiparent，92，94 namex，92 NBUF，83 NDIRECT，90，91 NINDIRECT，91 O_CREATE，94打开，93，94 p->context，70 p->killed，77，101 p->kstack，26 p->lock，69，70，74 108 p->pagetable，26，27 p->state，27 p->xxx，26页，29页表项（PTEs），29页错误异常，30，47从磁盘分页，47父进程，10路径，17持久性，81 PGROUNDUP，35物理地址，25 PHYSTOP，33，34 PID，10管道，15 piperead，75 pipewrite，75轮询，52，72 pop_off，62 printf，12优先级倒置，78特权指令，23 proc_pagetable，37进程，9，24 procinit，34编程I/O，52 PTE_R，30 PTE_U，30 PTE_V，30 PTE_W，30 PTE_X，30 push_off，62竞争条件，57读取，93 readi，37，91 recover_from_log，86 release，59，62根，17轮询，77 RUNNABLE，70，74，76 satp，30 sbrk，13 scause，42 sched，68，69，74 scheduler，69，70信号量，71 sepc，42序列协调，71序列化，58 sfence。
+

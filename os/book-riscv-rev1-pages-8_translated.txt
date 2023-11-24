@@ -1,0 +1,422 @@
+uservec restores that saved tp when entering the kernel from user space (kernel/trampoline.S:70).
+The compiler guarantees never to use the tp register.
+It would be more convenient if RISC-V allowed xv6 to read the current hartid directly, but that is allowed only in machine mode, not in supervisor mode.
+The return values of cpuid and mycpu are fragile: if the timer were to interrupt and cause the thread to yield and then move to a different CPU, a previously returned value would no longer be correct.
+To avoid this problem, xv6 requires that callers disable interrupts, and only enable them after they ﬁnish using the returned struct cpu.
+The function myproc (kernel/proc.c:68) returns the struct proc pointer for the process that is running on the current CPU.
+myproc disables interrupts, invokes mycpu, fetches the current process pointer (c->proc) out of the struct cpu, and then enables interrupts.
+uservec在从用户空间进入内核时恢复了保存的tp寄存器（kernel/trampoline.S:70）。
+编译器保证不会使用tp寄存器。
+如果RISC-V允许xv6直接读取当前hartid，那将更方便，但这只允许在机器模式下，而不是在监管者模式下。
+cpuid和mycpu的返回值是脆弱的：如果定时器中断并导致线程让出并移动到另一个CPU，先前返回的值将不再正确。
+为了避免这个问题，xv6要求调用者禁用中断，并在使用返回的struct cpu后才启用它们。
+函数myproc（kernel/proc.c:68）返回正在当前CPU上运行的进程的struct proc指针。
+myproc禁用中断，调用mycpu，从struct cpu中获取当前进程指针（c->proc），然后启用中断。
+
+ The return value of myproc is safe to use even if interrupts are enabled: if a timer interrupt moves the calling process to a different CPU, its struct proc pointer will stay the same.
+7.5 Sleep and wakeup Scheduling and locks help conceal the existence of one process from another, but so far we have no abstractions that help processes intentionally interact.
+Many mechanisms have been invented to solve this problem.
+Xv6 uses one called sleep and wakeup, which allow one process to sleep waiting for an event and another process to wake it up once the event has happened.
+Sleep and wakeup are often called sequence coordination or conditional synchronization mechanisms.
+To illustrate, let’s consider a synchronization mechanism called a semaphore [4] that coordi- nates producers and consumers.
+A semaphore maintains a count and provides two operations.
+The “V” operation (for the producer) increments the count.
+myproc的返回值在中断被启用的情况下也是安全的：如果定时器中断将调用进程移动到另一个CPU，其struct proc指针将保持不变。
+7.5睡眠和唤醒调度和锁帮助隐藏一个进程对另一个进程的存在，但到目前为止，我们没有帮助进程有意地相互交互的抽象。
+已经发明了许多机制来解决这个问题。
+Xv6使用了一个称为睡眠和唤醒的机制，它允许一个进程在等待事件发生时进入睡眠状态，另一个进程在事件发生后唤醒它。
+睡眠和唤醒通常被称为序列协调或条件同步机制。
+为了说明，让我们考虑一个称为信号量的同步机制[4]，它协调生产者和消费者。
+信号量维护一个计数并提供两个操作。
+"V"操作（对于生产者）增加计数。
+
+ The “P” operation (for the consumer) waits until the count is non-zero, and then decrements it and returns.
+If there were only one producer thread and one consumer thread, and they executed on different CPUs, and the compiler didn’t optimize too aggressively, this implementation would be correct: 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 struct semaphore { struct spinlock lock; int count; }; void V(struct semaphore *s) { acquire(&s->lock); s->count += 1; release(&s->lock); } void P(struct semaphore *s) { 71 116 117 118 119 120 121 } while(s->count == 0) ; acquire(&s->lock); s->count -= 1; release(&s->lock); The implementation above is expensive.
+If the producer acts rarely, the consumer will spend most of its time spinning in the while loop hoping for a non-zero count.
+The consumer’s CPU could ﬁnd more productive work than with busy waiting by repeatedly polling s->count.
+“P”操作（对于消费者）会等待直到计数器不为零，然后将其减一并返回。
+如果只有一个生产者线程和一个消费者线程，并且它们在不同的CPU上执行，并且编译器没有过于激进地进行优化，那么这个实现是正确的：100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 结构体信号量 { 结构体自旋锁 锁; int 计数; }; void V(结构体信号量 *s) { 获取(&s->锁); s->计数 += 1; 释放(&s->锁); } void P(结构体信号量 *s) { 71 116 117 118 119 120 121 } 当(s->计数 == 0) ; 获取(&s->锁); s->计数 -= 1; 释放(&s->锁); 上述实现是昂贵的。
+如果生产者很少活动，消费者将花费大部分时间在while循环中自旋，希望计数器不为零。
+消费者的CPU可以通过反复轮询s->计数来找到更有生产力的工作，而不是忙等待。
+
+ Avoid- ing busy waiting requires a way for the consumer to yield the CPU and resume only after V incre- ments the count.
+Here’s a step in that direction, though as we will see it is not enough.
+Let’s imagine a pair of calls, sleep and wakeup, that work as follows.
+Sleep(chan) sleeps on the arbitrary value chan, called the wait channel.
+Sleep puts the calling process to sleep, releasing the CPU for other work.
+Wakeup(chan) wakes all processes sleeping on chan (if any), causing their sleep calls to return.
+If no processes are waiting on chan, wakeup does nothing.
+We can change the semaphore implementation to use sleep and wakeup (changes highlighted in yellow): 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 void V(struct semaphore *s) { acquire(&s->lock); s->count += 1; wakeup(s); release(&s->lock); } void P(struct semaphore *s) { while(s->count == 0) sleep(s); acquire(&s->lock); s->count -= 1; release(&s->lock); } P now gives up the CPU instead of spinning, which is nice.
+避免繁忙等待需要一种消费者能够让出CPU并在V增加计数后恢复的方法。
+以下是朝着这个方向迈出的一步，尽管我们将看到这还不够。
+让我们想象一对调用，sleep和wakeup，它们的工作方式如下。
+Sleep(chan)在任意值chan上休眠，称为等待通道。
+Sleep使调用进程进入休眠状态，释放CPU进行其他工作。
+Wakeup(chan)唤醒所有在chan上休眠的进程（如果有的话），导致它们的sleep调用返回。
+如果没有进程在chan上等待，wakeup不执行任何操作。
+我们可以改变信号量的实现来使用sleep和wakeup（在黄色部分进行了更改）：200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 void V(struct semaphore *s) { acquire(&s->lock); s->count += 1; wakeup(s); release(&s->lock); } void P(struct semaphore *s) { while(s->count == 0) sleep(s); acquire(&s->lock); s->count -= 1; release(&s->lock); } P现在放弃CPU而不是旋转，这很好。
+
+ However, it turns out not to be straightforward to design sleep and wakeup with this interface without suffering from what is known as the lost wake-up problem.
+Suppose that P ﬁnds that s->count == 0 on line 212.
+While P is between lines 212 and 213, V runs on another CPU: it changes s->count to be nonzero and calls wakeup, which ﬁnds no processes sleeping and thus does nothing.
+Now P continues executing at line 213: it calls sleep and goes to sleep.
+This causes a problem: P is asleep waiting for a V call that has already happened.
+Unless we get lucky and the producer calls V again, the consumer will wait forever even though the count is non-zero.
+72 The root of this problem is that the invariant that P only sleeps when s->count == 0 is violated by V running at just the wrong moment.
+然而，事实证明，使用这个接口设计睡眠和唤醒并不是一件简单的事情，而且会遇到所谓的丢失唤醒问题。
+假设在212行，P发现s->count == 0。
+当P处于212行和213行之间时，V在另一个CPU上运行：它将s->count更改为非零，并调用唤醒，但唤醒发现没有进程正在睡眠，因此什么也不做。
+现在P继续执行213行：它调用睡眠并进入睡眠状态。
+这会导致一个问题：P正在等待一个已经发生的V调用。
+除非我们很幸运，生产者再次调用V，否则消费者将永远等待，即使计数不为零。
+这个问题的根源是P只有在s->count == 0时才睡眠的不变条件被V在恰好的时刻运行时违反了。
+
+ An incorrect way to protect the invariant would be to move the lock acquisition (highlighted in yellow below) in P so that its check of the count and its call to sleep are atomic: void V(struct semaphore *s) { 300 301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 316 317 acquire(&s->lock); s->count += 1; wakeup(s); release(&s->lock); } void P(struct semaphore *s) { acquire(&s->lock); while(s->count == 0) sleep(s); s->count -= 1; release(&s->lock); } One might hope that this version of P would avoid the lost wakeup because the lock prevents V from executing between lines 313 and 314.
+It does that, but it also deadlocks: P holds the lock while it sleeps, so V will block forever waiting for the lock.
+We’ll ﬁx the preceding scheme by changing sleep’s interface: the caller must pass the con- dition lock to sleep so it can release the lock after the calling process is marked as asleep and waiting on the sleep channel.
+保护不变量的错误方法是将锁获取（在下面的黄色部分突出显示）移动到P中，以使其对计数的检查和调用睡眠的操作是原子的：void V（struct semaphore * s）{300 301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 316 317 acquire（＆s->lock）; s->count + = 1; wakeup（s）; release（＆s->lock）;} void P（struct semaphore * s）{acquire（＆s->lock）; while（s->count == 0）sleep（s）; s->count- = 1; release（＆s->lock）;} 人们可能希望这个版本的P能够避免丢失唤醒，因为锁在313和314行之间阻止了V的执行。
+它确实做到了，但它也发生了死锁：P在睡眠时持有锁，因此V将永远阻塞等待锁。
+我们将通过更改睡眠的接口来修复前面的方案：调用者必须将条件锁传递给睡眠，以便在调用进程被标记为睡眠并等待睡眠通道后释放锁。
+
+ The lock will force a concurrent V to wait until P has ﬁnished putting itself to sleep, so that the wakeup will ﬁnd the sleeping consumer and wake it up.
+Once the con- sumer is awake again sleep reacquires the lock before returning.
+Our new correct sleep/wakeup scheme is usable as follows (change highlighted in yellow): 400 401 402 403 404 405 406 407 408 409 410 411 412 void V(struct semaphore *s) { acquire(&s->lock); s->count += 1; wakeup(s); release(&s->lock); } void P(struct semaphore *s) { acquire(&s->lock); 73 413 414 415 416 417 } while(s->count == 0) sleep(s, &s->lock); s->count -= 1; release(&s->lock); The fact that P holds s->lock prevents V from trying to wake it up between P’s check of c->count and its call to sleep.
+Note, however, that we need sleep to atomically release s->lock and put the consuming process to sleep.
+7.6 Code: Sleep and wakeup Let’s look at the implementation of sleep (kernel/proc.c:548) and wakeup (kernel/proc.c:582).
+锁将强制并发V等待，直到P完成自己入睡，以便唤醒可以找到正在睡眠的消费者并将其唤醒。
+一旦消费者再次醒来，它会重新获取锁然后返回。
+我们的新的正确的睡眠/唤醒方案可按以下方式使用（在黄色中进行更改）：400 401 402 403 404 405 406 407 408 409 410 411 412 void V(struct semaphore *s) { acquire(&s->lock); s->count += 1; wakeup(s); release(&s->lock); } void P(struct semaphore *s) { acquire(&s->lock); 73 413 414 415 416 417 } while(s->count == 0) sleep(s, &s->lock); s->count -= 1; release(&s->lock); P持有s->lock的事实阻止V在P检查c->count和调用sleep之间尝试唤醒它。
+然而，请注意，我们需要sleep原子地释放s->lock并使消费进程进入睡眠状态。
+7.6代码：睡眠和唤醒让我们来看看sleep的实现（kernel/proc.c:548）和wakeup（kernel/proc.c:582）。
+
+ The basic idea is to have sleep mark the current process as SLEEPING and then call sched to re- lease the CPU; wakeup looks for a process sleeping on the given wait channel and marks it as RUNNABLE.
+Callers of sleep and wakeup can use any mutually convenient number as the chan- nel.
+Xv6 often uses the address of a kernel data structure involved in the waiting.
+Sleep acquires p->lock (kernel/proc.c:559).
+Now the process going to sleep holds both p->lock and lk.
+Holding lk was necessary in the caller (in the example, P): it ensured that no other pro- cess (in the example, one running V) could start a call to wakeup(chan).
+Now that sleep holds p->lock, it is safe to release lk: some other process may start a call to wakeup(chan), but wakeup will wait to acquire p->lock, and thus will wait until sleep has ﬁnished putting the process to sleep, keeping the wakeup from missing the sleep.
+基本思想是将当前进程标记为SLEEPING，然后调用sched来释放CPU；wakeup在给定的等待通道上寻找正在睡眠的进程，并将其标记为RUNNABLE。
+调用sleep和wakeup的调用者可以使用任何方便的数字作为通道。
+Xv6通常使用与等待相关的内核数据结构的地址。
+Sleep获取p->lock（kernel/proc.c:559）。
+现在进入睡眠状态的进程同时持有p->lock和lk。
+在调用者（在示例中为P）中持有lk是必要的：它确保没有其他进程（在示例中为运行V的进程）可以开始调用wakeup(chan)。
+现在sleep持有p->lock，可以安全地释放lk：其他进程可能会开始调用wakeup(chan)，但wakeup将等待获取p->lock，因此会等待直到sleep完成将进程置于睡眠状态，避免wakeup错过sleep。
+
+ There is a minor complication: if lk is the same lock as p->lock, then sleep would deadlock with itself if it tried to acquire p->lock.
+But if the process calling sleep already holds p->lock, it doesn’t need to do anything more in order to avoiding missing a concurrent wakeup.
+This case arises when wait (kernel/proc.c:582) calls sleep with p->lock.
+Now that sleep holds p->lock and no others, it can put the process to sleep by recording the sleep channel, changing the process state to SLEEPING, and calling sched (kernel/proc.c:564-567).
+In a moment it will be clear why it’s critical that p->lock is not released (by scheduler) until after the process is marked SLEEPING.
+At some point, a process will acquire the condition lock, set the condition that the sleeper is waiting for, and call wakeup(chan).
+It’s important that wakeup is called while holding the condition lock1.
+Wakeup loops over the process table (kernel/proc.c:582).
+有一个小的复杂情况：如果lk与p->lock是同一个锁，那么如果sleep尝试获取p->lock，它将与自己发生死锁。
+但是，如果调用sleep的进程已经持有p->lock，为了避免错过并发唤醒，它不需要做任何其他操作。
+当wait（kernel/proc.c:582）调用带有p->lock的sleep时，就会出现这种情况。
+现在，sleep持有p->lock并且没有其他锁，它可以通过记录睡眠通道、将进程状态更改为SLEEPING并调用sched（kernel/proc.c:564-567）来使进程进入睡眠状态。
+很快就会清楚为什么在将进程标记为SLEEPING之后，p->lock不能被调度程序释放。
+在某个时刻，一个进程将获取条件锁，设置等待者正在等待的条件，并调用wakeup(chan)。
+重要的是，在持有条件锁时调用wakeup。
+wakeup在进程表上循环（kernel/proc.c:582）。
+
+ It acquires the p->lock of each process it inspects, both because it may manipulate that process’s state and because p->lock ensures that sleep and wakeup do not miss each other.
+When wakeup ﬁnds a process in state SLEEPING with a matching chan, it changes that process’s state to RUNNABLE.
+The next time the scheduler runs, it will see that the process is ready to be run.
+Why do the locking rules for sleep and wakeup ensure a sleeping process won’t miss a wakeup? The sleeping process holds either the condition lock or its own p->lock or both from a 1Strictly speaking it is sufﬁcient if wakeup merely follows the acquire (that is, one could call wakeup after the release).
+74 point before it checks the condition to a point after it is marked SLEEPING.
+The process calling wakeup holds both of those locks in wakeup’s loop.
+Thus the waker either makes the condition true before the consuming thread checks the condition; or the waker’s wakeup examines the sleep- ing thread strictly after it has been marked SLEEPING.
+它获取每个检查的进程的p->lock，既因为它可能操作该进程的状态，也因为p->lock确保了睡眠和唤醒不会错过彼此。
+当唤醒发现一个处于SLEEPING状态且具有匹配chan的进程时，它会将该进程的状态更改为RUNNABLE。
+调度程序下次运行时，它将看到该进程已准备好运行。
+为什么睡眠和唤醒的锁定规则能确保睡眠进程不会错过唤醒？睡眠进程在检查条件之前持有条件锁或其自己的p->lock或两者。
+调用唤醒的进程在唤醒的循环中持有这两个锁。
+因此，唤醒者要么在消费线程检查条件之前使条件为真；要么唤醒者的唤醒在睡眠线程被标记为SLEEPING之后严格检查它。
+
+ Then wakeup will see the sleeping process and wake it up (unless something else wakes it up ﬁrst).
+It is sometimes the case that multiple processes are sleeping on the same channel; for example, more than one process reading from a pipe.
+A single call to wakeup will wake them all up.
+One of them will run ﬁrst and acquire the lock that sleep was called with, and (in the case of pipes) read whatever data is waiting in the pipe.
+The other processes will ﬁnd that, despite being woken up, there is no data to be read.
+From their point of view the wakeup was “spurious,” and they must sleep again.
+For this reason sleep is always called inside a loop that checks the condition.
+No harm is done if two uses of sleep/wakeup accidentally choose the same channel: they will see spurious wakeups, but looping as described above will tolerate this problem.
+然后唤醒将会看到睡眠进程并唤醒它（除非有其他东西先唤醒它）。
+有时候多个进程会在同一个通道上睡眠；例如，从管道中读取的多个进程。
+一次唤醒调用将会唤醒它们所有。
+其中一个将会首先运行并获取使用sleep调用的锁，并且（在管道的情况下）读取管道中等待的任何数据。
+其他进程将会发现，尽管被唤醒，但没有数据可读取。
+从他们的角度来看，唤醒是“虚假的”，他们必须再次睡眠。
+因此，sleep总是在一个检查条件的循环内调用。
+如果两个sleep/wakeup的使用意外选择了相同的通道，也不会造成任何损害：它们将会看到虚假的唤醒，但是像上面描述的循环将会容忍这个问题。
+
+ Much of the charm of sleep/wakeup is that it is both lightweight (no need to create special data structures to act as sleep channels) and provides a layer of indirection (callers need not know which speciﬁc process they are interacting with).
+7.7 Code: Pipes A more complex example that uses sleep and wakeup to synchronize producers and consumers is xv6’s implementation of pipes.
+We saw the interface for pipes in Chapter 1: bytes written to one end of a pipe are copied to an in-kernel buffer and then can be read from the other end of the pipe.
+Future chapters will examine the ﬁle descriptor support surrounding pipes, but let’s look now at the implementations of pipewrite and piperead.
+Each pipe is represented by a struct pipe, which contains a lock and a data buffer.
+The ﬁelds nread and nwrite count the total number of bytes read from and written to the buffer.
+The buffer wraps around: the next byte written after buf[PIPESIZE-1] is buf[0].
+The counts do not wrap.
+睡眠/唤醒的魅力在于它既轻量级（无需创建特殊的数据结构作为睡眠通道），又提供了一层间接性（调用者无需知道与之交互的具体进程）。
+7.7 代码：管道 使用睡眠和唤醒来同步生产者和消费者的更复杂的示例是 xv6 的管道实现。
+我们在第一章中看到了管道的接口：写入管道的字节被复制到内核缓冲区，然后可以从管道的另一端读取。
+未来的章节将讨论围绕管道的文件描述符支持，但现在让我们来看一下 pipewrite 和 piperead 的实现。
+每个管道由一个包含锁和数据缓冲区的结构体 pipe 表示。
+字段 nread 和 nwrite 记录从缓冲区读取和写入的总字节数。
+缓冲区是循环的：buf[PIPESIZE-1] 后面写入的下一个字节是 buf[0]。
+计数不会循环。
+
+ This convention lets the implementation distinguish a full buffer (nwrite == nread+PIPESIZE) from an empty buffer (nwrite == nread), but it means that indexing into the buffer must use buf[nread % PIPESIZE] instead of just buf[nread] (and similarly for nwrite).
+Let’s suppose that calls to piperead and pipewrite happen simultaneously on two different CPUs.
+Pipewrite (kernel/pipe.c:77) begins by acquiring the pipe’s lock, which protects the counts, the data, and their associated invariants.
+Piperead (kernel/pipe.c:103) then tries to acquire the lock too, but cannot.
+It spins in acquire (kernel/spinlock.c:22) waiting for the lock.
+While piperead waits, pipewrite loops over the bytes being written (addr[0..n-1]), adding each to the pipe in turn (kernel/pipe.c:95).
+During this loop, it could happen that the buffer ﬁlls (kernel/pipe.c:85).
+这个约定允许实现区分一个满缓冲区（nwrite == nread+PIPESIZE）和一个空缓冲区（nwrite == nread），但这意味着索引到缓冲区必须使用buf[nread % PIPESIZE]而不仅仅是buf[nread]（nwrite也是如此）。
+假设piperead和pipewrite同时在两个不同的CPU上调用。
+Pipewrite（kernel/pipe.c:77）首先获取管道的锁，该锁保护计数、数据及其相关的不变量。
+然后，Piperead（kernel/pipe.c:103）也尝试获取锁，但无法获取。
+它在acquire（kernel/spinlock.c:22）中自旋等待锁。
+当piperead等待时，pipewrite循环遍历正在写入的字节（addr[0..n-1]），依次将每个字节添加到管道中（kernel/pipe.c:95）。
+在此循环中，可能会发生缓冲区填满的情况（kernel/pipe.c:85）。
+
+ In this case, pipewrite calls wakeup to alert any sleeping readers to the fact that there is data waiting in the buffer and then sleeps on &pi->nwrite to wait for a reader to take some bytes out of the buffer.
+Sleep releases pi->lock as part of putting pipewrite’s process to sleep.
+Now that pi->lock is available, piperead manages to acquire it and enters its critical sec- tion: it ﬁnds that pi->nread != pi->nwrite (kernel/pipe.c:110) (pipewrite went to sleep be- 75 cause pi->nwrite == pi->nread+PIPESIZE (kernel/pipe.c:85)), so it falls through to the for loop, copies data out of the pipe (kernel/pipe.c:117), and increments nread by the number of bytes copied.
+That many bytes are now available for writing, so piperead calls wakeup (ker- nel/pipe.c:124) to wake any sleeping writers before it returns.
+Wakeup ﬁnds a process sleeping on &pi->nwrite, the process that was running pipewrite but stopped when the buffer ﬁlled.
+It marks that process as RUNNABLE.
+在这种情况下，pipewrite调用wakeup来通知任何正在睡眠的读取器，有数据在缓冲区中等待，然后在&pi->nwrite上睡眠，等待读取器从缓冲区中取出一些字节。
+睡眠会释放pi->lock，作为将pipewrite的进程置于睡眠状态的一部分。
+现在pi->lock可用，piperead成功获取它并进入其临界区：它发现pi->nread != pi->nwrite（kernel/pipe.c:110）（pipewrite在pi->nwrite == pi->nread+PIPESIZE（kernel/pipe.c:85）时进入睡眠状态），因此它继续执行for循环，从管道中复制数据（kernel/pipe.c:117），并通过复制的字节数增加nread。
+现在有这么多字节可供写入，所以piperead在返回之前调用wakeup（kernel/pipe.c:124）来唤醒任何正在睡眠的写入器。
+Wakeup发现一个正在&pi->nwrite上睡眠的进程，这个进程是在缓冲区填满时运行pipewrite但停止的进程。
+它将该进程标记为RUNNABLE。
+
+ The pipe code uses separate sleep channels for reader and writer (pi->nread and pi->nwrite); this might make the system more efﬁcient in the unlikely event that there are lots of readers and writers waiting for the same pipe.
+The pipe code sleeps inside a loop checking the sleep condition; if there are multiple readers or writers, all but the ﬁrst process to wake up will see the condition is still false and sleep again.
+7.8 Code: Wait, exit, and kill Sleep and wakeup can be used for many kinds of waiting.
+An interesting example, introduced in Chapter 1, is the interaction between a child’s exit and its parent’s wait.
+At the time of the child’s death, the parent may already be sleeping in wait, or may be doing something else; in the latter case, a subsequent call to wait must observe the child’s death, perhaps long after it calls exit.
+管道代码使用单独的睡眠通道来进行读取和写入（pi->nread和pi->nwrite）；这可能会使系统在有很多读者和写者等待同一个管道的情况下更加高效。
+管道代码在一个循环中睡眠并检查睡眠条件；如果有多个读者或写者，除了第一个唤醒的进程外，其他进程会发现条件仍然为假并再次睡眠。
+7.8代码：等待、退出和终止睡眠和唤醒可以用于许多种等待。
+一个有趣的例子，在第1章中介绍的是子进程的退出和父进程的等待之间的交互。
+在子进程死亡时，父进程可能已经在等待中睡眠，或者可能正在做其他事情；在后一种情况下，对wait的后续调用必须观察到子进程的死亡，可能在调用exit之后很久。
+
+ The way that xv6 records the child’s demise until wait observes it is for exit to put the caller into the ZOMBIE state, where it stays until the parent’s wait notices it, changes the child’s state to UNUSED, copies the child’s exit status, and returns the child’s process ID to the parent.
+If the parent exits before the child, the parent gives the child to the init process, which perpetually calls wait; thus every child has a parent to clean up after it.
+The main implementation challenge is the possibility of races and deadlock between parent and child wait and exit, as well as exit and exit.
+Wait uses the calling process’s p->lock as the condition lock to avoid lost wakeups, and it acquires that lock at the start (kernel/proc.c:398).
+Then it scans the process table.
+If it ﬁnds a child in ZOMBIE state, it frees that child’s resources and its proc structure, copies the child’s exit status to the address supplied to wait (if it is not 0), and returns the child’s process ID.
+xv6记录子进程的终止方式是通过将调用者置于ZOMBIE状态，直到父进程的wait注意到它，将子进程的状态更改为UNUSED，复制子进程的退出状态，并将子进程的进程ID返回给父进程。
+如果父进程在子进程之前退出，父进程将子进程交给init进程，后者会不断调用wait；因此，每个子进程都有一个父进程来清理它的资源。
+主要的实现挑战是父进程和子进程wait和exit之间以及exit和exit之间可能发生的竞争和死锁。
+Wait使用调用进程的p->lock作为条件锁，以避免丢失唤醒，并在开始时获取该锁（kernel/proc.c:398）。
+然后它扫描进程表。
+如果它找到一个处于ZOMBIE状态的子进程，它会释放该子进程的资源和proc结构，将子进程的退出状态复制到wait提供的地址（如果不为0），并返回子进程的进程ID。
+
+ If wait ﬁnds children but none have exited, it calls sleep to wait for one of them to exit (kernel/proc.c:445), then scans again.
+Here, the condition lock being released in sleep is the waiting process’s p->lock, the special case mentioned above.
+Note that wait often holds two locks; that it acquires its own lock before trying to acquire any child’s lock; and that thus all of xv6 must obey the same locking order (parent, then child) in order to avoid deadlock.
+Wait looks at every process’s np->parent to ﬁnd its children.
+It uses np->parent with- out holding np->lock, which is a violation of the usual rule that shared variables must be pro- tected by locks.
+It is possible that np is an ancestor of the current process, in which case acquiring np->lock could cause a deadlock since that would violate the order mentioned above.
+如果wait发现有子进程但是没有一个退出，它会调用sleep等待其中一个退出（kernel/proc.c:445），然后再次扫描。
+在这里，sleep中释放的条件锁是等待进程的p->lock，即上面提到的特殊情况。
+注意，wait通常持有两个锁；在尝试获取任何子进程的锁之前，它会获取自己的锁；因此，为了避免死锁，xv6的所有部分都必须遵守相同的锁定顺序（先父进程，再子进程）。
+Wait会查看每个进程的np->parent来找到它的子进程。
+它在没有持有np->lock的情况下使用np->parent，这违反了通常的规则，即共享变量必须受到锁的保护。
+可能np是当前进程的祖先，如果是这样，获取np->lock可能会导致死锁，因为这将违反上面提到的顺序。
+
+ Examining np->parent without a lock seems safe in this case; a process’s parent ﬁeld is only changed by its parent, so if np->parent==p is true, the value can’t change unless the current process changes it.
+Exit (kernel/proc.c:333) records the exit status, frees some resources, gives any children to 76 the init process, wakes up the parent in case it is in wait, marks the caller as a zombie, and permanently yields the CPU.
+The ﬁnal sequence is a little tricky.
+The exiting process must hold its parent’s lock while it sets its state to ZOMBIE and wakes the parent up, since the parent’s lock is the condition lock that guards against lost wakeups in wait.
+The child must also hold its own p->lock, since otherwise the parent might see it in state ZOMBIE and free it while it is still running.
+The lock acquisition order is important to avoid deadlock: since wait acquires the parent’s lock before the child’s lock, exit must use the same order.
+在这种情况下，不使用锁来检查np->parent似乎是安全的；一个进程的parent字段只会被其父进程更改，所以如果np->parent==p为真，则该值除非当前进程更改它，否则不会改变。
+Exit（kernel/proc.c:333）记录退出状态，释放一些资源，将任何子进程交给init进程，唤醒父进程（如果它在等待中），将调用者标记为僵尸进程，并永久让出CPU。
+最后的顺序有点棘手。
+退出的进程在将其状态设置为ZOMBIE并唤醒父进程时必须持有其父进程的锁，因为父进程的锁是在等待中防止丢失唤醒的条件锁。
+子进程还必须持有自己的p->lock，否则父进程可能会在其仍在运行时看到它处于ZOMBIE状态并释放它。
+锁的获取顺序很重要，以避免死锁：由于wait在获取子进程的锁之前获取父进程的锁，所以exit必须使用相同的顺序。
+
+ Exit calls a specialized wakeup function, wakeup1, that wakes up only the parent, and only if it is sleeping in wait (kernel/proc.c:598).
+It may look incorrect for the child to wake up the parent before setting its state to ZOMBIE, but that is safe: although wakeup1 may cause the parent to run, the loop in wait cannot examine the child until the child’s p->lock is released by scheduler, so wait can’t look at the exiting process until well after exit has set its state to ZOMBIE (ker- nel/proc.c:386).
+While exit allows a process to terminate itself, kill (kernel/proc.c:611) lets one process re- quest that another terminate.
+It would be too complex for kill to directly destroy the victim process, since the victim might be executing on another CPU, perhaps in the middle of a sensitive sequence of updates to kernel data structures.
+Thus kill does very little: it just sets the victim’s p->killed and, if it is sleeping, wakes it up.
+退出调用一个专门的唤醒函数wakeup1，它只唤醒父进程，而且只有在父进程在等待中（kernel/proc.c:598）时才会唤醒。
+在将其状态设置为ZOMBIE之前，子进程唤醒父进程可能看起来不正确，但这是安全的：尽管wakeup1可能导致父进程运行，但在等待中的循环在调度程序释放子进程的p->lock之前无法检查子进程，因此等待无法在exit将其状态设置为ZOMBIE之后很久才能查看正在退出的进程（kernel/proc.c:386）。
+虽然exit允许进程自行终止，但kill（kernel/proc.c:611）允许一个进程请求另一个进程终止。
+直接销毁受害进程对于kill来说太复杂了，因为受害进程可能在另一个CPU上执行，可能正在对内核数据结构进行敏感的更新序列。
+因此，kill几乎什么都不做：它只是设置受害者的p->killed，并且如果它正在睡眠，则唤醒它。
+
+ Eventually the victim will enter or leave the kernel, at which point code in usertrap will call exit if p->killed is set.
+If the victim is running in user space, it will soon enter the kernel by making a system call or because the timer (or some other device) interrupts.
+If the victim process is in sleep, kill’s call to wakeup will cause the victim to return from sleep.
+This is potentially dangerous because the condition being waiting for may not be true.
+However, xv6 calls to sleep are always wrapped in a while loop that re-tests the condition after sleep returns.
+Some calls to sleep also test p->killed in the loop, and abandon the current activity if it is set.
+This is only done when such abandonment would be correct.
+For example, the pipe read and write code returns if the killed ﬂag is set; eventually the code will return back to trap, which will again check the ﬂag and exit.
+Some xv6 sleep loops do not check p->killed because the code is in the middle of a multi- step system call that should be atomic.
+最终，受害者将进入或离开内核，此时usertrap中的代码将在p->killed被设置时调用exit。
+如果受害者在用户空间运行，它将很快通过进行系统调用或因为定时器（或其他设备）中断而进入内核。
+如果受害者进程处于睡眠状态，kill对wakeup的调用将导致受害者从睡眠中返回。
+这可能是危险的，因为等待的条件可能不成立。
+然而，xv6对sleep的调用总是包裹在一个while循环中，在sleep返回后重新测试条件。
+一些对sleep的调用也在循环中测试p->killed，并在其被设置时放弃当前活动。
+只有在这种放弃是正确的情况下才会这样做。
+例如，管道读写代码在killed标志被设置时返回；最终代码将返回到trap，再次检查该标志并退出。
+一些xv6的sleep循环不检查p->killed，因为代码处于一个应该是原子的多步系统调用的中间阶段。
+
+ The virtio driver (kernel/virtio_disk.c:242) is an example: it does not check p->killed because a disk operation may be one of a set of writes that are all needed in order for the ﬁle system to be left in a correct state.
+A process that is killed while waiting for disk I/O won’t exit until it completes the current system call and usertrap sees the killed ﬂag.
+7.9 Real world The xv6 scheduler implements a simple scheduling policy, which runs each process in turn.
+This policy is called round robin.
+Real operating systems implement more sophisticated policies that, for example, allow processes to have priorities.
+The idea is that a runnable high-priority process will be preferred by the scheduler over a runnable low-priority process.
+These policies can become complex quickly because there are often competing goals: for example, the operating might also want to guarantee fairness and high throughput.
+In addition, complex policies may lead to unin- 77 tended interactions such as priority inversion and convoys.
+virtio驱动程序（kernel/virtio_disk.c:242）是一个例子：它不检查p->killed，因为磁盘操作可能是一组写操作中的一个，所有这些写操作都需要以正确的状态离开文件系统。
+等待磁盘I/O时被终止的进程直到完成当前系统调用并且usertrap看到被终止标志才会退出。
+7.9 现实世界中，xv6调度器实现了一个简单的调度策略，即依次运行每个进程。
+这个策略被称为轮询。
+真实的操作系统实现了更复杂的策略，例如允许进程具有优先级。
+这个想法是，一个可运行的高优先级进程将优先于一个可运行的低优先级进程被调度器选择。
+这些策略很快就会变得复杂，因为通常存在竞争目标：例如，操作系统可能还希望保证公平性和高吞吐量。
+此外，复杂的策略可能会导致意外的相互作用，如优先级倒置和车队。
+
+ Priority inversion can happen when a low-priority and high-priority process share a lock, which when acquired by the low-priority process can prevent the high-priority process from making progress.
+A long convoy of waiting processes can form when many high-priority processes are waiting for a low-priority process that acquires a shared lock; once a convoy has formed it can persist for long time.
+To avoid these kinds of problems additional mechanisms are necessary in sophisticated schedulers.
+Sleep and wakeup are a simple and effective synchronization method, but there are many others.
+The ﬁrst challenge in all of them is to avoid the “lost wakeups” problem we saw at the beginning of the chapter.
+The original Unix kernel’s sleep simply disabled interrupts, which suf- ﬁced because Unix ran on a single-CPU system.
+Because xv6 runs on multiprocessors, it adds an explicit lock to sleep.
+FreeBSD’s msleep takes the same approach.
+优先级反转可能发生在低优先级和高优先级进程共享一个锁时，当低优先级进程获取锁时，可能会阻止高优先级进程的进展。
+当许多高优先级进程等待一个获取共享锁的低优先级进程时，会形成一个长时间的等待进程队列。
+为了避免这些问题，在复杂的调度器中需要额外的机制。
+睡眠和唤醒是一种简单而有效的同步方法，但还有许多其他方法。
+所有这些方法中的第一个挑战是避免我们在本章开头看到的“丢失唤醒”问题。
+原始的Unix内核的睡眠函数只是禁用中断，这足够因为Unix运行在单CPU系统上。
+因为xv6运行在多处理器上，它在睡眠函数中添加了一个显式的锁。
+FreeBSD的msleep采用了相同的方法。
+
+ Plan 9’s sleep uses a callback function that runs with the scheduling lock held just before going to sleep; the function serves as a last-minute check of the sleep condition, to avoid lost wakeups.
+The Linux kernel’s sleep uses an explicit process queue, called a wait queue, instead of a wait channel; the queue has its own internal lock.
+Scanning the entire process list in wakeup for processes with a matching chan is inefﬁcient.
+A better solution is to replace the chan in both sleep and wakeup with a data structure that holds a list of processes sleeping on that structure, such as Linux’s wait queue.
+Plan 9’s sleep and wakeup call that structure a rendezvous point or Rendez.
+Many thread libraries refer to the same structure as a condition variable; in that context, the operations sleep and wakeup are called wait and signal.
+All of these mechanisms share the same ﬂavor: the sleep condition is protected by some kind of lock dropped atomically during sleep.
+Plan 9的sleep在进入睡眠之前使用一个回调函数，该函数在持有调度锁的情况下运行；该函数用作睡眠条件的最后一次检查，以避免丢失唤醒。
+Linux内核的sleep使用一个显式的进程队列，称为等待队列，而不是等待通道；队列有自己的内部锁。
+在唤醒中扫描整个进程列表以查找具有匹配chan的进程是低效的。
+更好的解决方案是用一个包含在该结构上睡眠的进程列表的数据结构来替换sleep和wakeup中的chan，例如Linux的等待队列。
+Plan 9的sleep和wakeup将该结构称为会合点或Rendez。
+许多线程库将相同的结构称为条件变量；在这种情况下，操作sleep和wakeup被称为wait和signal。
+所有这些机制都共享相同的特点：睡眠条件受到在睡眠期间原子地释放的某种类型的锁的保护。
+
+ The implementation of wakeup wakes up all processes that are waiting on a particular chan- nel, and it might be the case that many processes are waiting for that particular channel.
+The operating system will schedule all these processes and they will race to check the sleep condition.
+Processes that behave in this way are sometimes called a thundering herd, and it is best avoided.
+Most condition variables have two primitives for wakeup: signal, which wakes up one process, and broadcast, which wakes up all waiting processes.
+Semaphores are often used for synchronization.
+The count typically corresponds to something like the number of bytes available in a pipe buffer or the number of zombie children that a process has.
+Using an explicit count as part of the abstraction avoids the “lost wakeup” problem: there is an explicit count of the number of wakeups that have occurred.
+The count also avoids the spurious wakeup and thundering herd problems.
+实现wakeup会唤醒所有等待在特定通道上的进程，而且可能有许多进程正在等待该特定通道。
+操作系统将调度所有这些进程，它们将竞争检查睡眠条件。
+以这种方式行为的进程有时被称为“雷鸣群”，最好避免。
+大多数条件变量都有两个用于唤醒的原语：signal，唤醒一个进程，和broadcast，唤醒所有等待的进程。
+信号量通常用于同步。
+计数通常对应于管道缓冲区中可用的字节数或进程拥有的僵尸子进程的数量之类的东西。
+使用显式计数作为抽象的一部分可以避免“丢失唤醒”问题：有一个明确的计数表示已发生的唤醒次数。
+计数还可以避免虚假唤醒和雷鸣群问题。
+
+ Terminating processes and cleaning them up introduces much complexity in xv6.
+In most oper- ating systems it is even more complex, because, for example, the victim process may be deep inside the kernel sleeping, and unwinding its stack requires much careful programming.
+Many operating systems unwind the stack using explicit mechanisms for exception handling, such as longjmp.
+Furthermore, there are other events that can cause a sleeping process to be woken up, even though the event it is waiting for has not happened yet.
+For example, when a Unix process is sleeping, another process may send a signal to it.
+In this case, the process will return from the interrupted system call with the value -1 and with the error code set to EINTR.
+The application can check for these values and decide what to do.
+Xv6 doesn’t support signals and this complexity doesn’t arise.
+78 Xv6’s support for kill is not entirely satisfactory: there are sleep loops which probably should check for p->killed.
+终止进程并清理它们在xv6中引入了很多复杂性。
+在大多数操作系统中，这个过程甚至更加复杂，因为例如，受害进程可能深入内核中休眠，解开它的堆栈需要非常小心的编程。
+许多操作系统使用显式的异常处理机制（如longjmp）来解开堆栈。
+此外，还有其他事件可能导致正在休眠的进程被唤醒，即使它正在等待的事件尚未发生。
+例如，当一个Unix进程正在休眠时，另一个进程可能向它发送一个信号。
+在这种情况下，进程将从被中断的系统调用中返回，返回值为-1，并且错误代码设置为EINTR。
+应用程序可以检查这些值并决定如何处理。
+Xv6不支持信号，因此不会出现这种复杂性。
+Xv6对kill的支持并不完全令人满意：可能应该检查p->killed的睡眠循环。
+
+ A related problem is that, even for sleep loops that check p->killed, there is a race between sleep and kill; the latter may set p->killed and try to wake up the victim just after the victim’s loop checks p->killed but before it calls sleep.
+If this problem occurs, the victim won’t notice the p->killed until the condition it is waiting for occurs.
+This may be quite a bit later (e.g., when the virtio driver returns a disk block that the victim is waiting for) or never (e.g., if the victim is waiting from input from the console, but the user doesn’t type any input).
+A real operating system would ﬁnd free proc structures with an explicit free list in constant time instead of the linear-time search in allocproc; xv6 uses the linear scan for simplicity.
+7.10 Exercises 1.
+Sleep has to check lk != &p->lock to avoid a deadlock (kernel/proc.c:558-561).
+Suppose the special case were eliminated by replacing if(lk !
+相关问题是，即使对于检查p->killed的睡眠循环，睡眠和杀死之间存在竞争；后者可能设置p->killed并尝试在受害者的循环检查p->killed之后但在调用睡眠之前唤醒受害者。
+如果出现这个问题，受害者在等待的条件发生之前不会注意到p->killed。
+这可能会相当长时间（例如，当virtio驱动程序返回受害者正在等待的磁盘块时）或永远不会发生（例如，如果受害者正在等待来自控制台的输入，但用户没有输入任何内容）。
+真正的操作系统将在常数时间内使用显式的空闲进程结构列表找到空闲的进程结构，而不是在allocproc中进行线性搜索；xv6为了简单起见使用线性扫描。
+7.10练习1.睡眠必须检查lk！
+=＆p->lock以避免死锁（kernel/proc.c:558-561）。
+假设通过替换if（lk！
+
+= &p->lock){ acquire(&p->lock); release(lk); } with release(lk); acquire(&p->lock); Doing this would break sleep.
+How? 2.
+Most process cleanup could be done by either exit or wait.
+It turns out that exit must be the one to close the open ﬁles.
+Why? The answer involves pipes.
+3.
+Implement semaphores in xv6 without using sleep and wakeup (but it is OK to use spin locks).
+Replace the uses of sleep and wakeup in xv6 with semaphores.
+Judge the result.
+4.
+Fix the race mentioned above between kill and sleep, so that a kill that occurs after the victim’s sleep loop checks p->killed but before it calls sleep results in the victim abandoning the current system call.
+5.
+Design a plan so that every sleep loop checks p->killed so that, for example, a process that is in the virtio driver can return quickly from the while loop if it is killed by another process.
+6.
+Modify xv6 to use only one context switch when switching from one process’s kernel thread to another, rather than switching through the scheduler thread.
+=＆p->lock）{ acquire（＆p->lock）; release（lk）; } with release（lk）; acquire（＆p->lock）; 这样做会破坏睡眠。
+为什么？2.大多数进程清理工作可以通过exit或wait来完成。
+事实证明，exit必须关闭打开的文件。
+为什么？答案涉及管道。
+3.在xv6中实现信号量，而不使用sleep和wakeup（但使用自旋锁是可以的）。
+用信号量替换xv6中的sleep和wakeup的使用。
+判断结果。
+4.修复上述kill和sleep之间的竞争，以便在受害者的睡眠循环检查p->killed之后但在调用sleep之前发生的kill导致受害者放弃当前的系统调用。
+5.设计一个计划，使每个睡眠循环都检查p->killed，以便例如，在virtio驱动程序中的进程如果被另一个进程杀死，可以快速从while循环中返回。
+6.修改xv6，使其在从一个进程的内核线程切换到另一个进程时只进行一次上下文切换，而不是通过调度程序线程进行切换。
+
+ The yielding thread will need to select the next thread itself and call swtch.
+The challenges will be to prevent multiple cores from executing the same thread accidentally; to get the locking right; and to avoid deadlocks.
+79 7.
+Modify xv6’s scheduler to use the RISC-V WFI (wait for interrupt) instruction when no processes are runnable.
+Try to ensure that, any time there are runnable processes waiting to run, no cores are pausing in WFI.
+8.
+The lock p->lock protects many invariants, and when looking at a particular piece of xv6 code that is protected by p->lock, it can be difﬁcult to ﬁgure out which invariant is being enforced.
+Design a plan that is more clean by splitting p->lock into several locks.
+可变线程将需要自行选择下一个线程并调用swtch。
+挑战在于防止多个核心意外执行相同的线程；正确使用锁定；避免死锁。
+79 7.
+修改xv6的调度程序，当没有可运行的进程时使用RISC-V WFI（等待中断）指令。
+尽量确保在有可运行的进程等待运行时，没有核心在WFI中暂停。
+8.
+锁p->lock保护许多不变量，当查看由p->lock保护的特定xv6代码片段时，很难确定正在执行哪个不变量。
+通过将p->lock拆分为几个锁，设计一个更清晰的计划。
+

@@ -1,0 +1,407 @@
+Lock Description bcache.lock cons.lock ftable.lock icache.lock vdisk_lock kmem.lock log.lock pipe’s pi->lock pid_lock proc’s p->lock tickslock inode’s ip->lock Serializes operations on each inode and its content buf’s b->lock Protects allocation of block buffer cache entries Serializes access to console hardware, avoids intermixed output Serializes allocation of a struct ﬁle in ﬁle table Protects allocation of inode cache entries Serializes access to disk hardware and queue of DMA descriptors Serializes allocation of memory Serializes operations on the transaction log Serializes operations on each pipe Serializes increments of next_pid Serializes changes to process’s state Serializes operations on the ticks counter Serializes operations on each block buffer Figure 6.3: Locks in xv6 B, and the other path acquires them in the order B then A.
+Suppose thread T1 executes code path 1 and acquires lock A, and thread T2 executes code path 2 and acquires lock B.
+锁描述 bcache.lock cons.lock ftable.lock icache.lock vdisk_lock kmem.lock log.lock 管道的 pi->lock pid_lock 进程的 p->lock tickslock inode 的 ip->lock 序列化每个 inode 及其内容的操作 buf 的 b->lock 保护块缓冲区分配的锁 序列化对控制台硬件的访问，避免混合输出 保护文件表中 struct ﬁle 的分配 序列化对 inode 缓存分配的锁 序列化对磁盘硬件和 DMA 描述符队列的访问 保护内存分配的锁 序列化事务日志的操作 序列化每个管道的操作 序列化 next_pid 的增量 序列化进程状态的更改 序列化对 ticks 计数器的操作 序列化每个块缓冲区的操作 图 6.3: xv6 中的锁 B，并且其他路径按照 B 然后 A 的顺序获取它们。
+假设线程 T1 执行代码路径 1 并获取锁 A，线程 T2 执行代码路径 2 并获取锁 B。
+
+ Next T1 will try to acquire lock B, and T2 will try to acquire lock A.
+Both acquires will block indeﬁnitely, because in both cases the other thread holds the needed lock, and won’t release it until its acquire returns.
+To avoid such deadlocks, all code paths must acquire locks in the same order.
+The need for a global lock acquisition order means that locks are effectively part of each function’s speciﬁcation: callers must invoke functions in a way that causes locks to be acquired in the agreed-on order.
+Xv6 has many lock-order chains of length two involving per-process locks (the lock in each struct proc) due to the way that sleep works (see Chapter 7).
+For example, consoleintr (kernel/console.c:138) is the interrupt routine which handles typed characters.
+When a newline ar- rives, any process that is waiting for console input should be woken up.
+To do this, consoleintr holds cons.lock while calling wakeup, which acquires the waiting process’s lock in order to wake it up.
+下一个T1将尝试获取锁B，而T2将尝试获取锁A。
+两者都会无限期地阻塞，因为在这两种情况下，另一个线程持有所需的锁，并且在其获取返回之前不会释放它。
+为了避免这种死锁，所有代码路径必须按照相同的顺序获取锁。
+全局锁获取顺序的需要意味着锁实际上是每个函数规范的一部分：调用者必须以一种导致按照约定顺序获取锁的方式调用函数。
+由于sleep的工作方式（参见第7章），Xv6具有许多涉及每个进程锁（每个struct proc中的锁）的长度为两个的锁顺序链。
+例如，consoleintr（kernel/console.c:138）是处理键入字符的中断例程。
+当换行符到达时，任何等待控制台输入的进程都应该被唤醒。
+为了做到这一点，consoleintr在调用wakeup时持有cons.lock，后者获取等待进程的锁以唤醒它。
+
+ In consequence, the global deadlock-avoiding lock order includes the rule that cons.lock must be acquired before any process lock.
+The ﬁle-system code contains xv6’s longest lock chains.
+For example, creating a ﬁle requires simultaneously holding a lock on the directory, a lock on the new ﬁle’s inode, a lock on a disk block buffer, the disk driver’s vdisk_lock, and the calling pro- cess’s p->lock.
+To avoid deadlock, ﬁle-system code always acquires locks in the order mentioned in the previous sentence.
+Honoring a global deadlock-avoiding order can be surprisingly difﬁcult.
+Sometimes the lock order conﬂicts with logical program structure, e.g., perhaps code module M1 calls module M2, but the lock order requires that a lock in M2 be acquired before a lock in M1.
+Sometimes the identities of locks aren’t known in advance, perhaps because one lock must be held in order to discover the identity of the lock to be acquired next.
+因此，全局避免死锁的锁定顺序包括在任何进程锁之前必须获取cons.lock的规则。
+文件系统代码包含了xv6最长的锁链。
+例如，创建一个文件需要同时持有目录的锁，新文件的inode的锁，磁盘块缓冲区的锁，磁盘驱动程序的vdisk_lock，以及调用进程的p->lock。
+为了避免死锁，文件系统代码总是按照前面提到的顺序获取锁。
+遵守全局避免死锁的顺序可能会出乎意料地困难。
+有时，锁的顺序与逻辑程序结构冲突，例如，可能代码模块M1调用模块M2，但是锁的顺序要求在M1中获取锁之前必须获取M2中的锁。
+有时，锁的身份事先不知道，可能因为必须持有一个锁才能发现下一个要获取的锁的身份。
+
+ This kind of situation arises in the ﬁle system as it looks up successive components in a path name, and in the code for wait and exit as they search the table of processes looking for child processes.
+Finally, the danger of deadlock is often a constraint on 61 how ﬁne-grained one can make a locking scheme, since more locks often means more opportunity for deadlock.
+The need to avoid deadlock is often a major factor in kernel implementation.
+6.5 Locks and interrupt handlers Some xv6 spinlocks protect data that is used by both threads and interrupt handlers.
+For example, the clockintr timer interrupt handler might increment ticks (kernel/trap.c:163) at about the same time that a kernel thread reads ticks in sys_sleep (kernel/sysproc.c:64).
+The lock tickslock serializes the two accesses.
+The interaction of spinlocks and interrupts raises a potential danger.
+Suppose sys_sleep holds tickslock, and its CPU is interrupted by a timer interrupt.
+这种情况在文件系统中出现，因为它在查找路径名中的连续组件时，以及在等待和退出的代码中，它们在进程表中搜索子进程。
+最后，死锁的危险通常是对锁定方案的细粒度的限制，因为更多的锁通常意味着更多的死锁机会。
+避免死锁的需求通常是内核实现的一个重要因素。
+6.5 锁和中断处理程序一些 xv6 自旋锁保护着同时被线程和中断处理程序使用的数据。
+例如，clockintr 定时器中断处理程序可能在大约同一时间增加 ticks（kernel/trap.c:163），而内核线程在 sys_sleep（kernel/sysproc.c:64）中读取 ticks。
+锁 tickslock 串行化了这两个访问。
+自旋锁和中断的交互引发了潜在的危险。
+假设 sys_sleep 持有 tickslock，并且它的 CPU 被定时器中断打断。
+
+ clockintr would try to acquire tickslock, see it was held, and wait for it to be released.
+In this situation, tickslock will never be released: only sys_sleep can release it, but sys_sleep will not continue running until clockintr returns.
+So the CPU will deadlock, and any code that needs either lock will also freeze.
+To avoid this situation, if a spinlock is used by an interrupt handler, a CPU must never hold that lock with interrupts enabled.
+Xv6 is more conservative: when a CPU acquires any lock, xv6 always disables interrupts on that CPU.
+Interrupts may still occur on other CPUs, so an interrupt’s acquire can wait for a thread to release a spinlock; just not on the same CPU.
+xv6 re-enables interrupts when a CPU holds no spinlocks; it must do a little book-keeping to cope with nested critical sections.
+acquire calls push_off (kernel/spinlock.c:89) and release calls pop_off (kernel/spinlock.c:100) to track the nesting level of locks on the current CPU.
+clockintr会尝试获取tickslock，如果发现它被持有，则等待它被释放。
+在这种情况下，tickslock将永远不会被释放：只有sys_sleep可以释放它，但sys_sleep将不会继续运行，直到clockintr返回。
+因此，CPU将发生死锁，并且任何需要任一锁的代码也将被冻结。
+为了避免这种情况，如果中断处理程序使用自旋锁，CPU绝不能在启用中断的情况下持有该锁。
+Xv6更加保守：当CPU获取任何锁时，xv6总是在该CPU上禁用中断。
+中断仍然可能发生在其他CPU上，因此中断的获取可以等待线程释放自旋锁；只是不能在同一个CPU上等待。
+xv6在CPU不持有自旋锁时重新启用中断；它必须进行一些簿记以应对嵌套的临界区。
+acquire调用push_off（kernel/spinlock.c:89），而release调用pop_off（kernel/spinlock.c:100）来跟踪当前CPU上锁的嵌套级别。
+
+ When that count reaches zero, pop_off restores the interrupt enable state that existed at the start of the outermost critical section.
+The intr_off and intr_on functions execute RISC-V instructions to disable and enable interrupts, respectively.
+It is important that acquire call push_off strictly before setting lk->locked (kernel/spin- lock.c:28).
+If the two were reversed, there would be a brief window when the lock was held with interrupts enabled, and an unfortunately timed interrupt would deadlock the system.
+Similarly, it is important that release call pop_off only after releasing the lock (kernel/spinlock.c:66).
+6.6 Instruction and memory ordering It is natural to think of programs executing in the order in which source code statements appear.
+Many compilers and CPUs, however, execute code out of order to achieve higher performance.
+If an instruction takes many cycles to complete, a CPU may issue the instruction early so that it can overlap with other instructions and avoid CPU stalls.
+当计数达到零时，pop_off将恢复在最外层临界区开始时存在的中断使能状态。
+intr_off和intr_on函数执行RISC-V指令来分别禁用和启用中断。
+在设置lk->locked之前，acquire调用push_off非常重要（kernel/spin-lock.c:28）。
+如果两者颠倒，那么在启用中断的情况下保持锁定的时间窗口会很短暂，而一个不幸时机的中断会导致系统死锁。
+同样，release调用pop_off只能在释放锁之后才能执行（kernel/spinlock.c:66）。
+6.6指令和内存排序。
+人们自然而然地认为程序按照源代码语句的顺序执行。
+然而，许多编译器和CPU为了提高性能而乱序执行代码。
+如果一条指令需要很多周期才能完成，CPU可能会提前发出该指令，以便与其他指令重叠并避免CPU停顿。
+
+ For example, a CPU may notice that in a serial sequence of instructions A and B are not dependent on each other.
+The CPU may start instruction B ﬁrst, either because its inputs are ready before A’s inputs, or in order to overlap execution of A and B.
+A compiler may perform a similar re-ordering by emitting instructions for one statement before the instructions for a statement that precedes it in the source.
+Compilers and CPUs follow rules when they re-order to ensure that they don’t change the results of correctly-written serial code.
+However, the rules do allow re-ordering that changes the 62 results of concurrent code, and can easily lead to incorrect behavior on multiprocessors [2, 3].
+The CPU’s ordering rules are called the memory model.
+例如，CPU 可能会注意到在一系列的指令中，指令 A 和指令 B 之间没有依赖关系。
+CPU 可能会先执行指令 B，要么是因为它的输入在指令 A 的输入之前就准备好了，要么是为了重叠执行指令 A 和指令 B。
+编译器也可以通过在源代码中发出一条语句的指令之前发出另一条语句的指令来进行类似的重新排序。
+编译器和 CPU 在重新排序时遵循规则，以确保不改变正确编写的串行代码的结果。
+然而，这些规则允许重新排序并改变并发代码的结果，并且很容易在多处理器上导致不正确的行为。
+CPU 的排序规则被称为内存模型。
+
+ For example, in this code for push, it would be a disaster if the compiler or CPU moved the store corresponding to line 4 to a point after the release on line 6: 1 2 3 4 5 6 l = malloc(sizeof *l); l->data = data; acquire(&listlock); l->next = list; list = l; release(&listlock); If such a re-ordering occurred, there would be a window during which another CPU could acquire the lock and observe the updated list, but see an uninitialized list->next.
+To tell the hardware and compiler not to perform such re-orderings, xv6 uses __sync_synchronize() in both acquire (kernel/spinlock.c:22) and release (kernel/spinlock.c:47).
+__sync_synchronize() is a memory barrier: it tells the compiler and CPU to not reorder loads or stores across the barrier.
+The barriers in xv6’s acquire and release force order in almost all cases where it matters, since xv6 uses locks around accesses to shared data.
+Chapter 9 discusses a few exceptions.
+6.7 Sleep locks Sometimes xv6 needs to hold a lock for a long time.
+例如，在这个push的代码中，如果编译器或CPU将与第4行对应的存储移动到第6行释放之后的某个位置，那将是一场灾难：1 2 3 4 5 6 l = malloc(sizeof *l); l->data = data; acquire(&listlock); l->next = list; list = l; release(&listlock); 如果发生这样的重新排序，就会出现一个窗口，在这个窗口期间，另一个CPU可以获取锁并观察到更新的列表，但是看到一个未初始化的list->next。
+为了告诉硬件和编译器不要执行这样的重新排序，xv6在acquire（kernel/spinlock.c:22）和release（kernel/spinlock.c:47）中使用__sync_synchronize()。
+__sync_synchronize()是一个内存屏障：它告诉编译器和CPU不要在屏障之间重新排序加载或存储操作。
+xv6中acquire和release中的屏障在几乎所有重要的情况下都强制顺序，因为xv6在访问共享数据时使用锁。
+第9章讨论了一些例外情况。
+6.7睡眠锁有时xv6需要长时间持有一个锁。
+
+ For example, the ﬁle system (Chapter 8) keeps a ﬁle locked while reading and writing its content on the disk, and these disk operations can take tens of milliseconds.
+Holding a spinlock that long would lead to waste if another process wanted to acquire it, since the acquiring process would waste CPU for a long time while spinning.
+Another drawback of spinlocks is that a process cannot yield the CPU while retaining a spinlock; we’d like to do this so that other processes can use the CPU while the process with the lock waits for the disk.
+Yielding while holding a spinlock is illegal because it might lead to deadlock if a second thread then tried to acquire the spinlock; since acquire doesn’t yield the CPU, the second thread’s spinning might prevent the ﬁrst thread from running and releasing the lock.
+Yielding while holding a lock would also violate the requirement that interrupts must be off while a spinlock is held.
+例如，文件系统（第8章）在读写磁盘上的内容时会将文件锁定，这些磁盘操作可能需要几十毫秒的时间。
+如果另一个进程想要获取该锁定，持有自旋锁那么长时间会导致浪费，因为获取锁定的进程会在自旋期间浪费CPU很长时间。
+自旋锁的另一个缺点是，在保持自旋锁的同时，进程无法让出CPU；我们希望能够这样做，以便其他进程在等待磁盘时可以使用CPU。
+在持有自旋锁的同时让出CPU是非法的，因为如果第二个线程尝试获取自旋锁，这可能导致死锁；由于获取不会让出CPU，第二个线程的自旋可能会阻止第一个线程运行并释放锁定。
+在持有锁定的同时让出锁定也会违反中断在持有自旋锁时必须关闭的要求。
+
+ Thus we’d like a type of lock that yields the CPU while waiting to acquire, and allows yields (and interrupts) while the lock is held.
+Xv6 provides such locks in the form of sleep-locks.
+acquiresleep (kernel/sleeplock.c:22) yields the CPU while waiting, using techniques that will be explained in Chapter 7.
+At a high level, a sleep-lock has a locked ﬁeld that is protected by a spinlock, and acquiresleep ’s call to sleep atomically yields the CPU and releases the spinlock.
+The result is that other threads can execute while acquiresleep waits.
+Because sleep-locks leave interrupts enabled, they cannot be used in interrupt handlers.
+Be- cause acquiresleep may yield the CPU, sleep-locks cannot be used inside spinlock critical sections (though spinlocks can be used inside sleep-lock critical sections).
+Spin-locks are best suited to short critical sections, since waiting for them wastes CPU time; sleep-locks work well for lengthy operations.
+63 6.
+因此，我们希望一种在等待获取时能够让出CPU，并且在持有锁时允许让出（和中断）的锁类型。
+Xv6以睡眠锁的形式提供了这样的锁。
+acquiresleep（kernel/sleeplock.c:22）在等待时通过一些技术让出CPU，这些技术将在第7章中解释。
+从高层次上看，睡眠锁有一个由自旋锁保护的锁定字段，acquiresleep对sleep的调用原子地让出CPU并释放自旋锁。
+结果是，当acquiresleep等待时，其他线程可以执行。
+由于睡眠锁保持中断可用，因此不能在中断处理程序中使用它们。
+由于acquiresleep可能让出CPU，因此不能在自旋锁临界区内使用睡眠锁（尽管自旋锁可以在睡眠锁临界区内使用）。
+自旋锁最适合于短临界区，因为等待它们会浪费CPU时间；睡眠锁适用于长时间操作。
+63 6.
+8 Real world Programming with locks remains challenging despite years of research into concurrency primitives and parallelism.
+It is often best to conceal locks within higher-level constructs like synchronized queues, although xv6 does not do this.
+If you program with locks, it is wise to use a tool that attempts to identify race conditions, because it is easy to miss an invariant that requires a lock.
+Most operating systems support POSIX threads (Pthreads), which allow a user process to have several threads running concurrently on different CPUs.
+Pthreads has support for user-level locks, barriers, etc.
+Supporting Pthreads requires support from the operating system.
+For example, it should be the case that if one pthread blocks in a system call, another pthread of the same process should be able to run on that CPU.
+As another example, if a pthread changes its process’s address space (e.g.
+8 现实世界中，尽管对并发原语和并行性进行了多年的研究，但使用锁进行编程仍然具有挑战性。
+通常最好将锁隐藏在更高级的结构中，例如同步队列，尽管xv6并没有这样做。
+如果您使用锁进行编程，最好使用一种工具来尝试识别竞争条件，因为很容易忽略需要锁的不变量。
+大多数操作系统支持POSIX线程（Pthreads），它允许用户进程在不同的CPU上同时运行多个线程。
+Pthreads支持用户级锁、屏障等。
+支持Pthreads需要操作系统的支持。
+例如，如果一个pthread在系统调用中阻塞，同一进程的另一个pthread应该能够在该CPU上运行。
+另一个例子是，如果一个pthread更改了其进程的地址空间（例如。
+
+, maps or unmaps memory), the kernel must arrange that other CPUs that run threads of the same process update their hardware page tables to reﬂect the change in the address space.
+It is possible to implement locks without atomic instructions [8], but it is expensive, and most operating systems use atomic instructions.
+Locks can be expensive if many CPUs try to acquire the same lock at the same time.
+If one CPU has a lock cached in its local cache, and another CPU must acquire the lock, then the atomic instruction to update the cache line that holds the lock must move the line from the one CPU’s cache to the other CPU’s cache, and perhaps invalidate any other copies of the cache line.
+Fetching a cache line from another CPU’s cache can be orders of magnitude more expensive than fetching a line from a local cache.
+To avoid the expenses associated with locks, many operating systems use lock-free data struc- tures and algorithms [5, 10].
+，映射或取消映射内存），内核必须安排其他运行同一进程线程的CPU更新其硬件页表，以反映地址空间的变化。
+可以实现没有原子指令的锁[8]，但这是昂贵的，大多数操作系统使用原子指令。
+如果许多CPU同时尝试获取相同的锁，则锁可能很昂贵。
+如果一个CPU在其本地缓存中缓存了一个锁，而另一个CPU必须获取该锁，则用于更新保存锁的缓存行的原子指令必须将该行从一个CPU的缓存移动到另一个CPU的缓存，并可能使缓存行的任何其他副本无效。
+从另一个CPU的缓存中获取缓存行的成本可能比从本地缓存中获取行的成本高几个数量级。
+为了避免与锁相关的开销，许多操作系统使用无锁数据结构和算法[5, 10]。
+
+ For example, it is possible to implement a linked list like the one in the beginning of the chapter that requires no locks during list searches, and one atomic instruction to insert an item in a list.
+Lock-free programming is more complicated, however, than programming locks; for example, one must worry about instruction and memory reordering.
+Programming with locks is already hard, so xv6 avoids the additional complexity of lock-free programming.
+6.9 Exercises 1.
+Comment out the calls to acquire and release in kalloc (kernel/kalloc.c:69).
+This seems like it should cause problems for kernel code that calls kalloc; what symptoms do you expect to see? When you run xv6, do you see these symptoms? How about when running usertests? If you don’t see a problem, why not? See if you can provoke a problem by inserting dummy loops into the critical section of kalloc.
+2.
+Suppose that you instead commented out the locking in kfree (after restoring locking in kalloc).
+What might now go wrong?
+例如，可以实现一个链表，就像章节开头的那个链表一样，在列表搜索期间不需要锁，并且只需要一个原子指令来插入列表中的项。
+然而，无锁编程比编程锁更复杂；例如，人们必须担心指令和内存重排序。
+使用锁进行编程已经很困难了，所以xv6避免了无锁编程的额外复杂性。
+6.9练习1.
+在kalloc（kernel/kalloc.c:69）中注释掉对acquire和release的调用。
+这似乎会对调用kalloc的内核代码造成问题；你预计会看到什么症状？运行xv6时，你是否看到了这些症状？运行usertests时呢？如果你没有看到问题，为什么没有？尝试通过在kalloc的临界区中插入虚拟循环来引发问题。
+2.
+假设你在kfree中注释掉了锁定（在恢复kalloc的锁定之后）。
+现在可能会出现什么问题？
+ Is lack of locks in kfree less harmful than in kalloc? 3.
+If two CPUs call kalloc at the same time, one will have to wait for the other, which is bad for performance.
+Modify kalloc.c to have more parallelism, so that simultaneous calls to kalloc from different CPUs can proceed without waiting for each other.
+64 4.
+Write a parallel program using POSIX threads, which is supported on most operating sys- tems.
+For example, implement a parallel hash table and measure if the number of puts/gets scales with increasing number of cores.
+5.
+Implement a subset of Pthreads in xv6.
+That is, implement a user-level thread library so that a user process can have more than 1 thread and arrange that these threads can run in parallel on different CPUs.
+Come up with a design that correctly handles a thread making a blocking system call and changing its shared address space.
+在kfree中缺少锁是否比在kalloc中更有害？3.
+如果两个CPU同时调用kalloc，其中一个将不得不等待另一个，这对性能不利。
+修改kalloc.c以增加更多的并行性，使来自不同CPU的同时调用kalloc的调用可以互不等待地进行。
+64 4.
+使用POSIX线程编写一个并行程序，它在大多数操作系统上都受支持。
+例如，实现一个并行哈希表，并测量puts/gets的数量是否随着核心数量的增加而扩展。
+5.
+在xv6中实现Pthreads的一个子集。
+也就是说，实现一个用户级线程库，使用户进程可以拥有多个线程，并安排这些线程可以在不同的CPU上并行运行。
+设计一个能正确处理线程进行阻塞系统调用并更改其共享地址空间的设计。
+
+ 65 66 Chapter 7 Scheduling Any operating system is likely to run with more processes than the computer has CPUs, so a plan is needed to time-share the CPUs among the processes.
+Ideally the sharing would be transparent to user processes.
+A common approach is to provide each process with the illusion that it has its own virtual CPU by multiplexing the processes onto the hardware CPUs.
+This chapter explains how xv6 achieves this multiplexing.
+7.1 Multiplexing Xv6 multiplexes by switching each CPU from one process to another in two situations.
+First, xv6’s sleep and wakeup mechanism switches when a process waits for device or pipe I/O to complete, or waits for a child to exit, or waits in the sleep system call.
+Second, xv6 periodically forces a switch to cope with processes that compute for long periods without sleeping.
+第7章 调度
+任何操作系统都可能在计算机的CPU数量上运行多个进程，因此需要一个计划来在进程之间共享CPU的时间。
+理想情况下，共享对用户进程来说应该是透明的。
+一种常见的方法是通过将进程复用到硬件CPU上，为每个进程提供它拥有自己的虚拟CPU的错觉。
+本章将解释xv6如何实现这种复用。
+
+
+7.1 复用
+Xv6通过在两种情况下将每个CPU从一个进程切换到另一个进程来进行复用。
+首先，当一个进程等待设备或管道I/O完成，或者等待子进程退出，或者在睡眠系统调用中等待时，xv6的睡眠和唤醒机制会进行切换。
+其次，xv6定期强制进行切换，以应对长时间计算而不休眠的进程。
+
+ This multiplexing creates the illusion that each process has its own CPU, just as xv6 uses the memory allocator and hardware page tables to create the illusion that each process has its own memory.
+Implementing multiplexing poses a few challenges.
+First, how to switch from one process to another? Although the idea of context switching is simple, the implementation is some of the most opaque code in xv6.
+Second, how to force switches in a way that is transparent to user processes? Xv6 uses the standard technique of driving context switches with timer interrupts.
+Third, many CPUs may be switching among processes concurrently, and a locking plan is necessary to avoid races.
+Fourth, a process’s memory and other resources must be freed when the process exits, but it cannot do all of this itself because (for example) it can’t free its own kernel stack while still using it.
+这种多路复用创建了每个进程都有自己的CPU的错觉，就像xv6使用内存分配器和硬件页表创建了每个进程都有自己的内存的错觉一样。
+实现多路复用面临一些挑战。
+首先，如何从一个进程切换到另一个进程？虽然上下文切换的思想很简单，但在xv6中的实现是最不透明的代码之一。
+其次，如何以对用户进程透明的方式强制切换？Xv6使用定时器中断驱动上下文切换的标准技术。
+第三，许多CPU可能同时在进程之间切换，需要一个锁定计划来避免竞争。
+第四，当进程退出时，必须释放进程的内存和其他资源，但它不能自己完成所有这些操作，因为（例如）它在仍在使用自己的内核栈时无法释放它。
+
+ Fifth, each core of a multi-core machine must remember which process it is executing so that system calls affect the correct process’s kernel state.
+Finally, sleep and wakeup allow a process to give up the CPU and sleep waiting for an event, and allows another process to wake the ﬁrst process up.
+Care is needed to avoid races that result in the loss of wakeup notiﬁcations.
+Xv6 tries to solve these problems as simply as possible, but nevertheless the resulting code is tricky.
+67 Figure 7.1: Switching from one user process to another.
+In this example, xv6 runs with one CPU (and thus one scheduler thread).
+7.2 Code: Context switching Figure 7.1 outlines the steps involved in switching from one user process to another: a user-kernel transition (system call or interrupt) to the old process’s kernel thread, a context switch to the current CPU’s scheduler thread, a context switch to a new process’s kernel thread, and a trap return to the user-level process.
+第五，多核机器的每个核心都必须记住它正在执行的进程，以便系统调用会影响到正确的进程内核状态。
+最后，睡眠和唤醒允许一个进程放弃CPU并等待事件，同时允许另一个进程唤醒第一个进程。
+需要小心避免导致唤醒通知丢失的竞争。
+Xv6试图尽可能简单地解决这些问题，但最终的代码仍然很复杂。
+图7.1：从一个用户进程切换到另一个用户进程。
+在这个例子中，xv6使用一个CPU（因此只有一个调度器线程）。
+7.2代码：上下文切换图7.1概述了从一个用户进程切换到另一个用户进程的步骤：从旧进程的内核线程进行用户-内核转换（系统调用或中断），上下文切换到当前CPU的调度器线程，上下文切换到新进程的内核线程，以及陷阱返回到用户级进程。
+
+ The xv6 scheduler has a dedicated thread (saved registers and stack) per CPU because it is not safe for the scheduler execute on the old process’s kernel stack: some other core might wake the process up and run it, and it would be a disaster to use the same stack on two different cores.
+In this section we’ll examine the mechanics of switching between a kernel thread and a scheduler thread.
+Switching from one thread to another involves saving the old thread’s CPU registers, and restor- ing the previously-saved registers of the new thread; the fact that the stack pointer and program counter are saved and restored means that the CPU will switch stacks and switch what code it is executing.
+The function swtch performs the saves and restores for a kernel thread switch.
+swtch doesn’t directly know about threads; it just saves and restores register sets, called contexts.
+xv6调度程序每个CPU都有一个专用的线程（保存的寄存器和堆栈），因为在旧进程的内核堆栈上执行调度程序是不安全的：其他核心可能会唤醒该进程并运行它，如果在两个不同的核心上使用相同的堆栈将会是一场灾难。
+在本节中，我们将研究在内核线程和调度程序线程之间切换的机制。
+从一个线程切换到另一个线程涉及保存旧线程的CPU寄存器，并恢复新线程之前保存的寄存器；保存和恢复堆栈指针和程序计数器的事实意味着CPU将切换堆栈并切换执行的代码。
+函数swtch执行内核线程切换的保存和恢复操作。
+swtch并不直接了解线程；它只保存和恢复被称为上下文的寄存器集。
+
+ When it is time for a process to give up the CPU, the process’s kernel thread calls swtch to save its own context and return to the scheduler context.
+Each context is contained in a struct context (kernel/proc.h:2), itself contained in a process’s struct proc or a CPU’s struct cpu.
+Swtch takes two arguments: struct context *old and struct context *new.
+It saves the current registers in old, loads registers from new, and returns.
+Let’s follow a process through swtch into the scheduler.
+We saw in Chapter 4 that one possibil- ity at the end of an interrupt is that usertrap calls yield.
+Yield in turn calls sched, which calls swtch to save the current context in p->context and switch to the scheduler context previously saved in cpu->scheduler (kernel/proc.c:509).
+Swtch (kernel/swtch.S:3) saves only callee-saved registers; caller-saved registers are saved on the stack (if needed) by the calling C code.
+Swtch knows the offset of each register’s ﬁeld in struct context.
+It does not save the program counter.
+当一个进程需要放弃CPU的时候，进程的内核线程调用swtch来保存自己的上下文并返回到调度器的上下文。
+每个上下文都包含在一个struct context结构体中（kernel/proc.h:2），它本身包含在进程的struct proc或CPU的struct cpu中。
+Swtch接受两个参数：struct context *old和struct context *new。
+它将当前的寄存器保存在old中，从new中加载寄存器，并返回。
+让我们跟随一个进程通过swtch进入调度器。
+我们在第4章中看到，在中断结束时，usertrap调用yield的一个可能性。
+Yield又调用sched，sched调用swtch来保存当前的上下文在p->context中，并切换到之前保存在cpu->scheduler中的调度器上下文（kernel/proc.c:509）。
+Swtch（kernel/swtch.S:3）只保存被调用者保存的寄存器；如果需要，调用C代码会将调用者保存的寄存器保存在堆栈上。
+Swtch知道每个寄存器在struct context中的字段的偏移量。
+它不保存程序计数器。
+
+ Instead, swtch saves the ra register, which holds the return address from which swtch was called.
+Now swtch restores registers from 68 Kernelshellcatuserspacekernelspacekstack shellkstack cat kstackschedulersaverestoreswtchswtch the new context, which holds register values saved by a previous swtch.
+When swtch returns, it returns to the instructions pointed to by the restored ra register, that is, the instruction from which the new thread previously called swtch.
+In addition, it returns on the new thread’s stack.
+In our example, sched called swtch to switch to cpu->scheduler, the per-CPU scheduler context.
+That context had been saved by scheduler’s call to swtch (kernel/proc.c:475).
+When the swtch we have been tracing returns, it returns not to sched but to scheduler, and its stack pointer points at the current CPU’s scheduler stack.
+7.
+相反，swtch保存了ra寄存器，该寄存器保存了调用swtch的返回地址。
+现在，swtch从68内核shellcat用户空间内核空间kstack shellkstack cat kstack调度程序保存恢复swtchswtch新上下文，该上下文保存了先前swtch保存的寄存器值。
+当swtch返回时，它返回到被恢复的ra寄存器指向的指令，即新线程先前调用swtch的指令。
+此外，它返回到新线程的堆栈上。
+在我们的示例中，sched调用swtch切换到cpu->scheduler，即每个CPU的调度程序上下文。
+该上下文是由调度程序调用swtch（kernel/proc.c:475）保存的。
+当我们追踪的swtch返回时，它返回的不是sched而是scheduler，并且它的堆栈指针指向当前CPU的调度程序堆栈。
+7.
+3 Code: Scheduling The last section looked at the low-level details of swtch; now let’s take swtch as a given and examine switching from one process’s kernel thread through the scheduler to another process.
+The scheduler exists in the form of a special thread per CPU, each running the scheduler function.
+This function is in charge of choosing which process to run next.
+A process that wants to give up the CPU must acquire its own process lock p->lock, release any other locks it is holding, update its own state (p->state), and then call sched.
+Yield (kernel/proc.c:515) follows this convention, as do sleep and exit, which we will examine later.
+Sched double-checks those conditions (kernel/proc.c:499-504) and then an implication of those conditions: since a lock is held, interrupts should be disabled.
+Finally, sched calls swtch to save the current context in p->context and switch to the scheduler context in cpu->scheduler.
+3 代码：调度
+上一节讨论了swtch的低级细节；现在让我们将swtch视为已知，并通过调度器从一个进程的内核线程切换到另一个进程。
+调度器以每个CPU一个特殊的线程的形式存在，每个线程都运行调度器函数。
+这个函数负责选择下一个要运行的进程。
+想要放弃CPU的进程必须获取自己的进程锁p->lock，释放任何其他正在持有的锁，更新自己的状态（p->state），然后调用sched。
+遵循这个约定的有yield（kernel/proc.c:515），以及稍后我们将讨论的sleep和exit。
+Sched会再次检查这些条件（kernel/proc.c:499-504），以及这些条件的一个推论：由于持有了锁，中断应该被禁用。
+最后，sched调用swtch将当前上下文保存在p->context中，并切换到cpu->scheduler的调度器上下文。
+
+ Swtch returns on the scheduler’s stack as though scheduler’s swtch had returned The scheduler continues the for loop, ﬁnds a process to run, switches to it, and the cycle repeats.
+We just saw that xv6 holds p->lock across calls to swtch: the caller of swtch must already hold the lock, and control of the lock passes to the switched-to code.
+This convention is unusual with locks; usually the thread that acquires a lock is also responsible for releasing the lock, which makes it easier to reason about correctness.
+For context switching it is necessary to break this convention because p->lock protects invariants on the process’s state and context ﬁelds that are not true while executing in swtch.
+One example of a problem that could arise if p->lock were not held during swtch: a different CPU might decide to run the process after yield had set its state to RUNNABLE, but before swtch caused it to stop using its own kernel stack.
+The result would be two CPUs running on the same stack, which cannot be right.
+Swtch返回到调度程序的堆栈，就好像调度程序的swtch已经返回。
+调度程序继续for循环，找到要运行的进程，切换到它，并重复这个循环。
+我们刚刚看到，在调用swtch时，xv6会保持p->lock不变：调用swtch的调用者必须已经持有锁，并且锁的控制权传递给切换到的代码。
+这种约定在锁中是不寻常的；通常，获取锁的线程也负责释放锁，这样更容易推理正确性。
+对于上下文切换，有必要打破这个约定，因为p->lock保护了进程状态和上下文字段上的不变量，在执行swtch时这些不变量是不成立的。
+如果在swtch期间不持有p->lock可能会出现的一个问题的例子是：在yield将其状态设置为RUNNABLE之后，另一个CPU可能会决定运行该进程，但在swtch导致它停止使用自己的内核堆栈之前。
+结果将是两个CPU在同一个堆栈上运行，这是不正确的。
+
+ A kernel thread always gives up its CPU in sched and always switches to the same loca- tion in the scheduler, which (almost) always switches to some kernel thread that previously called sched.
+Thus, if one were to print out the line numbers where xv6 switches threads, one would ob- serve the following simple pattern: (kernel/proc.c:475), (kernel/proc.c:509), (kernel/proc.c:475), (ker- nel/proc.c:509), and so on.
+The procedures in which this stylized switching between two threads happens are sometimes referred to as coroutines; in this example, sched and scheduler are co-routines of each other.
+There is one case when the scheduler’s call to swtch does not end up in sched.
+When a new process is ﬁrst scheduled, it begins at forkret (kernel/proc.c:527).
+Forkret exists to release the p->lock; otherwise, the new process could start at usertrapret.
+Scheduler (kernel/proc.c:457) runs a simple loop: ﬁnd a process to run, run it until it yields, 69 repeat.
+一个内核线程总是在调度时放弃CPU，并且总是切换到调度程序中的相同位置，该位置（几乎）总是切换到之前调用调度程序的某个内核线程。
+因此，如果将xv6切换线程的行号打印出来，将会观察到以下简单的模式：（kernel/proc.c:475），（kernel/proc.c:509），（kernel/proc.c:475），（kernel/proc.c:509），依此类推。
+在发生这种样式化的两个线程之间切换的过程中，有时会称为协程；在这个例子中，sched和scheduler是彼此的协程。
+当调度程序调用swtch时，有一种情况不会结束于sched。
+当一个新进程首次被调度时，它会从forkret（kernel/proc.c:527）开始。
+Forkret的存在是为了释放p->lock；否则，新进程可能会从usertrapret开始。
+调度程序（kernel/proc.c:457）运行一个简单的循环：找到一个要运行的进程，运行它直到它让出，然后重复。
+
+ The scheduler loops over the process table looking for a runnable process, one that has p->state == RUNNABLE.
+Once it ﬁnds a process, it sets the per-CPU current process variable c->proc, marks the process as RUNNING, and then calls swtch to start running it (kernel/proc.c:470- 475).
+One way to think about the structure of the scheduling code is that it enforces a set of invariants about each process, and holds p->lock whenever those invariants are not true.
+One invariant is that if a process is RUNNING, a timer interrupt’s yield must be able to safely switch away from the process; this means that the CPU registers must hold the process’s register values (i.e.
+swtch hasn’t moved them to a context), and c->proc must refer to the process.
+Another invariant is that if a process is RUNNABLE, it must be safe for an idle CPU’s scheduler to run it; this means that p->context must hold the process’s registers (i.e.
+调度程序循环遍历进程表，寻找可运行的进程，即具有p->state == RUNNABLE的进程。
+一旦找到一个进程，它会设置每个CPU的当前进程变量c->proc，将进程标记为RUNNING，然后调用swtch来开始运行它（kernel/proc.c:470-475）。
+关于调度代码结构的一种思考方式是，它强制执行关于每个进程的一组不变量，并在这些不变量不成立时持有p->lock。
+其中一个不变量是，如果一个进程正在运行，定时器中断的yield必须能够安全地切换到其他进程；这意味着CPU寄存器必须保存进程的寄存器值（即swtch没有将它们移动到上下文中），并且c->proc必须引用该进程。
+另一个不变量是，如果一个进程是可运行的，空闲CPU的调度程序必须能够安全地运行它；这意味着p->context必须保存进程的寄存器（即...
+, they are not actually in the real registers), that no CPU is executing on the process’s kernel stack, and that no CPU’s c->proc refers to the process.
+Observe that these properties are often not true while p->lock is held.
+Maintaining the above invariants is the reason why xv6 often acquires p->lock in one thread and releases it in other, for example acquiring in yield and releasing in scheduler.
+Once yield has started to modify a running process’s state to make it RUNNABLE, the lock must remain held until the invariants are restored: the earliest correct release point is after scheduler (running on its own stack) clears c->proc.
+Similarly, once scheduler starts to convert a RUNNABLE process to RUNNING, the lock cannot be released until the kernel thread is completely running (after the swtch, for example in yield).
+p->lock protects other things as well: the interplay between exit and wait, the machinery to avoid lost wakeups (see Section 7.
+，它们实际上不在真实的寄存器中），没有任何CPU在进程的内核栈上执行，并且没有任何CPU的c->proc指向该进程。
+请注意，这些属性在持有p->lock时通常不成立。
+保持上述不变性是xv6经常在一个线程中获取p->lock并在另一个线程中释放它的原因，例如在yield中获取并在scheduler中释放。
+一旦yield开始修改运行进程的状态以使其变为RUNNABLE，锁必须保持持有，直到恢复不变性：最早的正确释放点是在scheduler（在其自己的堆栈上运行）清除c->proc之后。
+同样，一旦scheduler开始将一个RUNNABLE进程转换为RUNNING，锁不能在内核线程完全运行之前释放（例如在yield中的swtch之后）。
+p->lock还保护其他内容：exit和wait之间的相互作用，避免丢失唤醒的机制（参见第7节）。
+
+5), and avoidance of races between a process exiting and other processes reading or writing its state (e.g., the exit system call looking at p->pid and setting p->killed (kernel/proc.c:611)).
+It might be worth thinking about whether the different functions of p->lock could be split up, for clarity and perhaps for performance.
+7.4 Code: mycpu and myproc Xv6 often needs a pointer to the current process’s proc structure.
+On a uniprocessor one could have a global variable pointing to the current proc.
+This doesn’t work on a multi-core machine, since each core executes a different process.
+The way to solve this problem is to exploit the fact that each core has its own set of registers; we can use one of those registers to help ﬁnd per-core information.
+Xv6 maintains a struct cpu for each CPU (kernel/proc.h:22), which records the process cur- rently running on that CPU (if any), saved registers for the CPU’s scheduler thread, and the count of nested spinlocks needed to manage interrupt disabling.
+5)和避免进程退出和其他进程读取或写入其状态之间的竞争（例如，退出系统调用查看p->pid并设置p->killed（kernel/proc.c:611））。
+也许值得考虑将p->lock的不同功能拆分，以提高清晰度和性能。
+7.4代码：mycpu和myproc Xv6经常需要指向当前进程的proc结构的指针。
+在单处理器上，可以有一个指向当前进程的全局变量。
+在多核机器上，这种方法不起作用，因为每个核心执行不同的进程。
+解决这个问题的方法是利用每个核心都有自己的一组寄存器的事实；我们可以使用其中一个寄存器来帮助找到每个核心的信息。
+Xv6为每个CPU（kernel/proc.h:22）维护一个struct cpu，记录当前在该CPU上运行的进程（如果有的话），保存CPU调度器线程的寄存器以及管理中断禁用所需的嵌套自旋锁计数。
+
+ The function mycpu (kernel/proc.c:60) returns a pointer to the current CPU’s struct cpu.
+RISC-V numbers its CPUs, giving each a hartid.
+Xv6 ensures that each CPU’s hartid is stored in that CPU’s tp register while in the kernel.
+This allows mycpu to use tp to index an array of cpu structures to ﬁnd the right one.
+Ensuring that a CPU’s tp always holds the CPU’s hartid is a little involved.
+mstart sets the tp register early in the CPU’s boot sequence, while still in machine mode (kernel/start.c:46).
+usertrapret saves tp in the trampoline page, because the user process might modify tp.
+函数mycpu（kernel/proc.c:60）返回指向当前CPU的struct cpu的指针。
+RISC-V对其CPU进行编号，为每个CPU分配一个hartid。
+Xv6确保每个CPU的hartid存储在该CPU的tp寄存器中，而在内核中。
+这使得mycpu可以使用tp来索引一个cpu结构的数组，以找到正确的CPU。
+确保CPU的tp始终保存CPU的hartid有点复杂。
+mstart在CPU的引导序列的早期阶段，在机器模式下（kernel/start.c:46）设置tp寄存器。
+usertrapret将tp保存在跳板页中，因为用户进程可能会修改tp。
+

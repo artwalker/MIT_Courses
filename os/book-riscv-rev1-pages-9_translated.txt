@@ -1,0 +1,504 @@
+Chapter 8 File system The purpose of a ﬁle system is to organize and store data.
+File systems typically support sharing of data among users and applications, as well as persistence so that data is still available after a reboot.
+The xv6 ﬁle system provides Unix-like ﬁles, directories, and pathnames (see Chapter 1), and stores its data on a virtio disk for persistence (see Chapter 4).
+The ﬁle system addresses several challenges: • The ﬁle system needs on-disk data structures to represent the tree of named directories and ﬁles, to record the identities of the blocks that hold each ﬁle’s content, and to record which areas of the disk are free.
+• The ﬁle system must support crash recovery.
+That is, if a crash (e.g., power failure) occurs, the ﬁle system must still work correctly after a restart.
+The risk is that a crash might interrupt a sequence of updates and leave inconsistent on-disk data structures (e.g., a block that is both used in a ﬁle and marked free).
+第8章 文件系统 文件系统的目的是组织和存储数据。
+文件系统通常支持用户和应用程序之间的数据共享，以及持久性，即在重新启动后仍然可以使用数据。
+xv6文件系统提供类似Unix的文件、目录和路径名（参见第1章），并将其数据存储在virtio磁盘上以实现持久性（参见第4章）。
+文件系统面临几个挑战： • 文件系统需要在磁盘上使用数据结构来表示命名目录和文件的树，记录每个文件内容所在的块的标识，并记录磁盘上哪些区域是空闲的。
+ • 文件系统必须支持崩溃恢复。
+也就是说，如果发生崩溃（例如，断电），文件系统在重新启动后必须仍然能够正确工作。
+风险在于崩溃可能会中断一系列更新操作，并留下不一致的磁盘上的数据结构（例如，一个既被文件使用又被标记为空闲的块）。
+
+ • Different processes may operate on the ﬁle system at the same time, so the ﬁle-system code must coordinate to maintain invariants.
+• Accessing a disk is orders of magnitude slower than accessing memory, so the ﬁle system must maintain an in-memory cache of popular blocks.
+The rest of this chapter explains how xv6 addresses these challenges.
+8.1 Overview The xv6 ﬁle system implementation is organized in seven layers, shown in Figure 8.1.
+The disk layer reads and writes blocks on an virtio hard drive.
+The buffer cache layer caches disk blocks and synchronizes access to them, making sure that only one kernel process at a time can modify the data stored in any particular block.
+The logging layer allows higher layers to wrap updates to several blocks in a transaction, and ensures that the blocks are updated atomically in the face 81 Figure 8.1: Layers of the xv6 ﬁle system.
+of crashes (i.e., all of them are updated or none).
+• 不同的进程可以同时对文件系统进行操作，因此文件系统代码必须协调以维护不变量。
+
+• 访问磁盘比访问内存慢几个数量级，因此文件系统必须在内存中维护一个热门块的缓存。
+本章的其余部分将解释xv6如何解决这些挑战。
+
+8.1 概述
+xv6文件系统实现分为七个层次，如图8.1所示。
+磁盘层在virtio硬盘上读写块。
+缓冲区缓存层缓存磁盘块并同步对它们的访问，确保一次只有一个内核进程可以修改任何特定块中存储的数据。
+日志层允许更高层次的包装对多个块的更新进行事务处理，并确保在面对崩溃时这些块被原子地更新（即全部更新或全部不更新）。
+
+ The inode layer provides individual ﬁles, each represented as an inode with a unique i-number and some blocks holding the ﬁle’s data.
+The di- rectory layer implements each directory as a special kind of inode whose content is a sequence of directory entries, each of which contains a ﬁle’s name and i-number.
+The pathname layer provides hierarchical path names like /usr/rtm/xv6/fs.c, and resolves them with recursive lookup.
+The ﬁle descriptor layer abstracts many Unix resources (e.g., pipes, devices, ﬁles, etc.) using the ﬁle system interface, simplifying the lives of application programmers.
+The ﬁle system must have a plan for where it stores inodes and content blocks on the disk.
+To do so, xv6 divides the disk into several sections, as Figure 8.2 shows.
+The ﬁle system does not use block 0 (it holds the boot sector).
+Block 1 is called the superblock; it contains metadata about the ﬁle system (the ﬁle system size in blocks, the number of data blocks, the number of inodes, and the number of blocks in the log).
+inode层提供了单个文件，每个文件都表示为一个具有唯一i号和一些持有文件数据的inode。
+目录层将每个目录实现为一种特殊类型的inode，其内容是一系列目录条目，每个条目包含一个文件的名称和i号。
+路径名层提供了类似于/usr/rtm/xv6/fs.c的层次化路径名，并通过递归查找来解析它们。
+文件描述符层使用文件系统接口来抽象许多Unix资源（例如管道、设备、文件等），简化应用程序员的工作。
+文件系统必须有一个存储inode和内容块的计划。
+为此，xv6将磁盘分成几个部分，如图8.2所示。
+文件系统不使用块0（它保存引导扇区）。
+块1称为超级块；它包含有关文件系统的元数据（文件系统大小（以块为单位），数据块数，inode数以及日志中的块数）。
+
+ Blocks starting at 2 hold the log.
+After the log are the inodes, with multiple inodes per block.
+After those come bitmap blocks tracking which data blocks are in use.
+The remaining blocks are data blocks; each is either marked free in the bitmap block, or holds content for a ﬁle or directory.
+The superblock is ﬁlled in by a separate program, called mkfs, which builds an initial ﬁle system.
+The rest of this chapter discusses each layer, starting with the buffer cache.
+Look out for situa- tions where well-chosen abstractions at lower layers ease the design of higher ones.
+8.2 Buffer cache layer The buffer cache has two jobs: (1) synchronize access to disk blocks to ensure that only one copy of a block is in memory and that only one kernel thread at a time uses that copy; (2) cache popular blocks so that they don’t need to be re-read from the slow disk.
+The code is in bio.c.
+从2开始的块保存着日志。
+日志之后是索引节点，每个块中有多个索引节点。
+然后是跟踪哪些数据块正在使用的位图块。
+剩下的块是数据块；每个数据块在位图块中要么标记为空闲，要么保存文件或目录的内容。
+超级块由一个名为mkfs的单独程序填充，该程序构建初始文件系统。
+本章的其余部分讨论了每个层次，从缓冲区缓存开始。
+请注意，在较低层次选择合适的抽象可以简化更高层次的设计。
+8.2 缓冲区缓存层 缓冲区缓存有两个任务：(1) 同步访问磁盘块，以确保内存中只有一个副本，并且一次只有一个内核线程使用该副本；(2) 缓存常用块，以避免从慢速磁盘重新读取。
+代码在bio.c中。
+
+ The main interface exported by the buffer cache consists of bread and bwrite; the former obtains a buf containing a copy of a block which can be read or modiﬁed in memory, and the latter writes a modiﬁed buffer to the appropriate block on the disk.
+A kernel thread must release a buffer by calling brelse when it is done with it.
+The buffer cache uses a per-buffer sleep-lock to ensure 82 DirectoryInodeLogging Buﬀer cachePathnameFile descriptor Disk Figure 8.2: Structure of the xv6 ﬁle system.
+that only one thread at a time uses each buffer (and thus each disk block); bread returns a locked buffer, and brelse releases the lock.
+Let’s return to the buffer cache.
+The buffer cache has a ﬁxed number of buffers to hold disk blocks, which means that if the ﬁle system asks for a block that is not already in the cache, the buffer cache must recycle a buffer currently holding some other block.
+The buffer cache recycles the least recently used buffer for the new block.
+缓冲区缓存导出的主要接口由bread和bwrite组成；前者获取一个包含块的副本的buf，可以在内存中读取或修改，后者将修改后的缓冲区写入磁盘上的适当块。
+当内核线程完成对缓冲区的使用时，必须通过调用brelse来释放缓冲区。
+缓冲区缓存使用每个缓冲区的睡眠锁来确保每次只有一个线程使用每个缓冲区（因此每个磁盘块）；bread返回一个锁定的缓冲区，而brelse释放该锁。
+让我们回到缓冲区缓存。
+缓冲区缓存有固定数量的缓冲区来保存磁盘块，这意味着如果文件系统请求的块不在缓存中，缓冲区缓存必须回收当前保存其他块的缓冲区。
+缓冲区缓存将最近最少使用的缓冲区用于新的块。
+
+ The assumption is that the least recently used buffer is the one least likely to be used again soon.
+8.3 Code: Buffer cache The buffer cache is a doubly-linked list of buffers.
+The function binit, called by main (kernel/- main.c:27), initializes the list with the NBUF buffers in the static array buf (kernel/bio.c:43-52).
+All other access to the buffer cache refer to the linked list via bcache.head, not the buf array.
+A buffer has two state ﬁelds associated with it.
+The ﬁeld valid indicates that the buffer con- tains a copy of the block.
+The ﬁeld disk indicates that the buffer content has been handed to the disk, which may change the buffer (e.g., write data from the disk into data).
+Bread (kernel/bio.c:93) calls bget to get a buffer for the given sector (kernel/bio.c:97).
+If the buffer needs to be read from disk, bread calls virtio_disk_rw to do that before returning the buffer.
+Bget (kernel/bio.c:59) scans the buffer list for a buffer with the given device and sector numbers (kernel/bio.c:65-73).
+假设最近最少使用的缓冲区最不可能很快再次被使用。
+8.3代码：缓冲区缓存缓冲区缓存是一个双向链表的缓冲区。
+函数binit由main（kernel/- main.c:27）调用，用静态数组buf（kernel/bio.c:43-52）中的NBUF缓冲区初始化列表。
+对缓冲区缓存的所有其他访问都通过bcache.head引用链接列表，而不是buf数组。
+缓冲区有两个与之关联的状态字段。
+valid字段表示缓冲区包含块的副本。
+disk字段表示缓冲区内容已经传递给磁盘，磁盘可能会更改缓冲区（例如，将数据从磁盘写入数据）。
+Bread（kernel/bio.c:93）调用bget获取给定扇区的缓冲区（kernel/bio.c:97）。
+如果需要从磁盘读取缓冲区，则bread在返回缓冲区之前调用virtio_disk_rw执行该操作。
+Bget（kernel/bio.c:59）扫描缓冲区列表，查找具有给定设备和扇区号的缓冲区（kernel/bio.c:65-73）。
+
+ If there is such a buffer, bget acquires the sleep-lock for the buffer.
+Bget then returns the locked buffer.
+If there is no cached buffer for the given sector, bget must make one, possibly reusing a buffer that held a different sector.
+It scans the buffer list a second time, looking for a buffer that is not in use (b->refcnt = 0); any such buffer can be used.
+Bget edits the buffer metadata to record the new device and sector number and acquires its sleep-lock.
+Note that the assignment b->valid = 0 ensures that bread will read the block data from disk rather than incorrectly using the buffer’s previous contents.
+It is important that there is at most one cached buffer per disk sector, to ensure that readers see writes, and because the ﬁle system uses locks on buffers for synchronization.
+Bget ensures this invariant by holding the bache.
+如果存在这样的缓冲区，bget会获取缓冲区的睡眠锁。
+然后bget返回被锁定的缓冲区。
+如果给定扇区没有缓存的缓冲区，bget必须创建一个，可能会重用之前保存不同扇区的缓冲区。
+它再次扫描缓冲区列表，寻找一个未被使用的缓冲区（b->refcnt = 0）；任何这样的缓冲区都可以被使用。
+bget编辑缓冲区元数据以记录新的设备和扇区号，并获取其睡眠锁。
+注意，赋值b->valid = 0确保bread从磁盘读取块数据，而不是错误地使用缓冲区的先前内容。
+确保每个磁盘扇区最多只有一个缓存的缓冲区非常重要，以确保读者能够看到写入，并且文件系统使用缓冲区锁进行同步。
+bget通过持有缓冲区来确保这个不变量。
+
+lock continuously from the ﬁrst loop’s check of whether the block is cached through the second loop’s declaration that the block is now cached (by setting dev, blockno, and refcnt).
+This causes the check for a block’s presence and (if not present) the designation of a buffer to hold the block to be atomic.
+It is safe for bget to acquire the buffer’s sleep-lock outside of the bcache.lock critical section, since the non-zero b->refcnt prevents the buffer from being re-used for a different 83 0bootsuperinodesbit mapdata log1data ....2 disk block.
+The sleep-lock protects reads and writes of the block’s buffered content, while the bcache.lock protects information about which blocks are cached.
+If all the buffers are busy, then too many processes are simultaneously executing ﬁle system calls; bget panics.
+A more graceful response might be to sleep until a buffer became free, though there would then be a possibility of deadlock.
+从第一个循环检查块是否被缓存到第二个循环声明块已被缓存（通过设置dev、blockno和refcnt），锁定是连续的。
+这导致了对块存在性的检查（如果不存在）和指定一个缓冲区来保存块的原子性。
+bget可以在bcache.lock临界区之外获取缓冲区的睡眠锁，因为非零的b->refcnt防止了缓冲区被用于不同的83 0bootsuperinodesbit mapdata log1data ....2磁盘块。
+睡眠锁保护块的缓冲内容的读写，而bcache.lock保护了哪些块被缓存的信息。
+如果所有缓冲区都忙碌，那么同时执行文件系统调用的进程太多，bget会发生恐慌。
+一个更优雅的响应可能是睡眠，直到有一个缓冲区变为空闲，尽管这样可能会导致死锁的可能性。
+
+ Once bread has read the disk (if needed) and returned the buffer to its caller, the caller has exclusive use of the buffer and can read or write the data bytes.
+If the caller does modify the buffer, it must call bwrite to write the changed data to disk before releasing the buffer.
+Bwrite (kernel/bio.c:107) calls virtio_disk_rw to talk to the disk hardware.
+When the caller is done with a buffer, it must call brelse to release it.
+(The name brelse, a shortening of b-release, is cryptic but worth learning: it originated in Unix and is used in BSD, Linux, and Solaris too.) Brelse (kernel/bio.c:117) releases the sleep-lock and moves the buffer to the front of the linked list (kernel/bio.c:128-133).
+Moving the buffer causes the list to be ordered by how recently the buffers were used (meaning released): the ﬁrst buffer in the list is the most recently used, and the last is the least recently used.
+一旦Bread读取了磁盘（如果需要的话）并将缓冲区返回给调用者，调用者就独占缓冲区，可以读取或写入数据字节。
+如果调用者修改了缓冲区，必须在释放缓冲区之前调用bwrite将更改的数据写入磁盘。
+Bwrite（kernel/bio.c:107）调用virtio_disk_rw与磁盘硬件通信。
+当调用者完成对缓冲区的使用后，必须调用brelse来释放它。
+（brelse的名称，即b-release的缩写，虽然晦涩，但值得学习：它起源于Unix，并在BSD、Linux和Solaris中也使用。
+）Brelse（kernel/bio.c:117）释放睡眠锁并将缓冲区移动到链表的前面（kernel/bio.c:128-133）。
+移动缓冲区会导致链表按照最近使用的顺序排序：链表中的第一个缓冲区是最近使用的，最后一个是最近最少使用的。
+
+ The two loops in bget take advantage of this: the scan for an existing buffer must process the entire list in the worst case, but checking the most recently used buffers ﬁrst (starting at bcache.head and following next pointers) will reduce scan time when there is good locality of reference.
+The scan to pick a buffer to reuse picks the least recently used buffer by scanning backward (following prev pointers).
+8.4 Logging layer One of the most interesting problems in ﬁle system design is crash recovery.
+The problem arises because many ﬁle-system operations involve multiple writes to the disk, and a crash after a subset of the writes may leave the on-disk ﬁle system in an inconsistent state.
+For example, suppose a crash occurs during ﬁle truncation (setting the length of a ﬁle to zero and freeing its content blocks).
+Depending on the order of the disk writes, the crash may either leave an inode with a reference to a content block that is marked free, or it may leave an allocated but unreferenced content block.
+bget中的两个循环利用了这一点：在最坏的情况下，扫描现有缓冲区必须处理整个列表，但是首先检查最近使用的缓冲区（从bcache.head开始并按照next指针进行跟踪）将减少扫描时间，当引用局部性良好时。
+选择要重用的缓冲区的扫描通过向后扫描（按照prev指针进行跟踪）选择最近未使用的缓冲区。
+8.4日志层文件系统设计中最有趣的问题之一是崩溃恢复。
+这个问题的出现是因为许多文件系统操作涉及对磁盘的多次写入，而在一部分写入之后发生崩溃可能会导致磁盘上的文件系统处于不一致的状态。
+例如，假设在文件截断（将文件长度设置为零并释放其内容块）期间发生崩溃。
+根据磁盘写入的顺序，崩溃可能会导致一个inode引用一个被标记为自由的内容块，或者可能会导致一个已分配但未被引用的内容块。
+
+ The latter is relatively benign, but an inode that refers to a freed block is likely to cause serious problems after a reboot.
+After reboot, the kernel might allocate that block to another ﬁle, and now we have two different ﬁles pointing unintentionally to the same block.
+If xv6 supported multiple users, this situation could be a security problem, since the old ﬁle’s owner would be able to read and write blocks in the new ﬁle, owned by a different user.
+Xv6 solves the problem of crashes during ﬁle-system operations with a simple form of logging.
+An xv6 system call does not directly write the on-disk ﬁle system data structures.
+Instead, it places a description of all the disk writes it wishes to make in a log on the disk.
+Once the system call has logged all of its writes, it writes a special commit record to the disk indicating that the log contains a complete operation.
+At that point the system call copies the writes to the on-disk ﬁle system data structures.
+后者相对较温和，但是指向已释放块的inode在重启后可能会引起严重问题。
+重启后，内核可能会将该块分配给另一个文件，现在我们有两个不同的文件无意中指向同一个块。
+如果xv6支持多个用户，这种情况可能会成为一个安全问题，因为旧文件的所有者将能够读取和写入由不同用户拥有的新文件中的块。
+Xv6通过一种简单的日志记录形式解决了文件系统操作崩溃的问题。
+Xv6系统调用不直接写入磁盘上的文件系统数据结构，而是将其希望进行的所有磁盘写入的描述放入磁盘上的日志中。
+一旦系统调用记录了所有的写入操作，它就会向磁盘写入一个特殊的提交记录，表示日志包含了一个完整的操作。
+此时，系统调用将写入复制到磁盘上的文件系统数据结构中。
+
+ After those writes have completed, the system call erases the log on disk.
+If the system should crash and reboot, the ﬁle-system code recovers from the crash as follows, before running any processes.
+If the log is marked as containing a complete operation, then the 84 recovery code copies the writes to where they belong in the on-disk ﬁle system.
+If the log is not marked as containing a complete operation, the recovery code ignores the log.
+The recovery code ﬁnishes by erasing the log.
+Why does xv6’s log solve the problem of crashes during ﬁle system operations? If the crash occurs before the operation commits, then the log on disk will not be marked as complete, the re- covery code will ignore it, and the state of the disk will be as if the operation had not even started.
+If the crash occurs after the operation commits, then recovery will replay all of the operation’s writes, perhaps repeating them if the operation had started to write them to the on-disk data structure.
+在这些写操作完成之后，系统调用会在磁盘上擦除日志。
+如果系统崩溃并重新启动，文件系统代码会在运行任何进程之前从崩溃中恢复。
+如果日志被标记为包含完整操作，则恢复代码将把写操作复制到磁盘文件系统中的正确位置。
+如果日志未被标记为包含完整操作，则恢复代码将忽略该日志。
+恢复代码最后会擦除日志。
+为什么xv6的日志可以解决文件系统操作期间的崩溃问题？如果崩溃发生在操作提交之前，那么磁盘上的日志将不会被标记为完整，恢复代码将忽略它，并且磁盘的状态将好像操作甚至没有开始。
+如果崩溃发生在操作提交之后，恢复将重放所有操作的写操作，如果操作已经开始将它们写入磁盘数据结构，则可能会重复这些写操作。
+
+ In either case, the log makes operations atomic with respect to crashes: after recovery, either all of the operation’s writes appear on the disk, or none of them appear.
+8.5 Log design The log resides at a known ﬁxed location, speciﬁed in the superblock.
+It consists of a header block followed by a sequence of updated block copies (“logged blocks”).
+The header block contains an array of sector numbers, one for each of the logged blocks, and the count of log blocks.
+The count in the header block on disk is either zero, indicating that there is no transaction in the log, or non- zero, indicating that the log contains a complete committed transaction with the indicated number of logged blocks.
+Xv6 writes the header block when a transaction commits, but not before, and sets the count to zero after copying the logged blocks to the ﬁle system.
+Thus a crash midway through a transaction will result in a count of zero in the log’s header block; a crash after a commit will result in a non-zero count.
+无论哪种情况，日志在崩溃方面都使操作具有原子性：恢复后，要么所有操作的写入都出现在磁盘上，要么没有写入出现。
+8.5 日志设计日志位于已知的固定位置，由超级块指定。
+它由一个头块和一系列更新的块副本（“已记录块”）组成。
+头块包含一个扇区号数组，每个已记录块对应一个扇区号，并包含日志块的计数。
+磁盘上头块中的计数要么为零，表示日志中没有事务，要么为非零，表示日志包含一个完整的已提交事务，其中包含指定数量的已记录块。
+Xv6在事务提交时写入头块，但在复制已记录块到文件系统之前不会写入头块，并在将已记录块复制到文件系统后将计数设置为零。
+因此，在事务进行过程中崩溃将导致日志头块中的计数为零；在提交后崩溃将导致计数为非零。
+
+ Each system call’s code indicates the start and end of the sequence of writes that must be atomic with respect to crashes.
+To allow concurrent execution of ﬁle-system operations by different pro- cesses, the logging system can accumulate the writes of multiple system calls into one transaction.
+Thus a single commit may involve the writes of multiple complete system calls.
+To avoid splitting a system call across transactions, the logging system only commits when no ﬁle-system system calls are underway.
+The idea of committing several transactions together is known as group commit.
+Group commit reduces the number of disk operations because it amortizes the ﬁxed cost of a commit over multiple operations.
+Group commit also hands the disk system more concurrent writes at the same time, perhaps allowing the disk to write them all during a single disk rotation.
+Xv6’s virtio driver doesn’t support this kind of batching, but xv6’s ﬁle system design allows for it.
+每个系统调用的代码表示了与崩溃相关的写序列的开始和结束。
+为了允许不同进程并发执行文件系统操作，日志系统可以将多个系统调用的写操作累积到一个事务中。
+因此，一个单独的提交可能涉及多个完整系统调用的写操作。
+为了避免将一个系统调用拆分到多个事务中，日志系统只在没有进行文件系统系统调用时进行提交。
+将多个事务一起提交的想法被称为组提交。
+组提交减少了磁盘操作的次数，因为它将提交的固定成本分摊到多个操作上。
+组提交还可以同时向磁盘系统提交更多的并发写操作，也许可以在单个磁盘旋转期间将它们全部写入。
+Xv6的virtio驱动程序不支持这种批处理方式，但是xv6的文件系统设计允许这样做。
+
+ Xv6 dedicates a ﬁxed amount of space on the disk to hold the log.
+The total number of blocks written by the system calls in a transaction must ﬁt in that space.
+This has two consequences.
+No single system call can be allowed to write more distinct blocks than there is space in the log.
+This is not a problem for most system calls, but two of them can potentially write many blocks: write and unlink.
+A large ﬁle write may write many data blocks and many bitmap blocks as well as an inode block; unlinking a large ﬁle might write many bitmap blocks and an inode.
+Xv6’s write system call breaks up large writes into multiple smaller writes that ﬁt in the log, and unlink doesn’t cause problems because in practice the xv6 ﬁle system uses only one bitmap block.
+The other consequence of limited log space is that the logging system cannot allow a system call to 85 start unless it is certain that the system call’s writes will ﬁt in the space remaining in the log.
+8.
+Xv6在磁盘上分配了一定的空间来保存日志。
+系统调用在一个事务中写入的总块数必须适应该空间。
+这有两个后果。
+单个系统调用不能写入比日志中的空间更多的不同块。
+对于大多数系统调用来说，这不是一个问题，但其中两个可能会写入许多块：写入和取消链接。
+大文件写入可能会写入许多数据块和许多位图块，以及一个索引节点块；取消链接一个大文件可能会写入许多位图块和一个索引节点。
+Xv6的写入系统调用将大的写入分成多个较小的写入，以适应日志，而取消链接不会引起问题，因为实际上xv6文件系统只使用一个位图块。
+有限的日志空间的另一个后果是，日志系统不能允许系统调用开始，除非确定该系统调用的写入将适应日志中剩余的空间。
+
+6 Code: logging A typical use of the log in a system call looks like this: begin_op(); ...
+bp = bread(...); bp->data[...] = ...; log_write(bp); ...
+end_op(); begin_op (kernel/log.c:126) waits until the logging system is not currently committing, and until there is enough unreserved log space to hold the writes from this call.
+log.outstanding counts the number of system calls that have reserved log space; the total reserved space is log.outstanding times MAXOPBLOCKS.
+Incrementing log.outstanding both reserves space and prevents a com- mit from occuring during this system call.
+The code conservatively assumes that each system call might write up to MAXOPBLOCKS distinct blocks.
+log_write (kernel/log.c:214) acts as a proxy for bwrite.
+It records the block’s sector number in memory, reserving it a slot in the log on disk, and pins the buffer in the block cache to prevent the block cache from evicting it.
+6 代码：日志
+在系统调用中，日志的典型用法如下：
+begin_op();
+...
+bp = bread(...);
+bp->data[...] = ...;
+log_write(bp);
+...
+end_op();
+begin_op（kernel/log.c:126）会等待日志系统当前没有正在提交的操作，并且有足够的未保留日志空间来容纳此次调用的写操作。
+log.outstanding 记录了已保留日志空间的系统调用数量；总保留空间为 log.outstanding 乘以 MAXOPBLOCKS。
+增加 log.outstanding 既保留了空间，也防止在此系统调用期间发生提交。
+代码保守地假设每个系统调用可能写入多达 MAXOPBLOCKS 个不同的块。
+
+log_write（kernel/log.c:214）充当 bwrite 的代理。
+它在内存中记录块的扇区号，在磁盘上为其保留一个日志槽，并将缓冲区固定在块缓存中，以防止块缓存将其驱逐出去。
+
+ The block must stay in the cache until committed: until then, the cached copy is the only record of the modiﬁcation; it cannot be written to its place on disk until after commit; and other reads in the same transaction must see the modiﬁcations.
+log_write notices when a block is written multiple times during a single transaction, and allocates that block the same slot in the log.
+This optimization is often called absorption.
+It is common that, for example, the disk block containing inodes of several ﬁles is written several times within a transaction.
+By absorbing several disk writes into one, the ﬁle system can save log space and can achieve better performance because only one copy of the disk block must be written to disk.
+end_op (kernel/log.c:146) ﬁrst decrements the count of outstanding system calls.
+If the count is now zero, it commits the current transaction by calling commit().
+There are four stages in this process.
+write_log() (kernel/log.
+块必须保留在缓存中直到提交：在此之前，缓存副本是修改的唯一记录；在提交之后才能将其写入磁盘上的位置；同一事务中的其他读取必须看到修改。
+log_write会注意到在单个事务中多次写入块，并为该块在日志中分配相同的槽位。
+这种优化通常被称为吸收。
+通常情况下，例如，包含多个文件的inode的磁盘块在事务中被多次写入。
+通过将多个磁盘写入合并为一个，文件系统可以节省日志空间，并且可以获得更好的性能，因为只需要将磁盘块的一个副本写入磁盘。
+end_op（kernel/log.c:146）首先减少未完成系统调用的计数。
+如果计数现在为零，则通过调用commit()来提交当前事务。
+此过程分为四个阶段。
+write_log()（kernel/log.
+c:178) copies each block modiﬁed in the transaction from the buffer cache to its slot in the log on disk.
+write_head() (kernel/log.c:102) writes the header block to disk: this is the commit point, and a crash after the write will result in recovery replaying the transaction’s writes from the log.
+install_trans (kernel/log.c:69) reads each block from the log and writes it to the proper place in the ﬁle system.
+Finally end_op writes the log header with a count of zero; this has to happen before the next transaction starts writing logged blocks, so that a crash doesn’t result in recovery using one transaction’s header with the subsequent transaction’s logged blocks.
+recover_from_log (kernel/log.c:116) is called from initlog (kernel/log.c:55), which is called from fsinit(kernel/fs.c:42) during boot before the ﬁrst user process runs (kernel/proc.c:539).
+It reads the log header, and mimics the actions of end_op if the header indicates that the log con- tains a committed transaction.
+c:178) 将事务中修改的每个块从缓冲区缓存复制到日志上的相应位置。
+write_head() (kernel/log.c:102) 将头块写入磁盘：这是提交点，如果在写入后发生崩溃，恢复将从日志中重放事务的写入。
+install_trans (kernel/log.c:69) 从日志中读取每个块，并将其写入文件系统的适当位置。
+最后，end_op写入计数为零的日志头；这必须在下一个事务开始写入已记录的块之前发生，以防崩溃导致恢复使用一个事务的头部和后续事务的已记录块。
+recover_from_log (kernel/log.c:116) 从initlog (kernel/log.c:55) 调用，initlog 在引导过程中在第一个用户进程运行之前从fsinit(kernel/fs.c:42) 调用。
+它读取日志头，并在头部指示日志包含已提交事务的情况下模拟end_op的操作。
+
+ 86 An example use of the log occurs in filewrite (kernel/ﬁle.c:135).
+The transaction looks like this: begin_op(); ilock(f->ip); r = writei(f->ip, ...); iunlock(f->ip); end_op(); This code is wrapped in a loop that breaks up large writes into individual transactions of just a few sectors at a time, to avoid overﬂowing the log.
+The call to writei writes many blocks as part of this transaction: the ﬁle’s inode, one or more bitmap blocks, and some data blocks.
+8.7 Code: Block allocator File and directory content is stored in disk blocks, which must be allocated from a free pool.
+xv6’s block allocator maintains a free bitmap on disk, with one bit per block.
+A zero bit indicates that the corresponding block is free; a one bit indicates that it is in use.
+The program mkfs sets the bits corresponding to the boot sector, superblock, log blocks, inode blocks, and bitmap blocks.
+The block allocator provides two functions: balloc allocates a new disk block, and bfree frees a block.
+86日志的一个示例用法出现在filewrite（kernel/ﬁle.c:135）中。
+事务如下：begin_op（）; ilock（f->ip）; r = writei（f->ip，...）; iunlock（f->ip）; end_op（）;这段代码被包裹在一个循环中，将大的写操作分解成每次只有几个扇区的事务，以避免日志溢出。
+writei调用在这个事务中写入了许多块：文件的inode，一个或多个位图块和一些数据块。
+8.7代码：块分配器文件和目录内容存储在磁盘块中，这些块必须从空闲池中分配。
+xv6的块分配器在磁盘上维护一个空闲位图，每个块对应一个位。
+零位表示相应的块是空闲的；一位表示它正在使用中。
+程序mkfs设置与引导扇区、超级块、日志块、inode块和位图块相对应的位。
+块分配器提供两个函数：balloc分配一个新的磁盘块，bfree释放一个块。
+
+ Balloc The loop in balloc at (kernel/fs.c:71) considers every block, starting at block 0 up to sb.size, the number of blocks in the ﬁle system.
+It looks for a block whose bitmap bit is zero, indicating that it is free.
+If balloc ﬁnds such a block, it updates the bitmap and returns the block.
+For efﬁciency, the loop is split into two pieces.
+The outer loop reads each block of bitmap bits.
+The inner loop checks all BPB bits in a single bitmap block.
+The race that might occur if two processes try to allocate a block at the same time is prevented by the fact that the buffer cache only lets one process use any one bitmap block at a time.
+Bfree (kernel/fs.c:90) ﬁnds the right bitmap block and clears the right bit.
+Again the exclusive use implied by bread and brelse avoids the need for explicit locking.
+As with much of the code described in the remainder of this chapter, balloc and bfree must be called inside a transaction.
+8.8 Inode layer The term inode can have one of two related meanings.
+Balloc在（kernel/fs.c:71）的循环中考虑了每个块，从块0开始到sb.size，即文件系统中的块数。
+它寻找一个位图位为零的块，表示它是空闲的。
+如果balloc找到这样的块，它会更新位图并返回该块。
+为了提高效率，循环分为两部分。
+外部循环读取每个位图块的位。
+内部循环检查单个位图块中的所有BPB位。
+如果两个进程同时尝试分配一个块，可能会发生竞争，但由于缓冲区缓存只允许一个进程同时使用任何一个位图块，因此可以防止这种情况发生。
+Bfree（kernel/fs.c:90）找到正确的位图块并清除正确的位。
+再次强调由bread和brelse隐含的独占使用避免了显式锁定的需要。
+与本章剩余部分描述的代码一样，balloc和bfree必须在事务内调用。
+8.8 Inode层术语inode可以有两个相关的含义之一。
+
+ It might refer to the on-disk data structure containing a ﬁle’s size and list of data block numbers.
+Or “inode” might refer to an in-memory inode, which contains a copy of the on-disk inode as well as extra information needed within the kernel.
+The on-disk inodes are packed into a contiguous area of disk called the inode blocks.
+Every inode is the same size, so it is easy, given a number n, to ﬁnd the nth inode on the disk.
+In fact, this number n, called the inode number or i-number, is how inodes are identiﬁed in the implementation.
+The on-disk inode is deﬁned by a struct dinode (kernel/fs.h:32).
+The type ﬁeld distin- guishes between ﬁles, directories, and special ﬁles (devices).
+A type of zero indicates that an on- 87 disk inode is free.
+The nlink ﬁeld counts the number of directory entries that refer to this inode, in order to recognize when the on-disk inode and its data blocks should be freed.
+The size ﬁeld records the number of bytes of content in the ﬁle.
+它可能指的是包含文件大小和数据块编号列表的磁盘上的数据结构。
+或者，“inode”可能指的是内存中的inode，它包含磁盘上inode的副本以及内核中所需的额外信息。
+磁盘上的inode被打包到称为inode块的连续磁盘区域中。
+每个inode的大小都相同，因此很容易根据编号n找到磁盘上的第n个inode。
+实际上，这个编号n，称为inode编号或i编号，是实现中用来标识inode的。
+磁盘上的inode由struct dinode（kernel/fs.h:32）定义。
+类型字段区分文件、目录和特殊文件（设备）。
+类型为零表示磁盘上的inode为空闲。
+nlink字段计算引用此inode的目录条目数，以便在应该释放磁盘上的inode及其数据块时进行识别。
+size字段记录文件中内容的字节数。
+
+ The addrs array records the block numbers of the disk blocks holding the ﬁle’s content.
+The kernel keeps the set of active inodes in memory; struct inode (kernel/ﬁle.h:17) is the in-memory copy of a struct dinode on disk.
+The kernel stores an inode in memory only if there are C pointers referring to that inode.
+The ref ﬁeld counts the number of C pointers referring to the in-memory inode, and the kernel discards the inode from memory if the reference count drops to zero.
+The iget and iput functions acquire and release pointers to an inode, modifying the reference count.
+Pointers to an inode can come from ﬁle descriptors, current working directories, and transient kernel code such as exec.
+There are four lock or lock-like mechanisms in xv6’s inode code.
+icache.lock protects the invariant that an inode is present in the cache at most once, and the invariant that a cached inode’s ref ﬁeld counts the number of in-memory pointers to the cached inode.
+addrs数组记录了保存文件内容的磁盘块的块号。
+内核将活动的inode集合保存在内存中；struct inode（kernel/file.h:17）是磁盘上struct dinode的内存副本。
+只有当有C指针引用该inode时，内核才会将inode保存在内存中。
+ref字段计算指向内存中inode的C指针的数量，如果引用计数降为零，内核会将inode从内存中丢弃。
+iget和iput函数获取和释放指向inode的指针，修改引用计数。
+指向inode的指针可以来自文件描述符、当前工作目录和临时内核代码（如exec）。
+xv6的inode代码中有四个锁或类似锁的机制。
+icache.lock保护了一个inode在缓存中最多只出现一次的不变式，以及缓存的inode的ref字段计算了指向缓存的inode的内存指针的数量的不变式。
+
+ Each in-memory inode has a lock ﬁeld containing a sleep-lock, which ensures exclusive access to the inode’s ﬁelds (such as ﬁle length) as well as to the inode’s ﬁle or directory content blocks.
+An inode’s ref, if it is greater than zero, causes the system to maintain the inode in the cache, and not re-use the cache entry for a different inode.
+Finally, each inode contains a nlink ﬁeld (on disk and copied in memory if it is cached) that counts the number of directory entries that refer to a ﬁle; xv6 won’t free an inode if its link count is greater than zero.
+A struct inode pointer returned by iget() is guaranteed to be valid until the corresponding call to iput(); the inode won’t be deleted, and the memory referred to by the pointer won’t be re-used for a different inode.
+iget() provides non-exclusive access to an inode, so that there can be many pointers to the same inode.
+每个内存中的inode都有一个包含睡眠锁的锁字段，它确保对inode的字段（如文件长度）以及inode的文件或目录内容块的独占访问。
+如果inode的ref大于零，则系统会将inode保留在缓存中，并且不会将缓存条目重新用于不同的inode。
+最后，每个inode都包含一个nlink字段（在磁盘上和在内存中复制，如果它被缓存），它计算指向文件的目录条目的数量；如果inode的链接计数大于零，xv6不会释放该inode。
+由iget()返回的struct inode指针保证在相应的iput()调用之前是有效的；该inode不会被删除，并且指针引用的内存不会被重新用于不同的inode。
+iget()提供对inode的非独占访问，因此可以有多个指针指向同一个inode。
+
+ Many parts of the ﬁle-system code depend on this behavior of iget(), both to hold long-term references to inodes (as open ﬁles and current directories) and to prevent races while avoiding deadlock in code that manipulates multiple inodes (such as pathname lookup).
+The struct inode that iget returns may not have any useful content.
+In order to ensure it holds a copy of the on-disk inode, code must call ilock.
+This locks the inode (so that no other process can ilock it) and reads the inode from the disk, if it has not already been read.
+iunlock releases the lock on the inode.
+Separating acquisition of inode pointers from locking helps avoid deadlock in some situations, for example during directory lookup.
+Multiple processes can hold a C pointer to an inode returned by iget, but only one process can lock the inode at a time.
+The inode cache only caches inodes to which kernel code or data structures hold C pointers.
+Its main job is really synchronizing access by multiple processes; caching is secondary.
+许多文件系统代码的许多部分都依赖于iget()的这种行为，既可以长期持有inode的引用（如打开的文件和当前目录），又可以在操作多个inode的代码中避免竞争和死锁（如路径名查找）。
+iget返回的struct inode可能没有任何有用的内容。
+为了确保它持有磁盘上inode的副本，代码必须调用ilock。
+这将锁定inode（以防止其他进程锁定它）并从磁盘读取inode（如果尚未读取）。
+iunlock释放对inode的锁定。
+将inode指针的获取与锁定分开有助于避免某些情况下的死锁，例如在目录查找期间。
+多个进程可以持有由iget返回的inode的C指针，但一次只能有一个进程锁定inode。
+inode缓存仅缓存内核代码或数据结构持有C指针的inode。
+它的主要工作实际上是同步多个进程的访问；缓存只是次要的。
+
+ If an inode is used frequently, the buffer cache will probably keep it in memory if it isn’t kept by the inode cache.
+The inode cache is write-through, which means that code that modiﬁes a cached inode must immediately write it to disk with iupdate.
+88 8.9 Code: Inodes To allocate a new inode (for example, when creating a ﬁle), xv6 calls ialloc (kernel/fs.c:196).
+Ialloc is similar to balloc: it loops over the inode structures on the disk, one block at a time, looking for one that is marked free.
+When it ﬁnds one, it claims it by writing the new type to the disk and then returns an entry from the inode cache with the tail call to iget (kernel/fs.c:210).
+The correct operation of ialloc depends on the fact that only one process at a time can be holding a reference to bp: ialloc can be sure that some other process does not simultaneously see that the inode is available and try to claim it.
+Iget (kernel/fs.
+如果一个inode经常被使用，如果它没有被inode缓存保留，缓冲区缓存可能会将其保留在内存中。
+inode缓存是写透的，这意味着修改缓存的inode的代码必须立即使用iupdate将其写入磁盘。
+88 8.9 代码：Inodes为了分配一个新的inode（例如，创建文件时），xv6调用ialloc（kernel/fs.c:196）。
+ialloc类似于balloc：它循环遍历磁盘上的inode结构，每次一个块，寻找标记为free的inode。
+当找到一个时，它通过将新类型写入磁盘来声明它，然后使用尾调用iget（kernel/fs.c:210）从inode缓存中返回一个条目。
+ialloc的正确操作取决于一次只有一个进程可以持有对bp的引用的事实：ialloc可以确保其他进程不会同时看到inode可用并尝试声明它。
+Iget（kernel/fs.
+c:243) looks through the inode cache for an active entry (ip->ref > 0) with the desired device and inode number.
+If it ﬁnds one, it returns a new reference to that inode (kernel/fs.c:252-256).
+As iget scans, it records the position of the ﬁrst empty slot (kernel/fs.c:257- 258), which it uses if it needs to allocate a cache entry.
+Code must lock the inode using ilock before reading or writing its metadata or content.
+Ilock (kernel/fs.c:289) uses a sleep-lock for this purpose.
+Once ilock has exclusive access to the inode, it reads the inode from disk (more likely, the buffer cache) if needed.
+The function iunlock (kernel/fs.c:317) releases the sleep-lock, which may cause any processes sleeping to be woken up.
+Iput (kernel/fs.c:333) releases a C pointer to an inode by decrementing the reference count (kernel/fs.c:356).
+If this is the last reference, the inode’s slot in the inode cache is now free and can be re-used for a different inode.
+c:243) 在inode缓存中查找具有所需设备和inode编号的活动条目（ip->ref > 0）。
+如果找到一个，它将返回对该inode的新引用（kernel/fs.c:252-256）。
+在iget扫描过程中，它记录第一个空槽的位置（kernel/fs.c:257-258），如果需要分配缓存条目，则使用该位置。
+在读取或写入inode的元数据或内容之前，代码必须使用ilock锁定inode。
+Ilock（kernel/fs.c:289）为此目的使用了一个睡眠锁。
+一旦ilock独占访问inode，如果需要，它会从磁盘（更可能是缓冲区缓存）读取inode。
+函数iunlock（kernel/fs.c:317）释放睡眠锁，这可能导致任何正在睡眠的进程被唤醒。
+Iput（kernel/fs.c:333）通过减少引用计数释放对inode的C指针（kernel/fs.c:356）。
+如果这是最后一个引用，inode缓存中的inode槽现在可以用于不同的inode。
+
+ If iput sees that there are no C pointer references to an inode and that the inode has no links to it (occurs in no directory), then the inode and its data blocks must be freed.
+Iput calls itrunc to truncate the ﬁle to zero bytes, freeing the data blocks; sets the inode type to 0 (unallocated); and writes the inode to disk (kernel/fs.c:338).
+The locking protocol in iput in the case in which it frees the inode deserves a closer look.
+One danger is that a concurrent thread might be waiting in ilock to use this inode (e.g., to read a ﬁle or list a directory), and won’t be prepared to ﬁnd that the inode is not longer allocated.
+This can’t happen because there is no way for a system call to get a pointer to a cached inode if it has no links to it and ip->ref is one.
+That one reference is the reference owned by the thread calling iput.
+It’s true that iput checks that the reference count is one outside of its icache.
+如果iput发现inode没有C指针引用，并且inode没有任何链接（在任何目录中都没有出现），那么inode及其数据块必须被释放。
+Iput调用itrunc将文件截断为零字节，释放数据块；将inode类型设置为0（未分配）；并将inode写入磁盘（kernel/fs.c:338）。
+在释放inode的情况下，iput中的锁定协议值得更仔细地研究。
+一个危险是，一个并发的线程可能正在ilock中等待使用这个inode（例如，读取文件或列出目录），并且不会准备好发现该inode不再分配。
+这是不可能发生的，因为如果系统调用没有链接到它并且ip->ref为1，那么系统调用无法获得指向缓存inode的指针。
+这个引用是由调用iput的线程拥有的引用。
+确实，iput在其icache之外检查引用计数是否为1。
+
+lock critical section, but at that point the link count is known to be zero, so no thread will try to acquire a new reference.
+The other main danger is that a concurrent call to ialloc might choose the same inode that iput is freeing.
+This can only happen after the iupdate writes the disk so that the inode has type zero.
+This race is benign; the allocating thread will politely wait to acquire the inode’s sleep-lock before reading or writing the inode, at which point iput is done with it.
+iput() can write to the disk.
+This means that any system call that uses the ﬁle system may write the disk, because the system call may be the last one having a reference to the ﬁle.
+Even calls like read() that appear to be read-only, may end up calling iput().
+This, in turn, means that even read-only system calls must be wrapped in transactions if they use the ﬁle system.
+There is a challenging interaction between iput() and crashes.
+锁定临界区，但在此时，链接计数已知为零，因此没有线程会尝试获取新的引用。
+另一个主要的危险是并发调用ialloc可能选择与iput正在释放的相同的inode。
+这只能发生在iupdate写入磁盘以使inode的类型为零之后。
+这种竞争是无害的；分配线程将礼貌地等待获取inode的睡眠锁之前读取或写入inode，在此时iput已经完成了对它的操作。
+iput()可以写入磁盘。
+这意味着使用文件系统的任何系统调用都可能写入磁盘，因为该系统调用可能是最后一个对文件的引用。
+即使看起来是只读的read()等调用，也可能最终调用iput()。
+这反过来意味着，即使是只读的系统调用，如果它们使用文件系统，也必须包装在事务中。
+iput()和崩溃之间存在一种具有挑战性的交互。
+
+ iput() doesn’t truncate a ﬁle immediately when the link count for the ﬁle drops to zero, because some process might still hold a reference to the inode in memory: a process might still be reading and writing to the ﬁle, because it successfully opened it.
+But, if a crash happens before the last process closes the ﬁle descriptor 89 Figure 8.3: The representation of a ﬁle on disk.
+for the ﬁle, then the ﬁle will be marked allocated on disk but no directory entry will point to it.
+File systems handle this case in one of two ways.
+The simple solution is that on recovery, after reboot, the ﬁle system scans the whole ﬁle system for ﬁles that are marked allocated, but have no directory entry pointing to them.
+If any such ﬁle exists, then it can free those ﬁles.
+The second solution doesn’t require scanning the ﬁle system.
+In this solution, the ﬁle system records on disk (e.g., in the super block) the inode inumber of a ﬁle whose link count drops to zero but whose reference count isn’t zero.
+iput()在文件的链接计数降为零时不会立即截断文件，因为某些进程可能仍然持有对内存中inode的引用：进程可能仍然在读写文件，因为它成功打开了文件。
+但是，如果在最后一个进程关闭文件描述符89之前发生崩溃，那么文件将在磁盘上被标记为已分配，但没有目录项指向它。
+文件系统有两种处理这种情况的方法。
+简单的解决方案是在恢复后重新启动时，文件系统扫描整个文件系统，查找被标记为已分配但没有目录项指向它们的文件。
+如果存在这样的文件，则可以释放这些文件。
+第二种解决方案不需要扫描文件系统。
+在这种解决方案中，文件系统在磁盘上记录（例如，在超级块中）链接计数降为零但引用计数不为零的文件的inode编号。
+
+ If the ﬁle system removes the ﬁle when its reference counts reaches 0, then it updates the on-disk list by removing that inode from the list.
+On recovery, the ﬁle system frees any ﬁle in the list.
+Xv6 implements neither solution, which means that inodes may be marked allocated on disk, even though they are not in use anymore.
+This means that over time xv6 runs the risk that it may run out of disk space.
+8.10 Code: Inode content The on-disk inode structure, struct dinode, contains a size and an array of block numbers (see Figure 8.3).
+The inode data is found in the blocks listed in the dinode ’s addrs array.
+The ﬁrst NDIRECT blocks of data are listed in the ﬁrst NDIRECT entries in the array; these blocks are called 90 typemajorminornlinksizeaddress 1.....address 12indirectdinodeaddress 1address 256.....indirect blockdatadatadatadata.....
+如果文件系统在其引用计数达到0时删除文件，则通过从列表中删除该索引节点来更新磁盘上的列表。
+在恢复过程中，文件系统释放列表中的任何文件。
+Xv6没有实现这两种解决方案，这意味着索引节点可能在磁盘上被标记为已分配，即使它们不再使用。
+这意味着随着时间的推移，xv6有可能耗尽磁盘空间。
+8.10代码：索引节点内容磁盘上的索引节点结构struct dinode包含一个大小和一个块号数组（参见图8.3）。
+索引节点数据位于dinode的addrs数组中列出的块中。
+数据的前NDIRECT块列在数组的前NDIRECT个条目中；这些块被称为90 typemajorminornlinksizeaddress 1.....address 12indirectdinodeaddress 1address 256.....indirect blockdatadatadatadata.....

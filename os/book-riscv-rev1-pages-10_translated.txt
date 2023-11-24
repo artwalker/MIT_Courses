@@ -1,0 +1,488 @@
+direct blocks.
+The next NINDIRECT blocks of data are listed not in the inode but in a data block called the indirect block.
+The last entry in the addrs array gives the address of the indirect block.
+Thus the ﬁrst 12 kB ( NDIRECT x BSIZE) bytes of a ﬁle can be loaded from blocks listed in the inode, while the next 256 kB ( NINDIRECT x BSIZE) bytes can only be loaded after consulting the indirect block.
+This is a good on-disk representation but a complex one for clients.
+The function bmap manages the representation so that higher-level routines such as readi and writei, which we will see shortly.
+Bmap returns the disk block number of the bn’th data block for the inode ip.
+If ip does not have such a block yet, bmap allocates one.
+The function bmap (kernel/fs.c:378) begins by picking off the easy case: the ﬁrst NDIRECT blocks are listed in the inode itself (kernel/fs.c:383-387).
+The next NINDIRECT blocks are listed in the indirect block at ip->addrs[NDIRECT].
+Bmap reads the indirect block (kernel/fs.
+直接块。
+下一个NINDIRECT块的数据不是在inode中列出，而是在一个称为间接块的数据块中列出。
+addrs数组中的最后一个条目给出了间接块的地址。
+因此，文件的前12 kB（NDIRECT x BSIZE）字节可以从inode中列出的块中加载，而接下来的256 kB（NINDIRECT x BSIZE）字节只能在查阅间接块后加载。
+这是一个很好的磁盘表示，但对于客户端来说比较复杂。
+函数bmap管理表示，以便更高级别的例程（如readi和writei，我们很快会看到）可以使用它。
+Bmap返回inode ip的第bn个数据块的磁盘块号。
+如果ip还没有这样的块，bmap会分配一个。
+函数bmap（kernel/fs.c:378）首先处理简单的情况：前NDIRECT块直接列在inode本身中（kernel/fs.c:383-387）。
+接下来的NINDIRECT块在ip->addrs[NDIRECT]处的间接块中列出。
+Bmap读取间接块（kernel/fs.
+c:394) and then reads a block number from the right position within the block (kernel/fs.c:395).
+If the block number exceeds NDIRECT+NINDIRECT, bmap panics; writei contains the check that prevents this from happening (kernel/fs.c:490).
+Bmap allocates blocks as needed.
+An ip->addrs[] or indirect entry of zero indicates that no block is allocated.
+As bmap encounters zeros, it replaces them with the numbers of fresh blocks, allocated on demand (kernel/fs.c:384-385) (kernel/fs.c:392-393).
+itrunc frees a ﬁle’s blocks, resetting the inode’s size to zero.
+Itrunc (kernel/fs.c:410) starts by freeing the direct blocks (kernel/fs.c:416-421), then the ones listed in the indirect block (kernel/fs.c:426- 429), and ﬁnally the indirect block itself (kernel/fs.c:431-432).
+Bmap makes it easy for readi and writei to get at an inode’s data.
+Readi (kernel/fs.c:456) starts by making sure that the offset and count are not beyond the end of the ﬁle.
+Reads that start beyond the end of the ﬁle return an error (kernel/fs.
+c:394)然后从块中的右位置读取块号(kernel/fs.c:395)。
+如果块号超过NDIRECT+NINDIRECT，bmap将发生panic；writei包含了防止这种情况发生的检查(kernel/fs.c:490)。
+Bmap根据需要分配块。
+ip->addrs[]或间接条目为零表示未分配块。
+当bmap遇到零时，它会将其替换为按需分配的新块的编号(kernel/fs.c:384-385)(kernel/fs.c:392-393)。
+itrunc释放文件的块，将inode的大小重置为零。
+Itrunc(kernel/fs.c:410)首先释放直接块(kernel/fs.c:416-421)，然后释放间接块中列出的块(kernel/fs.c:426-429)，最后释放间接块本身(kernel/fs.c:431-432)。
+Bmap使readi和writei能够轻松访问inode的数据。
+Readi(kernel/fs.c:456)首先确保偏移量和计数不超过文件的末尾。
+从文件末尾开始的读取将返回错误(kernel/fs.
+c:461-462) while reads that start at or cross the end of the ﬁle return fewer bytes than requested (kernel/fs.c:463-464).
+The main loop processes each block of the ﬁle, copying data from the buffer into dst (kernel/fs.c:466-474).
+writei (kernel/fs.c:483) is identical to readi, with three exceptions: writes that start at or cross the end of the ﬁle grow the ﬁle, up to the maximum ﬁle size (kernel/fs.c:490-491); the loop copies data into the buffers instead of out (kernel/fs.c:36); and if the write has extended the ﬁle, writei must update its size (kernel/fs.c:504-511).
+Both readi and writei begin by checking for ip->type == T_DEV.
+This case handles spe- cial devices whose data does not live in the ﬁle system; we will return to this case in the ﬁle descriptor layer.
+The function stati (kernel/fs.c:442) copies inode metadata into the stat structure, which is exposed to user programs via the stat system call.
+8.11 Code: directory layer A directory is implemented internally much like a ﬁle.
+c:461-462) 当读取开始于或跨越文件末尾时，返回的字节数少于请求的字节数（kernel/fs.c:463-464）。
+主循环处理文件的每个块，将数据从缓冲区复制到目标（kernel/fs.c:466-474）。
+writei（kernel/fs.c:483）与readi相同，有三个例外：开始于或跨越文件末尾的写入会增加文件大小，直到达到最大文件大小（kernel/fs.c:490-491）；循环将数据复制到缓冲区而不是从缓冲区中读取（kernel/fs.c:36）；如果写入已扩展文件，则writei必须更新其大小（kernel/fs.c:504-511）。
+readi和writei都会首先检查ip->type == T_DEV。
+这种情况处理数据不存储在文件系统中的特殊设备；我们将在文件描述符层返回到这种情况。
+函数stati（kernel/fs.c:442）将inode元数据复制到stat结构中，通过stat系统调用向用户程序公开。
+8.11代码：目录层目录在内部实现上与文件非常相似。
+
+ Its inode has type T_DIR and its data is a sequence of directory entries.
+Each entry is a struct dirent (kernel/fs.h:56), which contains a name and an inode number.
+The name is at most DIRSIZ (14) characters; if shorter, it is terminated by a NUL (0) byte.
+Directory entries with inode number zero are free.
+The function dirlookup (kernel/fs.c:527) searches a directory for an entry with the given name.
+91 If it ﬁnds one, it returns a pointer to the corresponding inode, unlocked, and sets *poff to the byte offset of the entry within the directory, in case the caller wishes to edit it.
+If dirlookup ﬁnds an entry with the right name, it updates *poff and returns an unlocked inode obtained via iget.
+Dirlookup is the reason that iget returns unlocked inodes.
+The caller has locked dp, so if the lookup was for ., an alias for the current directory, attempting to lock the inode before returning would try to re-lock dp and deadlock.
+(There are more complicated deadlock scenarios involving multiple processes and .
+它的inode类型为T_DIR，其数据是一个目录条目的序列。
+每个条目都是一个struct dirent（kernel/fs.h:56），其中包含一个名称和一个inode号码。
+名称最多为DIRSIZ（14）个字符；如果较短，则以NUL（0）字节终止。
+inode号码为零的目录条目是空闲的。
+函数dirlookup（kernel/fs.c:527）在目录中搜索具有给定名称的条目。
+如果找到一个条目，它将返回指向相应inode的指针，解锁，并将*poff设置为目录中条目的字节偏移量，以便调用者可以编辑它。
+如果dirlookup找到一个具有正确名称的条目，它会更新*poff并返回通过iget获得的解锁inode。
+Dirlookup是iget返回解锁inode的原因。
+调用者已经锁定了dp，因此如果查找是为了“.”，即当前目录的别名，在返回之前尝试锁定inode将尝试重新锁定dp并导致死锁。
+（涉及多个进程和更复杂的死锁场景。
+
+., an alias for the parent directory; .
+is not the only problem.) The caller can unlock dp and then lock ip, ensuring that it only holds one lock at a time.
+The function dirlink (kernel/fs.c:554) writes a new directory entry with the given name and in- ode number into the directory dp.
+If the name already exists, dirlink returns an error (kernel/fs.c:560- 564).
+The main loop reads directory entries looking for an unallocated entry.
+When it ﬁnds one, it stops the loop early (kernel/fs.c:538-539), with off set to the offset of the available entry.
+Other- wise, the loop ends with off set to dp->size.
+Either way, dirlink then adds a new entry to the directory by writing at offset off (kernel/fs.c:574-577).
+8.12 Code: Path names Path name lookup involves a succession of calls to dirlookup, one for each path component.
+Namei (kernel/fs.c:661) evaluates path and returns the corresponding inode.
+., 是父目录的别名；.
+不是唯一的问题。
+) 调用者可以解锁 dp，然后锁定 ip，确保一次只持有一个锁。
+函数 dirlink (kernel/fs.c:554) 将给定名称和 inode 号写入目录 dp 的新目录条目。
+如果名称已经存在，dirlink 返回错误 (kernel/fs.c:560-564)。
+主循环读取目录条目，寻找未分配的条目。
+当找到一个时，它会提前停止循环 (kernel/fs.c:538-539)，并将偏移量设置为可用条目的偏移量。
+否则，循环以 dp->size 作为偏移量结束。
+无论哪种情况，dirlink 都会通过在偏移量 off 处写入新条目来向目录添加新条目 (kernel/fs.c:574-577)。
+8.12 代码：路径名路径名查找涉及一系列对 dirlookup 的调用，每个路径组件调用一次。
+Namei (kernel/fs.c:661) 评估路径并返回相应的 inode。
+
+ The function nameiparent is a variant: it stops before the last element, returning the inode of the parent directory and copying the ﬁnal element into name.
+Both call the generalized function namex to do the real work.
+Namex (kernel/fs.c:626) starts by deciding where the path evaluation begins.
+If the path begins with a slash, evaluation begins at the root; otherwise, the current directory (kernel/fs.c:630-633).
+Then it uses skipelem to consider each element of the path in turn (kernel/fs.c:635).
+Each iteration of the loop must look up name in the current inode ip.
+The iteration begins by locking ip and checking that it is a directory.
+If not, the lookup fails (kernel/fs.c:636-640).
+(Locking ip is necessary not because ip->type can change underfoot—it can’t—but because until ilock runs, ip->type is not guaranteed to have been loaded from disk.
+函数名nameiparent是一个变体：它在最后一个元素之前停止，返回父目录的inode，并将最后一个元素复制到name中。
+两个函数都调用通用函数namex来完成实际工作。
+Namex（kernel/fs.c:626）首先决定路径评估从哪里开始。
+如果路径以斜杠开头，则评估从根目录开始；否则，从当前目录开始（kernel/fs.c:630-633）。
+然后，它使用skipelem逐个考虑路径的每个元素（kernel/fs.c:635）。
+循环的每次迭代都必须在当前inode ip中查找name。
+迭代从锁定ip并检查其是否为目录开始。
+如果不是，则查找失败（kernel/fs.c:636-640）。
+（锁定ip是必要的，不是因为ip->type可能会在脚下改变，而是因为在ilock运行之前，不能保证ip->type已经从磁盘加载。
+）
+) If the call is nameiparent and this is the last path element, the loop stops early, as per the deﬁnition of nameiparent; the ﬁnal path element has already been copied into name, so namex need only return the unlocked ip (kernel/fs.c:641-645).
+Finally, the loop looks for the path element using dirlookup and prepares for the next iteration by setting ip = next (kernel/fs.c:646-651).
+When the loop runs out of path elements, it returns ip.
+The procedure namex may take a long time to complete: it could involve several disk opera- tions to read inodes and directory blocks for the directories traversed in the pathname (if they are not in the buffer cache).
+Xv6 is carefully designed so that if an invocation of namex by one kernel thread is blocked on a disk I/O, another kernel thread looking up a different pathname can pro- ceed concurrently.
+Namex locks each directory in the path separately so that lookups in different directories can proceed in parallel.
+This concurrency introduces some challenges.
+）如果调用是nameiparent并且这是最后一个路径元素，循环会提前停止，根据nameiparent的定义；最后一个路径元素已经被复制到name中，所以namex只需要返回未锁定的ip（kernel/fs.c:641-645）。
+最后，循环使用dirlookup查找路径元素，并通过设置ip = next准备下一次迭代（kernel/fs.c:646-651）。
+当循环用尽路径元素时，它返回ip。
+namex过程可能需要很长时间才能完成：它可能涉及多个磁盘操作，用于读取路径名中遍历的目录的inode和目录块（如果它们不在缓冲区中）。
+Xv6经过精心设计，以便如果一个内核线程的namex调用在磁盘I/O上被阻塞，另一个内核线程在查找不同路径名时可以并发进行。
+Namex单独锁定路径中的每个目录，以便不同目录中的查找可以并行进行。
+这种并发性引入了一些挑战。
+
+ For example, while one kernel thread is looking up a pathname another kernel thread may be changing the directory tree by unlinking a directory.
+A potential risk is that a lookup may be searching a directory that has been deleted by another kernel thread and its blocks have been re-used for another directory or ﬁle.
+92 Xv6 avoids such races.
+For example, when executing dirlookup in namex, the lookup thread holds the lock on the directory and dirlookup returns an inode that was obtained using iget.
+Iget increases the reference count of the inode.
+Only after receiving the inode from dirlookup does namex release the lock on the directory.
+Now another thread may unlink the inode from the directory but xv6 will not delete the inode yet, because the reference count of the inode is still larger than zero.
+Another risk is deadlock.
+For example, next points to the same inode as ip when looking up ".".
+Locking next before releasing the lock on ip would result in a deadlock.
+例如，当一个内核线程正在查找路径名时，另一个内核线程可能正在通过取消链接目录来更改目录树。
+一个潜在的风险是，查找可能正在搜索一个已被另一个内核线程删除并且其块已被重新用于另一个目录或文件的目录。
+92 Xv6避免了这种竞争。
+例如，在namex中执行dirlookup时，查找线程持有目录上的锁，并且dirlookup返回使用iget获得的inode。
+Iget增加了inode的引用计数。
+只有在从dirlookup接收到inode后，namex才释放目录上的锁。
+现在，另一个线程可以从目录中取消链接inode，但xv6尚未删除inode，因为inode的引用计数仍大于零。
+另一个风险是死锁。
+例如，当查找“。”
+时，next指向与ip相同的inode。
+在释放ip上的锁之前锁定next将导致死锁。
+
+ To avoid this deadlock, namex unlocks the directory before obtaining a lock on next.
+Here again we see why the separation between iget and ilock is important.
+8.13 File descriptor layer A cool aspect of the Unix interface is that most resources in Unix are represented as ﬁles, including devices such as the console, pipes, and of course, real ﬁles.
+The ﬁle descriptor layer is the layer that achieves this uniformity.
+Xv6 gives each process its own table of open ﬁles, or ﬁle descriptors, as we saw in Chapter 1.
+Each open ﬁle is represented by a struct file (kernel/ﬁle.h:1), which is a wrapper around either an inode or a pipe, plus an I/O offset.
+Each call to open creates a new open ﬁle (a new struct file): if multiple processes open the same ﬁle independently, the different instances will have different I/O offsets.
+On the other hand, a single open ﬁle (the same struct file) can appear multiple times in one process’s ﬁle table and also in the ﬁle tables of multiple processes.
+为了避免死锁，namex在获取next的锁之前会先解锁目录。
+这里我们再次看到为什么iget和ilock之间的分离是重要的。
+8.13文件描述符层Unix接口的一个很酷的方面是，Unix中的大多数资源都被表示为文件，包括控制台、管道和当然还有真实的文件。
+文件描述符层是实现这种统一性的层。
+Xv6为每个进程提供了自己的打开文件表，或者说文件描述符，正如我们在第1章中所看到的。
+每个打开的文件都由一个struct file（kernel/file.h:1）表示，它是一个围绕inode或管道的包装器，加上一个I/O偏移量。
+每次调用open都会创建一个新的打开文件（一个新的struct file）：如果多个进程独立地打开同一个文件，不同的实例将具有不同的I/O偏移量。
+另一方面，一个打开的文件（相同的struct file）可以在一个进程的文件表中多次出现，也可以在多个进程的文件表中出现。
+
+ This would happen if one process used open to open the ﬁle and then created aliases using dup or shared it with a child using fork.
+A reference count tracks the number of references to a particular open ﬁle.
+A ﬁle can be open for reading or writing or both.
+The readable and writable ﬁelds track this.
+All the open ﬁles in the system are kept in a global ﬁle table, the ftable.
+The ﬁle table has functions to allocate a ﬁle (filealloc), create a duplicate reference (filedup), release a reference (fileclose), and read and write data (fileread and filewrite).
+The ﬁrst three follow the now-familiar form.
+Filealloc (kernel/ﬁle.c:30) scans the ﬁle table for an unreferenced ﬁle (f->ref == 0) and returns a new reference; filedup (kernel/ﬁle.c:48) incre- ments the reference count; and fileclose (kernel/ﬁle.c:60) decrements it.
+When a ﬁle’s reference count reaches zero, fileclose releases the underlying pipe or inode, according to the type.
+如果一个进程使用open打开文件，然后使用dup创建别名或者使用fork与子进程共享该文件，就会发生这种情况。
+引用计数跟踪特定打开文件的引用数量。
+文件可以用于读取、写入或者读写两者皆可。
+可读和可写字段用于跟踪这一点。
+系统中所有打开的文件都保存在全局文件表ftable中。
+文件表具有分配文件（filealloc）、创建重复引用（filedup）、释放引用（fileclose）以及读取和写入数据（fileread和filewrite）的功能。
+前三个函数遵循现在熟悉的形式。
+Filealloc（kernel/ﬁle.c:30）扫描文件表以查找未引用的文件（f->ref == 0），并返回一个新的引用；filedup（kernel/ﬁle.c:48）增加引用计数；fileclose（kernel/ﬁle.c:60）减少引用计数。
+当文件的引用计数达到零时，fileclose会释放底层的管道或者inode，根据文件类型而定。
+
+ The functions filestat, fileread, and filewrite implement the stat, read, and write operations on ﬁles.
+Filestat (kernel/ﬁle.c:88) is only allowed on inodes and calls stati.
+Fileread and filewrite check that the operation is allowed by the open mode and then pass the call through to either the pipe or inode implementation.
+If the ﬁle represents an inode, fileread and filewrite use the I/O offset as the offset for the operation and then advance it (kernel/ﬁle.c:122- 123) (kernel/ﬁle.c:153-154).
+Pipes have no concept of offset.
+Recall that the inode functions require the caller to handle locking (kernel/ﬁle.c:94-96) (kernel/ﬁle.c:121-124) (kernel/ﬁle.c:163-166).
+The in- ode locking has the convenient side effect that the read and write offsets are updated atomically, so that multiple writing to the same ﬁle simultaneously cannot overwrite each other’s data, though 93 their writes may end up interlaced.
+8.
+函数filestat、fileread和filewrite实现了对文件的stat、read和write操作。
+Filestat（kernel/file.c:88）只允许在inode上调用，并调用stati。
+Fileread和filewrite检查打开模式是否允许该操作，然后将调用传递到管道或inode实现。
+如果文件表示一个inode，fileread和filewrite将使用I/O偏移量作为操作的偏移量，然后将其推进（kernel/file.c:122-123）（kernel/file.c:153-154）。
+管道没有偏移量的概念。
+请记住，inode函数要求调用者处理锁定（kernel/file.c:94-96）（kernel/file.c:121-124）（kernel/file.c:163-166）。
+inode锁定具有方便的副作用，即读取和写入偏移量会被原子更新，因此同时对同一文件进行多次写入不会覆盖彼此的数据，尽管它们的写入可能会交错（kernel/file.c:94-96）（kernel/file.c:121-124）（kernel/file.c:163-166）。
+
+14 Code: System calls With the functions that the lower layers provide the implementation of most system calls is trivial (see (kernel/sysﬁle.c)).
+There are a few calls that deserve a closer look.
+The functions sys_link and sys_unlink edit directories, creating or removing references to inodes.
+They are another good example of the power of using transactions.
+Sys_link (kernel/sys- ﬁle.c:120) begins by fetching its arguments, two strings old and new (kernel/sysﬁle.c:125).
+Assuming old exists and is not a directory (kernel/sysﬁle.c:129-132), sys_link increments its ip->nlink count.
+Then sys_link calls nameiparent to ﬁnd the parent directory and ﬁnal path element of new (kernel/sysﬁle.c:145) and creates a new directory entry pointing at old ’s inode (kernel/sys- ﬁle.c:148).
+The new parent directory must exist and be on the same device as the existing inode: inode numbers only have a unique meaning on a single disk.
+If an error like this occurs, sys_link must go back and decrement ip->nlink.
+14代码：系统调用
+使用底层提供的函数，大多数系统调用的实现都是微不足道的（参见（kernel/sysﬁle.c））。
+有一些调用值得更仔细地研究。
+函数sys_link和sys_unlink编辑目录，创建或删除对索引节点的引用。
+它们是使用事务的强大示例。
+Sys_link（kernel/sys-ﬁle.c:120）首先获取其参数，两个字符串old和new（kernel/sysﬁle.c:125）。
+假设old存在且不是目录（kernel/sysﬁle.c:129-132），sys_link会增加ip->nlink计数。
+然后，sys_link调用nameiparent来查找新目录的父目录和最终路径元素（kernel/sysﬁle.c:145），并创建一个指向old的索引节点的新目录条目（kernel/sys-ﬁle.c:148）。
+新的父目录必须存在，并且与现有的索引节点在同一设备上：只有在单个磁盘上，索引节点号才具有唯一的含义。
+如果发生此类错误，则sys_link必须返回并减少ip->nlink。
+
+ Transactions simplify the implementation because it requires updating multiple disk blocks, but we don’t have to worry about the order in which we do them.
+They either will all succeed or none.
+For example, without transactions, updating ip->nlink before creating a link, would put the ﬁle system temporarily in an unsafe state, and a crash in between could result in havoc.
+With transactions we don’t have to worry about this.
+Sys_link creates a new name for an existing inode.
+The function create (kernel/sysﬁle.c:242) creates a new name for a new inode.
+It is a generalization of the three ﬁle creation system calls: open with the O_CREATE ﬂag makes a new ordinary ﬁle, mkdir makes a new directory, and mkdev makes a new device ﬁle.
+Like sys_link, create starts by caling nameiparent to get the inode of the parent directory.
+It then calls dirlookup to check whether the name already exists (kernel/sysﬁle.c:252).
+事务简化了实现，因为它需要更新多个磁盘块，但我们不必担心执行它们的顺序。
+它们要么全部成功，要么全部失败。
+例如，如果没有事务，在创建链接之前更新ip->nlink会使文件系统暂时处于不安全状态，而在此期间发生崩溃可能会导致混乱。
+有了事务，我们就不必担心这个问题。
+Sys_link为现有的inode创建一个新名称。
+函数create（kernel/sysﬁle.c:242）为新的inode创建一个新名称。
+它是三个文件创建系统调用的概括：使用O_CREATE标志的open创建一个新的普通文件，mkdir创建一个新的目录，mkdev创建一个新的设备文件。
+与sys_link类似，create首先调用nameiparent来获取父目录的inode。
+然后调用dirlookup来检查名称是否已经存在（kernel/sysﬁle.c:252）。
+
+ If the name does exist, create’s behavior depends on which system call it is being used for: open has different semantics from mkdir and mkdev.
+If create is being used on behalf of open (type == T_FILE) and the name that exists is itself a regular ﬁle, then open treats that as a success, so create does too (kernel/sysﬁle.c:256).
+Otherwise, it is an error (kernel/sysﬁle.c:257-258).
+If the name does not already exist, create now allocates a new inode with ialloc (kernel/sysﬁle.c:261).
+If the new inode is a directory, create initializes it with .
+and ..
+entries.
+Finally, now that the data is initialized properly, create can link it into the parent directory (kernel/sysﬁle.c:274).
+Create, like sys_link, holds two inode locks simultaneously: ip and dp.
+There is no possibility of deadlock because the inode ip is freshly allocated: no other process in the system will hold ip ’s lock and then try to lock dp.
+Using create, it is easy to implement sys_open, sys_mkdir, and sys_mknod.
+Sys_open (kernel/sysﬁle.
+如果名称存在，则create的行为取决于它所用于的系统调用：open与mkdir和mkdev具有不同的语义。
+如果create代表open使用（type == T_FILE）并且存在的名称本身是一个普通文件，则open将其视为成功，因此create也是如此（kernel/sysﬁle.c:256）。
+否则，这是一个错误（kernel/sysﬁle.c:257-258）。
+如果名称不存在，则create现在使用ialloc分配一个新的inode（kernel/sysﬁle.c:261）。
+如果新的inode是一个目录，则create使用.和..条目进行初始化。
+最后，现在数据已经正确初始化，create可以将其链接到父目录中（kernel/sysﬁle.c:274）。
+与sys_link一样，create同时持有两个inode锁：ip和dp。
+不存在死锁的可能性，因为inode ip是新分配的：系统中没有其他进程持有ip的锁然后尝试锁定dp。
+使用create，可以很容易地实现sys_open、sys_mkdir和sys_mknod。
+Sys_open（kernel/sysﬁle.
+c:287) is the most complex, because creating a new ﬁle is only a small part of what it can do.
+If open is passed the O_CREATE ﬂag, it calls create (kernel/sysﬁle.c:301).
+Otherwise, it calls namei (kernel/sysﬁle.c:307).
+Create returns a locked inode, but namei does not, so sys_open must lock the inode itself.
+This provides a convenient place to check that directories are only opened for reading, not writing.
+Assuming the inode was obtained one way or the other, sys_open allocates a ﬁle and a ﬁle descriptor (kernel/sysﬁle.c:325) and then ﬁlls in the ﬁle (kernel/sysﬁle.c:337- 94 342).
+Note that no other process can access the partially initialized ﬁle since it is only in the current process’s table.
+Chapter 7 examined the implementation of pipes before we even had a ﬁle system.
+The function sys_pipe connects that implementation to the ﬁle system by providing a way to create a pipe pair.
+Its argument is a pointer to space for two integers, where it will record the two new ﬁle descriptors.
+c:287) 是最复杂的，因为创建一个新文件只是它所能做的一小部分。
+如果open传递了O_CREATE标志，它会调用create (kernel/sysfile.c:301)。
+否则，它会调用namei (kernel/sysfile.c:307)。
+create返回一个锁定的inode，但namei不会，所以sys_open必须自己锁定inode。
+这提供了一个方便的地方来检查目录只能以读取而不是写入的方式打开。
+假设inode以某种方式被获取，sys_open会分配一个文件和一个文件描述符 (kernel/sysfile.c:325)，然后填充文件 (kernel/sysfile.c:337-342)。
+注意，由于它只在当前进程的表中，没有其他进程可以访问部分初始化的文件。
+第7章在我们甚至没有文件系统之前就已经研究了管道的实现。
+函数sys_pipe通过提供一种创建管道对的方法将该实现连接到文件系统。
+它的参数是一个指向两个整数空间的指针，它将记录两个新的文件描述符。
+
+ Then it allocates the pipe and installs the ﬁle descriptors.
+8.15 Real world The buffer cache in a real-world operating system is signiﬁcantly more complex than xv6’s, but it serves the same two purposes: caching and synchronizing access to the disk.
+Xv6’s buffer cache, like V6’s, uses a simple least recently used (LRU) eviction policy; there are many more complex policies that can be implemented, each good for some workloads and not as good for others.
+A more efﬁcient LRU cache would eliminate the linked list, instead using a hash table for lookups and a heap for LRU evictions.
+Modern buffer caches are typically integrated with the virtual memory system to support memory-mapped ﬁles.
+Xv6’s logging system is inefﬁcient.
+A commit cannot occur concurrently with ﬁle-system sys- tem calls.
+The system logs entire blocks, even if only a few bytes in a block are changed.
+It performs synchronous log writes, a block at a time, each of which is likely to require an entire disk rotation time.
+然后它分配管道并安装文件描述符。
+8.15 现实世界中，真实操作系统中的缓冲区缓存比 xv6 复杂得多，但它具有相同的两个目的：缓存和同步访问磁盘。
+Xv6 的缓冲区缓存与 V6 的缓冲区缓存一样，使用简单的最近最少使用（LRU）淘汰策略；还有许多更复杂的策略可以实现，每个策略对某些工作负载更好，对其他工作负载则不太好。
+一个更高效的 LRU 缓存将消除链表，而是使用哈希表进行查找和堆进行 LRU 淘汰。
+现代缓冲区缓存通常与虚拟内存系统集成，以支持内存映射文件。
+Xv6 的日志系统效率低下。
+提交不能与文件系统系统调用并发发生。
+系统记录整个块，即使只有一个块中的几个字节发生了变化。
+它执行同步日志写入，每次写入一个块，每个块很可能需要整个磁盘旋转时间。
+
+ Real logging systems address all of these problems.
+Logging is not the only way to provide crash recovery.
+Early ﬁle systems used a scavenger during reboot (for example, the UNIX fsck program) to examine every ﬁle and directory and the block and inode free lists, looking for and resolving inconsistencies.
+Scavenging can take hours for large ﬁle systems, and there are situations where it is not possible to resolve inconsistencies in a way that causes the original system calls to be atomic.
+Recovery from a log is much faster and causes system calls to be atomic in the face of crashes.
+Xv6 uses the same basic on-disk layout of inodes and directories as early UNIX; this scheme has been remarkably persistent over the years.
+BSD’s UFS/FFS and Linux’s ext2/ext3 use essen- tially the same data structures.
+The most inefﬁcient part of the ﬁle system layout is the directory, which requires a linear scan over all the disk blocks during each lookup.
+真实的日志系统解决了所有这些问题。
+日志记录并不是提供崩溃恢复的唯一方式。
+早期的文件系统在重新启动时使用清理程序（例如UNIX的fsck程序）来检查每个文件和目录以及块和inode的空闲列表，寻找并解决不一致性。
+对于大型文件系统来说，清理可能需要几个小时，并且有些情况下无法以使原始系统调用具有原子性的方式解决不一致性。
+从日志中恢复要快得多，并且在面对崩溃时使系统调用具有原子性。
+Xv6使用与早期UNIX相同的基本磁盘布局，包括inode和目录；这种方案多年来一直非常持久。
+BSD的UFS/FFS和Linux的ext2/ext3使用基本相同的数据结构。
+文件系统布局中最低效的部分是目录，在每次查找时需要对所有磁盘块进行线性扫描。
+
+ This is reasonable when directories are only a few disk blocks, but is expensive for directories holding many ﬁles.
+Microsoft Windows’s NTFS, Mac OS X’s HFS, and Solaris’s ZFS, just to name a few, implement a direc- tory as an on-disk balanced tree of blocks.
+This is complicated but guarantees logarithmic-time directory lookups.
+Xv6 is naive about disk failures: if a disk operation fails, xv6 panics.
+Whether this is reasonable depends on the hardware: if an operating systems sits atop special hardware that uses redundancy to mask disk failures, perhaps the operating system sees failures so infrequently that panicking is okay.
+On the other hand, operating systems using plain disks should expect failures and handle them more gracefully, so that the loss of a block in one ﬁle doesn’t affect the use of the rest of the ﬁle system.
+Xv6 requires that the ﬁle system ﬁt on one disk device and not change in size.
+当目录只占用几个磁盘块时，这是合理的，但对于包含许多文件的目录来说是昂贵的。
+微软Windows的NTFS，Mac OS X的HFS和Solaris的ZFS等操作系统实现了一个目录作为一个磁盘上的平衡树块。
+这是复杂的，但保证了对数时间的目录查找。
+Xv6对于磁盘故障是天真的：如果磁盘操作失败，xv6会发生恐慌。
+这是否合理取决于硬件：如果操作系统位于使用冗余来屏蔽磁盘故障的特殊硬件之上，也许操作系统很少遇到故障，那么发生恐慌就可以接受。
+另一方面，使用普通磁盘的操作系统应该预期故障并更优雅地处理它们，以便一个文件中的一个块的丢失不会影响其余文件系统的使用。
+Xv6要求文件系统适合一个磁盘设备，并且大小不会改变。
+
+ As large databases and multimedia ﬁles drive storage requirements ever higher, operating systems are de- 95 veloping ways to eliminate the “one disk per ﬁle system” bottleneck.
+The basic approach is to combine many disks into a single logical disk.
+Hardware solutions such as RAID are still the most popular, but the current trend is moving toward implementing as much of this logic in software as possible.
+These software implementations typically allow rich functionality like growing or shrink- ing the logical device by adding or removing disks on the ﬂy.
+Of course, a storage layer that can grow or shrink on the ﬂy requires a ﬁle system that can do the same: the ﬁxed-size array of inode blocks used by xv6 would not work well in such environments.
+Separating disk management from the ﬁle system may be the cleanest design, but the complex interface between the two has led some systems, like Sun’s ZFS, to combine them.
+随着大型数据库和多媒体文件对存储需求的不断增加，操作系统正在开发消除“每个文件系统一个磁盘”的瓶颈的方法。
+基本方法是将多个磁盘合并成一个逻辑磁盘。
+硬件解决方案如RAID仍然是最受欢迎的，但当前的趋势是尽可能多地在软件中实现这种逻辑。
+这些软件实现通常允许丰富的功能，如通过添加或删除磁盘来增长或缩小逻辑设备。
+当然，一个可以动态增长或缩小的存储层需要一个能够做到同样的文件系统：xv6使用的固定大小的inode块数组在这样的环境中效果不好。
+将磁盘管理与文件系统分离可能是最清晰的设计，但两者之间复杂的接口导致一些系统（如Sun的ZFS）将它们合并在一起。
+
+ Xv6’s ﬁle system lacks many other features of modern ﬁle systems; for example, it lacks sup- port for snapshots and incremental backup.
+Modern Unix systems allow many kinds of resources to be accessed with the same system calls as on-disk storage: named pipes, network connections, remotely-accessed network ﬁle systems, and monitoring and control interfaces such as /proc.
+Instead of xv6’s if statements in fileread and filewrite, these systems typically give each open ﬁle a table of function pointers, one per operation, and call the function pointer to invoke that inode’s implementation of the call.
+Network ﬁle systems and user-level ﬁle systems provide functions that turn those calls into network RPCs and wait for the response before returning.
+8.16 Exercises 1.
+Why panic in balloc ? Can xv6 recover? 2.
+Why panic in ialloc ? Can xv6 recover? 3.
+Why doesn’t filealloc panic when it runs out of ﬁles? Why is this more common and therefore worth handling? 4.
+Xv6的文件系统缺乏现代文件系统的许多其他功能；例如，它不支持快照和增量备份。
+现代Unix系统允许使用与磁盘存储相同的系统调用访问许多种资源：命名管道、网络连接、远程访问的网络文件系统以及监视和控制接口，如/proc。
+这些系统通常为每个打开的文件提供一个函数指针表，每个操作一个函数指针，并调用函数指针来调用该inode的调用实现。
+网络文件系统和用户级文件系统提供将这些调用转换为网络RPC并在返回之前等待响应的函数。
+8.16练习1.为什么在balloc中出现panic？Xv6能够恢复吗？2.为什么在ialloc中出现panic？Xv6能够恢复吗？3.为什么filealloc在文件用尽时不会panic？为什么这更常见，因此值得处理？4.
+ Suppose the ﬁle corresponding to ip gets unlinked by another process between sys_link ’s calls to iunlock(ip) and dirlink.
+Will the link be created correctly? Why or why not? 5.
+create makes four function calls (one to ialloc and three to dirlink) that it requires to succeed.
+If any doesn’t, create calls panic.
+Why is this acceptable? Why can’t any of those four calls fail? 6.
+sys_chdir calls iunlock(ip) before iput(cp->cwd), which might try to lock cp->cwd, yet postponing iunlock(ip) until after the iput would not cause deadlocks.
+Why not? 7.
+Implement the lseek system call.
+Supporting lseek will also require that you modify filewrite to ﬁll holes in the ﬁle with zero if lseek sets off beyond f->ip->size.
+8.
+Add O_TRUNC and O_APPEND to open, so that > and >> operators work in the shell.
+9.
+Modify the ﬁle system to support symbolic links.
+96 10.
+Modify the ﬁle system to support named pipes.
+11.
+Modify the ﬁle and VM system to support memory-mapped ﬁles.
+假设在sys_link调用iunlock(ip)和dirlink之间，另一个进程将与ip对应的文件取消链接。
+链接是否会正确创建？为什么或为什么不会？5.
+create进行了四个函数调用（一个调用ialloc和三个调用dirlink），它需要这些调用都成功。
+如果有任何一个失败，create会调用panic。
+为什么这是可以接受的？为什么这四个调用中的任何一个都不能失败？6.
+sys_chdir在iput(cp->cwd)之前调用iunlock(ip)，而iput可能会尝试锁定cp->cwd，然而将iunlock(ip)推迟到iput之后不会导致死锁。
+为什么不会？7.
+实现lseek系统调用。
+支持lseek还需要修改filewrite，以便在lseek设置的偏移超出f->ip->size时，用零填充文件中的空洞。
+8.
+在open中添加O_TRUNC和O_APPEND，以便在shell中使用>和>>操作符。
+9.
+修改文件系统以支持符号链接。
+96 10.
+修改文件系统以支持命名管道。
+11.
+修改文件和虚拟内存系统以支持内存映射文件。
+
+ 97 98 Chapter 9 Concurrency revisited Simultaneously obtaining good parallel performance, correctness despite concurrency, and under- standable code is a big challenge in kernel design.
+Straightforward use of locks is the best path to correctness, but is not always possible.
+This chapter highlights examples in which xv6 is forced to use locks in an involved way, and examples where xv6 uses lock-like techniques but not locks.
+9.1 Locking patterns Cached items are often a challenge to lock.
+For example, the ﬁlesystem’s block cache (kernel/bio.c:26) stores copies of up to NBUF disk blocks.
+It’s vital that a given disk block have at most one copy in the cache; otherwise, different processes might make conﬂicting changes to different copies of what ought to be the same block.
+Each cached block is stored in a struct buf (kernel/buf.h:1).
+A struct buf has a lock ﬁeld which helps ensure that only one process uses a given disk block at a time.
+97 98 第9章 重新审视并发性 同时获得良好的并行性能、正确性和可理解的代码在内核设计中是一个巨大的挑战。
+直接使用锁是确保正确性的最佳途径，但并非总是可行的。
+本章重点介绍了xv6在某些情况下被迫以复杂的方式使用锁的示例，以及xv6在某些情况下使用类似锁的技术但不使用锁的示例。
+ 9.1 锁模式 缓存项通常是锁的一个挑战。
+例如，文件系统的块缓存（kernel/bio.c:26）存储了最多NBUF个磁盘块的副本。
+确保在缓存中一个给定的磁盘块最多只有一个副本是至关重要的；否则，不同的进程可能对应该是同一个块的不同副本进行冲突性更改。
+每个缓存块都存储在一个struct buf（kernel/buf.h:1）中。
+struct buf有一个锁字段，有助于确保一次只有一个进程使用一个给定的磁盘块。
+
+ However, that lock is not enough: what if a block is not present in the cache at all, and two processes want to use it at the same time? There is no struct buf (since the block isn’t yet cached), and thus there is nothing to lock.
+Xv6 deals with this situation by associating an addi- tional lock (bcache.lock) with the set of identities of cached blocks.
+Code that needs to check if a block is cached (e.g., bget (kernel/bio.c:59)), or change the set of cached blocks, must hold bcache.lock; after that code has found the block and struct buf it needs, it can release bcache.lock and lock just the speciﬁc block.
+This is a common pattern: one lock for the set of items, plus one lock per item.
+Ordinarily the same function that acquires a lock will release it.
+But a more precise way to view things is that a lock is acquired at the start of a sequence that must appear atomic, and released when that sequence ends.
+然而，仅仅使用锁是不够的：如果一个块在缓存中根本不存在，并且两个进程同时想要使用它怎么办？由于没有struct buf（因为块尚未被缓存），因此没有什么可以锁定的。
+Xv6通过将一个额外的锁（bcache.lock）与缓存块的标识集合相关联来处理这种情况。
+需要检查块是否被缓存（例如bget（kernel/bio.c:59））或更改缓存块集合的代码必须持有bcache.lock；在该代码找到所需的块和struct buf之后，它可以释放bcache.lock并锁定特定的块。
+这是一种常见的模式：一组项目使用一个锁，每个项目使用一个锁。
+通常，获取锁的函数会释放锁。
+但更精确地看待问题的方式是，在必须保持原子性的序列开始时获取锁，并在该序列结束时释放锁。
+
+ If the sequence starts and ends in different functions, or different threads, or on different CPUs, then the lock acquire and release must do the same.
+The function of the lock is to force other uses to wait, not to pin a piece of data to a particular agent.
+One example is the acquire in yield (kernel/proc.c:515), which is released in the scheduler thread rather than in the acquiring process.
+Another example is the acquiresleep in ilock (kernel/fs.c:289); this code often sleeps while reading the disk; it may wake up on a different CPU, which means the lock may be acquired and released on different CPUs.
+99 Freeing an object that is protected by a lock embedded in the object is a delicate business, since owning the lock is not enough to guarantee that freeing would be correct.
+The problem case arises when some other thread is waiting in acquire to use the object; freeing the object implicitly frees the embedded lock, which will cause the waiting thread to malfunction.
+如果序列在不同的函数、不同的线程或不同的CPU上开始和结束，那么锁的获取和释放必须相同。
+锁的作用是强制其他使用者等待，而不是将数据固定在特定的代理上。
+一个例子是yield中的获取（kernel/proc.c:515），它在调度线程中释放，而不是在获取进程中释放。
+另一个例子是ilock中的acquiresleep（kernel/fs.c:289）；这段代码在读取磁盘时经常休眠；它可能在不同的CPU上唤醒，这意味着锁可能在不同的CPU上获取和释放。
+99释放由对象中嵌入的锁保护的对象是一个微妙的问题，因为拥有锁并不能保证释放是正确的。
+问题出现在当其他线程在获取中等待使用对象时；释放对象隐式释放了嵌入的锁，这将导致等待的线程出现故障。
+
+ One so- lution is to track how many references to the object exist, so that it is only freed when the last reference disappears.
+See pipeclose (kernel/pipe.c:59) for an example; pi->readopen and pi->writeopen track whether the pipe has ﬁle descriptors referring to it.
+9.2 Lock-like patterns In many places xv6 uses a reference count or a ﬂag as a kind of soft lock to indicate that an object is allocated and should not be freed or re-used.
+A process’s p->state acts in this way, as do the reference counts in file, inode, and buf structures.
+While in each case a lock protects the ﬂag or reference count, it is the latter that prevents the object from being prematurely freed.
+The ﬁle system uses struct inode reference counts as a kind of shared lock that can be held by multiple processes, in order to avoid deadlocks that would occur if the code used ordinary locks.
+For example, the loop in namex (kernel/fs.c:626) locks the directory named by each pathname component in turn.
+一种解决方案是跟踪对象存在的引用数量，只有当最后一个引用消失时才释放它。
+例如，可以参考pipeclose（kernel/pipe.c:59）中的示例；pi->readopen和pi->writeopen跟踪管道是否有引用它的文件描述符。
+9.2类似锁的模式在许多地方，xv6使用引用计数或标志作为一种软锁，表示对象已分配并且不应该被释放或重新使用。
+进程的p->state以这种方式起作用，文件、inode和buf结构中的引用计数也是如此。
+虽然在每种情况下，锁保护标志或引用计数，但正是后者防止了对象被过早释放。
+文件系统使用struct inode引用计数作为一种共享锁，可以被多个进程持有，以避免代码使用普通锁时可能发生的死锁。
+例如，namex（kernel/fs.c:626）中的循环依次锁定每个路径名组件所指定的目录。
+
+ However, namex must release each lock at the end of the loop, since if it held multiple locks it could deadlock with itself if the pathname included a dot (e.g., a/./b).
+It might also deadlock with a concurrent lookup involving the directory and ...
+As Chapter 8 explains, the solution is for the loop to carry the directory inode over to the next iteration with its reference count incremented, but not locked.
+Some data items are protected by different mechanisms at different times, and may at times be protected from concurrent access implicitly by the structure of the xv6 code rather than by explicit locks.
+For example, when a physical page is free, it is protected by kmem.lock (ker- nel/kalloc.c:24).
+If the page is then allocated as a pipe (kernel/pipe.c:23), it is protected by a different lock (the embedded pi->lock).
+If the page is re-allocated for a new process’s user memory, it is not protected by a lock at all.
+然而，namex必须在循环结束时释放每个锁，因为如果它持有多个锁，如果路径名包含一个点（例如，a/./b），它可能会与自身发生死锁。
+它还可能与涉及目录和...的并发查找发生死锁。
+正如第8章所解释的那样，解决方案是循环将目录inode传递到下一次迭代，并增加其引用计数，但不锁定。
+某些数据项在不同的时间受到不同机制的保护，并且有时可能通过xv6代码的结构而不是显式锁来隐式地防止并发访问。
+例如，当物理页面空闲时，它受到kmem.lock的保护（ker- nel/kalloc.c:24）。
+如果页面然后被分配为管道（kernel/pipe.c:23），它受到不同的锁（嵌入的pi->lock）的保护。
+如果页面被重新分配给新进程的用户内存，它根本没有受到锁的保护。
+
+ Instead, the fact that the allocator won’t give that page to any other process (until it is freed) protects it from concurrent access.
+The ownership of a new process’s memory is complex: ﬁrst the parent allocates and manipulates it in fork, then the child uses it, and (after the child exits) the parent again owns the memory and passes it to kfree.
+There are two lessons here: a data object may be protected from concurrency in different ways at different points in its lifetime, and the protection may take the form of implicit structure rather than explicit locks.
+A ﬁnal lock-like example is the need to disable interrupts around calls to mycpu() (ker- nel/proc.c:68).
+Disabling interrupts causes the calling code to be atomic with respect to timer in- terrupts that could force a context switch, and thus move the process to a different CPU.
+9.3 No locks at all There are a few places where xv6 shares mutable data with no locks at all.
+相反，分配器不会将该页面分配给任何其他进程（直到它被释放），这保护了它免受并发访问。
+新进程的内存所有权是复杂的：首先，父进程在fork中分配和操作它，然后子进程使用它，（子进程退出后）父进程再次拥有内存并将其传递给kfree。
+这里有两个教训：数据对象在其生命周期的不同阶段可能以不同的方式受到并发保护，并且保护可能采用隐式结构而不是显式锁。
+最后一个类似于锁的例子是在调用mycpu()时需要禁用中断（kernel/proc.c:68）。
+禁用中断会导致调用代码与可能强制进行上下文切换并将进程移动到不同CPU的定时器中断保持原子性。
+9.3根本没有锁的地方，xv6有一些地方与可变数据共享而没有任何锁。
+
