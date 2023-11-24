@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Labs on MIT OpenCourseWare</title>
+    <link>/resources/labs/</link>
+    <description>Recent content in Labs on MIT OpenCourseWare</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="/resources/labs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>lab1.tar.gz</title>
+      <link>/resources/lab1-tar/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab1-tar/data.json</guid>
+      <description>This is the special file regarding Lab 1.</description>
+    </item>
+    
+    <item>
+      <title>lab2.tar.gz</title>
+      <link>/resources/lab2-tar/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab2-tar/data.json</guid>
+      <description>This is the special file regarding lab 2.</description>
+    </item>
+    
+    <item>
+      <title>lab3.tar.gz</title>
+      <link>/resources/lab3-tar/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab3-tar/data.json</guid>
+      <description>This is the special file regarding lab 3.</description>
+    </item>
+    
+    <item>
+      <title>lab4.tar.gz</title>
+      <link>/resources/lab4-tar/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab4-tar/data.json</guid>
+      <description>This is the special file regarding Pointers c.</description>
+    </item>
+    
+    <item>
+      <title>lab5.tar.gz</title>
+      <link>/resources/lab5-tar/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/lab5-tar/data.json</guid>
+      <description>This is the special file regarding lab 5.</description>
+    </item>
+    
+    <item>
+      <title>Labs</title>
+      <link>/pages/labs/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/pages/labs/data.json</guid>
+      <description> LABS SUPPORTING FILES Lab 1: C, Assembly, Tools, and Bootstrapping (PDF) lab1.tar.gz (GZ)
+pointers.c (C)
+Lab 2: Memory Management (PDF) lab2.tar.gz (GZ) Lab 3: User-Level Environments (PDF) lab3.tar.gz (GZ) Lab 4: Preemptive Multitasking (PDF) lab4.tar.gz (GZ) Lab 5: Spawn and Shell (PDF) lab5.tar.gz (GZ) </description>
+    </item>
+    
+    <item>
+      <title>Operating System Engineering, Lab 1</title>
+      <link>/resources/mit6_828f12_lab1/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/mit6_828f12_lab1/data.json</guid>
+      <description>This file contains the information regarding Operating System Engineering, Lab 1.</description>
+    </item>
+    
+    <item>
+      <title>Operating System Engineering, Lab 2</title>
+      <link>/resources/mit6_828f12_lab2/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/mit6_828f12_lab2/data.json</guid>
+      <description>This file contains the information regarding Operating System Engineering, Lab 2.</description>
+    </item>
+    
+    <item>
+      <title>Operating System Engineering, Lab 3</title>
+      <link>/resources/mit6_828f12_lab3/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/mit6_828f12_lab3/data.json</guid>
+      <description>This file contains the information regarding Operating System Engineering, Lab 3.</description>
+    </item>
+    
+    <item>
+      <title>Operating System Engineering, Lab 4</title>
+      <link>/resources/mit6_828f12_lab4/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/mit6_828f12_lab4/data.json</guid>
+      <description>This file contains the information regarding Operating System Engineering, Lab 4.</description>
+    </item>
+    
+    <item>
+      <title>Operating System Engineering, Lab 5</title>
+      <link>/resources/mit6_828f12_lab5/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/mit6_828f12_lab5/data.json</guid>
+      <description>This file contains the information regarding Operating System Engineering, Lab 5.</description>
+    </item>
+    
+    <item>
+      <title>pointers.c</title>
+      <link>/resources/pointers/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/pointers/data.json</guid>
+      <description>This is the special file regarding Pointers c.</description>
+    </item>
+    
+  </channel>
+</rss>
