@@ -236,7 +236,7 @@ And it's such a simple idea, you'll never hear it again in this subject.
 这些就是人工智能的核心内容--方法、算法、表示。
 我想再给你一个例子。
 这是我们在人工智能中称之为生成测试。
-这是一个非常简单的想法，在这个主题中你以后再也不会听到它了。**
+这是一个非常简单的想法，在这个主题中你以后再也不会听到它了。
 
  But it's an idea you need to add to your repertoire of problem solving methods, techniques, procedures, and algorithms.
 So here's how it works.
@@ -284,9 +284,7 @@ Don't bother looking at the conifers.
 So once you have a name for something, you can start talking about.
 And that vocabulary gives you power.
 So we call this the Rumpelstiltskin Principle perhaps The first of our powerful ideas for the day.
-以下文本内容不包含提示。
-将以下文本翻译成中文：
-“ 生成和测试方法包括生成一些可能的解决方案，将它们输入到一个测试箱中进行测试，然后大部分都是失败的。
+ 生成和测试方法包括生成一些可能的解决方案，将它们输入到一个测试箱中进行测试，然后大部分都是失败的。
 但是偶尔我们会得到一些成功并让我们满意的结果。
 这就是我用那片叶子做的。
 但现在你给它起了个名字。
@@ -295,12 +293,13 @@ So we call this the Rumpelstiltskin Principle perhaps The first of our powerful 
 所以我可以说，如果你对问题采用生成和测试的方法，你最好构建一个具有使生成器变得好的某些属性的生成器。
 例如，它们不应该重复。
 它们不应该给你相同的解决方案两次。
-它们应该具备可信息化的能力，例如，它们能够接受信息，比如这是一棵落叶树，不要打扰那些针叶树。
+它们应该具备可信息化的能力，例如，它们能够接受信息，比如这是一棵落叶树，
+不要打扰那些针叶树。
 所以一旦你给某个东西起了名字，你可以开始谈论它。
 而这个词汇给了你力量。
 所以也许我们可以称之为“兰普尔斯金原理”。
 这可能是我们今天的第一个有力的观点。
-”
+
  This subject is full of powerful ideas.
 There will be some in every class.
 Rumpelstiltskin Principle says that once you can name something, you get power over it.
@@ -380,6 +379,7 @@ How many countries in Africa does the Equator cross?
 让我们看看，谁在这里？我没有看到[? Kambe, ?]，但我敢打赌他来自非洲。
 有人来自非洲吗？没有人来自非洲？没有？那就更好了——因为他们会知道这个谜题的答案。
 这是谜题：赤道穿过非洲多少个国家？
+
  Would anybody be willing to stake their life on their answer? Probably not.
 Well, now let me repeat the question.
 How many countries in Africa does the Equator cross? Yeah, six.
@@ -421,9 +421,6 @@ Then it went up to 98.
 Thank God it stopped about there.
 Then it actually went back a little bit.
 I think we're back down to 94.
-以下是一段没有提示的文本。
-将以下文本翻译成中文：
-
 这是关于建立一个表示和方法的工具包，使得构建更智能的程序成为可能。
 如今，您会发现，如果没有嵌入我们在课程中谈论的想法，就无法构建一个大型系统。
 如果您是一名科学家，那么动机可能会略有不同。
@@ -485,8 +482,6 @@ This is left over from a hamentashen debate of a couple of years ago.
 How do you spell hamentashen, anybody know? I sure hope that's right.
 It doesn't matter.
 Something interesting will come.
-以下文本内容不包括提示。
-
 我们将回溯到很久以前的那个程序，因为在讨论它的一天里，谈论它本身就是一个微型人工智能课程。
 因为其中蕴含了非常重要的想法。
 所以这是黎明时代，早期黎明时代。
@@ -568,7 +563,7 @@ It saves Delta Airlines about to $0.5 million a day of jet fuel by being all sma
 但这个所谓的“曙光时代”系统，也就是所谓的[INAUDIBLE]系统，启发了千家公司的成立，因为人们开始基于这项技术构建专家系统。
 以下是你可能不知道你使用过或代表你使用过的系统。
 举例来说，如果你通过亚特兰大机场，你的飞机将由一个知道如何有效停放飞机的基于规则的专家系统来停放。
-它使得达美航空公司每天能够节省约500万美元的喷气燃料。
+它使得达美航空公司每天能够节省约500万美元的喷气燃料。(通过更加聪明地停放飞机，达美航空每天节省约500万美元的喷气燃料。)
 
  So that's an example of an expert system that does a little bit of good for a lot of people.
 There's Deep Blue.
@@ -616,7 +611,9 @@ PATRICK WINSTON: Having imagined the scene, it can then read the answers using i
 好的。
 我将想象一个男人撞到一个女人。
 PATRICK WINSTON：你看，如果它对这些情境的实际涉及没有一个好的记忆，它会尽最大努力。
-但是在想象了场景之后，它可以使用自己的视觉装置读取它想象中的场景的答案。
+但是一旦想象了场景，它就可以——系统：是的。
+我从经验中学到，男人和女人之间的联系是因为一个男人遇见了一个女人。
+帕特里克·温斯顿：在想象了场景之后，它可以使用自己的视觉装置读取在想象中的场景上的答案。
 
  So just like what you did with Africa, only now it's working with its own visual memory, using visual programs.
 SYSTEM: OK.
@@ -628,7 +625,9 @@ I will imagine that a man flies.
 PATRICK WINSTON: It's the best that it can do.
 So that concludes our discussion of the history.
 And I've provided you with a little bit of a glimpse of what we're going to look at as the semester unfolds.
-Yes, Chris? CHRIS: Is it actually a demonstration of something? Does it have a large database of videos? PATRICK WINSTON: No, it has a small database videos.
+Yes, Chris? 
+CHRIS: Is it actually a demonstration of something? Does it have a large database of videos? 
+PATRICK WINSTON: No, it has a small database videos.
 CHRIS: But it's intelligently picking among them based on-- PATRICK WINSTON: Based on their content.
 So if you say imagine that a student gave a ball to another student, it imagines that.
 You say, now does the other student have the ball? Does the other student take the ball?
@@ -642,10 +641,12 @@ You say, now does the other student have the ball? Does the other student take t
 帕特里克·温斯顿：这是它所能做到的最好的。
 所以，这就结束了我们对历史的讨论。
 我已经给你们一个小小的预览，展示了这个学期我们将要看到的内容。
-是的，克里斯？克里斯：这实际上是某种演示吗？它有一个大型的视频数据库吗？帕特里克·温斯顿：不，它有一个小型的视频数据库。
+是的，克里斯？
+克里斯：这实际上是某种演示吗？它有一个大型的视频数据库吗？帕特里克·温斯顿：不，它有一个小型的视频数据库。
 克里斯：但它根据内容聪明地进行选择吗？帕特里克·温斯顿：根据它们的内容进行选择。
 所以，如果你说想象一个学生给另一个学生一个球，它就会想象出来。
 你说，现在另一个学生有球了吗？另一个学生拿球了吗？
+
  It can answer those questions because it can review the same video and see the take as well as the give in the same video.
 So now we have to think about why we ought to be optimistic about the future.
 Because we've had a long history here, and we haven't solved the problem.
@@ -656,7 +657,7 @@ The high school idea is that we evolved through slow, gradual, and continuous im
 But that doesn't seem to be the way it happened.
 There are some characteristics of our species that are informative when it comes to guiding the activities of people like me.
 And here's what the story seems to be from the fossil record.
-因为它可以回顾同一段视频并了解视频中的表达和传递。
+它能回答那些问题，因为它可以回顾相同的视频，并在同一个视频中看到拍摄和给予。
 现在我们需要思考为什么我们对未来应该持乐观态度。
 因为我们在这里有很长的历史，而且我们还没有解决这个问题。
 但我们可以对未来持乐观态度的原因之一是因为我们所有的朋友都在努力。
@@ -687,18 +688,16 @@ This leads us to speculate on what it was that happened 50,000 years ago.
  And paleoanthropologists, Noam Chomsky, a lot of people reached similar conclusions.
 And that conclusion is-- I'll quote Chomsky.
 He's the voice of authority.
-"It seems that shortly before 50,000 years ago, some small group of us acquired the ability to take two concepts, and combine them to make a third concept, without disturbing the original two concepts, without limit." And from a perspective of an AI person like me, what Chomsky seems to be saying is, we learned how to begin to describe things, in a way that was intimately connected with language.
+"It seems that shortly before 50,000 years ago, some small group of us acquired the ability to take two concepts, and combine them to make a third concept, without disturbing the original two concepts, without limit." 
+And from a perspective of an AI person like me, what Chomsky seems to be saying is, we learned how to begin to describe things, in a way that was intimately connected with language.
 And that, in the end, is what separates us from the chimpanzees.
 So you might say, well let's just study language.
 No, you can't do that, because we think with our eyes.
 So language does two things.
 Number one, it enables us to make descriptions.
 Descriptions enable us to tell stories.
-And storytelling and story understanding is what all of education is about.
+And story telling and story understanding is what all of education is about.
 That's going up.
-以下的文本内容没有包含提示。
-将以下文本翻译成中文：
-
 古人类学家和诺姆·乔姆斯基等许多人得出了类似的结论。
 这个结论是——我引用乔姆斯基的话。
 他是权威的代表。
@@ -771,7 +770,8 @@ It's about skill building, and it's about big ideas.
 它们关于强大的思想。
 它们关于课程的体验方面。
 让我稍微离开一下，发表一番感想。
-麻省理工学院有两个重点，一个是技能培养，另一个是伟大的思想。
+麻省理工学院有两个重点，
+一个是技能培养，另一个是伟大的思想。
 
  So you can build a skill at home, or at Dartmouth, or at Harvard, or Princeton, or all those kinds of places.
 But the experience you can only get at MIT.
@@ -791,10 +791,13 @@ And finally the tutorials are about helping you with the homework.
 So you might say to me, well, do I really need to go to class?
 所以你可以在家里，或者在达特茅斯，或者在哈佛，或者在普林斯顿，或者在那些地方培养技能。
 但是只有在麻省理工学院才能获得的经验。
-我认识人工智能领域的每个人，我可以告诉你他们的思维方式。
+我认识人工智能领域的每个人，
+我可以告诉你他们的思维方式。
 我可以告诉你我的思维方式。
 这是你在其他地方得不到的东西。
-所以这是我在这些讲座中的角色，从我看来，复习加强和扩展材料，并提供一个适合讨论的小范围场所。
+所以这是我在这些讲座中的角色，从我看来，
+复习加强和扩展材料，并提供一个适合讨论的小范围场所。(朗读是对材料的四种支持和扩展，并提供一个足够小的场所进行讨论。
+)
 大型复习是课程的常规组成部分。
 它们在周五的同一时间上课。
 我的研究生马克·塞夫特将负责授课。
@@ -803,6 +806,7 @@ So you might say to me, well, do I really need to go to class?
 这是这门课程非常重要的组成部分。
 最后的辅导课是为了帮助你完成作业。
 所以你可能问我，我真的需要去上课吗？
+
  I like to say that the answer is, only if you like to pass the subject.
 But you are MIT students.
 And MIT people always like to look at the data.
@@ -839,9 +843,6 @@ Because that's when we get to use our blank stare.
 Because we have no idea what the class average ever is on any quiz.
 Here's what we do.
 Like everybody else, we start off with a score from zero to 100.
-以下文本内容不包含提示。
-将以下文本翻译成中文：
-
 有一两个在该学科中名列前茅的人根本不上课。
 对此我有一些矛盾的感觉。
 你们都是成年人，这是你们的选择。
@@ -922,9 +923,6 @@ So pay attention.
 Otherwise, you're going to be stranded in a classroom with nothing to do.
 We're not going to have any regular recitations this week.
 Are we having regular recitation this week, [INAUDIBLE]? No.
-以下文本內容不包括提示。
-
-
 最后有第五部分，因为根据学院规定，我们会在最后截止日期之后教给你一些材料。
 但大致上就是这样。
 你可以在相关主页的常见问题解答中了解更多细节。

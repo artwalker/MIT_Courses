@@ -1,0 +1,1266 @@
+0:15.
+the usual way to get a large computer.
+0:17.
+application developed involves a big.
+0:21.
+team of people working in close.
+0:23.
+coordination most of the time this works.
+0:27.
+surprisingly well but it does have its.
+0:29.
+problems and large projects tend to get.
+0:34.
+done poorly they take a long time they.
+0:38.
+consume an astonishing amount of money.
+0:40.
+and in many cases the individual team.
+0:43.
+members are dissatisfied so everybody in.
+0:46.
+the computing business is constantly.
+0:48.
+searching for ways to do a better job of.
+0:51.
+developing computer applications there.
+0:55.
+aren't likely to be any final answers.
+0:57.
+both because the problems are hard and.
+1:00.
+because as we find solutions we try even.
+1:02.
+more ambitious objectives but there are.
+1:05.
+some things that can be done to make.
+1:07.
+life easier for everybody on a large.
+1:09.
+programming project a good programming.
+1:12.
+environment helps a lot and in the next.
+1:15.
+few minutes we're going to show you some.
+1:18.
+of the properties of the UNIX operating.
+1:19.
+system that make it a good programming.
+1:22.
+environment for many purposes in Bell.
+Software.
+1:25.
+Labs as in many industries almost.
+1:28.
+everyone has some kind of involvement.
+1:30.
+with software either they are actually.
+1:32.
+producing software and that is their job.
+1:34.
+or they are impacted by software or they.
+1:38.
+use software fact that Bell Labs about.
+1:41.
+50% of the people are actually producing.
+1:43.
+software and everyone else has some kind.
+1:45.
+of involvement with it.
+1:46.
+in fact that's one of our worse problems.
+1:49.
+today there is a crying need for useful.
+1:52.
+software to do effective jobs we just do.
+1:55.
+not have enough people for write all.
+1:57.
+that software keeping large amounts of.
+2:00.
+software working and keeping it working.
+2:02.
+in the face of change is a big job takes.
+2:04.
+a lot of skilled people to do this now.
+2:07.
+software is different from hardware when.
+2:10.
+you build hardware and send it out.
+2:13.
+you may have to fix it because it breaks.
+2:15.
+but you don't demand for example that.
+2:18.
+your radio suddenly turn into a.
+2:20.
+television and you don't demand that a.
+2:22.
+piece of hardware suddenly do a.
+2:24.
+completely different function but people.
+2:26.
+do that of software all.
+2:27.
+the time there's a continual demand for.
+2:30.
+changes enhancements new features that.
+2:34.
+people find necessary once they get used.
+2:36.
+to a system in other words we put the.
+2:39.
+system out there people get used to it.
+2:41.
+their jobs change they come back with.
+2:43.
+more demands for different sorts of.
+2:45.
+features in the system the result is.
+2:48.
+there's no way to get perfect.
+2:50.
+requirements in the first place and that.
+2:52.
+means that we have to build the software.
+2:54.
+to be very changed tolerant because we.
+2:57.
+do not want to throw the software away.
+2:59.
+the year after we wrote it there are a.
+3:01.
+couple ways to do that one is to make.
+3:04.
+the software fairly clear and easy to.
+3:08.
+read and understand and change and you.
+3:10.
+do that with some of the current popular.
+3:12.
+structured programming techniques.
+3:14.
+another way is to write many many small.
+3:18.
+modules of code that way when you have a.
+3:20.
+change perhaps you only throw out a few.
+3:23.
+small modules or make changes in a few.
+3:25.
+modules rather than in thousands and.
+3:28.
+thousands of lines of code what we.
+3:30.
+should be doing in the computing.
+3:32.
+business is trying to raise the level at.
+3:34.
+which we work so that a programmer can.
+3:37.
+write a few lines of code that turn into.
+3:40.
+many many instructions in the machine.
+3:42.
+that way when changes need to be made.
+3:44.
+one just changes a few lines of code.
+3:46.
+rather than thousands and thousands of.
+3:49.
+them in the mythical man-month.
+3:52.
+fred brooks estimates that it took 5,000.
+3:54.
+staff years of effort to produce the.
+3:56.
+operating system for IBM's 360 series.
+3:59.
+computers clearly nobody is going to do.
+4:02.
+that sort of thing very often certainly.
+4:04.
+not for every new type of hardware or.
+4:06.
+for every new class of application.
+4:08.
+someone once said that software stands.
+4:11.
+between the user and the machine and to.
+4:13.
+me this conveys this picture of a great.
+4:15.
+wall of software up there that you have.
+4:17.
+to overcome to get anything done there's.
+4:19.
+certainly a grain of truth in the remark.
+4:21.
+anyway if you stop to look many many.
+4:23.
+operating systems seem to spend a.
+4:25.
+substantial fraction of their time and.
+4:27.
+effort not in helping you but in.
+4:30.
+impeding you in making your job.
+4:31.
+difficult sort of providing obstacles to.
+4:33.
+be overcome when Ken Thompson and Dennis.
+4:36.
+Ritchie start.
+4:37.
+the unit system 1969.
+4:39.
+they found a structure which simplified.
+4:42.
+many aspects of the interactions between.
+4:45.
+computers and people Thomson and Richie.
+4:48.
+were aiming to keep their system simple.
+4:50.
+and they found a collection of.
+4:52.
+primitives that enable them to do a.
+4:54.
+great deal with the very few primitives.
+System Structure.
+4:56.
+a UNIX system is made up sort of of.
+4:59.
+three layers if you like the central.
+5:01.
+layer the kernel is the thing that.
+5:03.
+controls the resources of the machine.
+5:05.
+then wrapped around that at least in.
+5:08.
+conceptually is something called the.
+5:10.
+shell which is the interface between.
+5:12.
+most users and the kernel part it sits.
+5:15.
+there and waits for you to type commands.
+5:16.
+at it and then it interprets them and.
+5:18.
+then around that sort of an yet another.
+5:20.
+layer are useful programs things like.
+5:22.
+editors and compilers for programming.
+5:24.
+languages and document formatting.
+5:26.
+programs and programs that you write.
+5:29.
+yourself and what you can do is to think.
+5:33.
+of these UNIX system programs basically.
+5:37.
+as in some sense the building blocks.
+5:38.
+with which you can create things and the.
+5:41.
+thing that distinguishes UNIX system.
+5:43.
+from any other system is the degree to.
+5:45.
+which those building blocks can be glued.
+5:47.
+together in a variety of different ways.
+5:49.
+not just obvious ways but in many cases.
+5:51.
+very unobvious ways to get different.
+5:54.
+jobs done the system is very flexible in.
+5:57.
+that respect I think the notion of.
+5:59.
+pipelining is the fundamental.
+6:00.
+contribution if the system is you can.
+6:03.
+take a bunch of programs two or more.
+6:06.
+programs and stick them together end to.
+6:08.
+end so that the data simply flows from.
+6:10.
+the one on the left to the one on the.
+6:11.
+right and the system itself looks after.
+6:13.
+all the connections all of the.
+6:15.
+synchronization making sure that the.
+6:17.
+data goes from the one into the other.
+6:18.
+the program's themselves don't know.
+6:21.
+anything about the connection as far as.
+6:22.
+they're concerned they're just talking.
+6:23.
+to the terminal let me give you an.
+6:25.
+example of how this works in practice.
+6:29.
+the system is as I mentioned is used a.
+6:32.
+lot for document preparation kinds of.
+6:34.
+things programs for helping you type.
+6:37.
+letters or produce technical papers or.
+6:39.
+write books in all of those things of.
+6:42.
+course people when they're typing into.
+6:44.
+machine make spelling mistakes so let's.
+6:45.
+see how we could use some of these.
+6:47.
+building block notions in practice to.
+6:48.
+help you develop a program for finding.
+6:51.
+spelling mistakes suppose I take a.
+6:52.
+sentence this is a.
+6:53.
+sentence which is in a paper that John.
+6:57.
+Massey and I wrote some years ago now if.
+7:01.
+you look at it carefully you'll see that.
+7:03.
+there are actually a couple of spelling.
+7:04.
+mistakes in there now suppose that we.
+7:07.
+wanted to find the spelling mistakes.
+7:08.
+using a machine how would we do that.
+7:10.
+well basically what we would do the.
+7:12.
+simplest thing I can think of is to.
+7:14.
+split the sentence there in two words.
+7:18.
+individual words and then compare the.
+7:20.
+words against a dictionary and every.
+7:22.
+time we find a word which is in that.
+7:23.
+sentence but not in dictionary it's at.
+7:25.
+least a plausible contender for being a.
+7:27.
+spelling mistake now how do we do that.
+7:29.
+what I want to show is that you can do.
+7:31.
+that using just existing UNIX programs.
+7:33.
+just gluing them together to get the job.
+7:35.
+done suppose that we say first we will.
+7:38.
+take a program called make words and.
+7:40.
+we'll run that on the sentence now what.
+7:43.
+that does is break the thing up into one.
+7:46.
+word per line now I'll take the output.
+7:50.
+and I'll pipe it into another program.
+7:53.
+which will simply convert it into.
+7:54.
+lowercase the reason I want to convert.
+7:56.
+it into lowercase is that my dictionary.
+7:57.
+doesn't have any capitalizations and so.
+7:59.
+words like Bell and UNIX which are.
+8:02.
+capitalized here would show up as.
+8:03.
+spelling mistakes unless I did this now.
+8:06.
+the next thing that I want to do my.
+8:08.
+dictionary is in fact sorted in.
+8:09.
+alphabetical order dictionaries are and.
+8:12.
+so it's a lot easier for me to compare.
+8:13.
+the words of my document to the words in.
+8:16.
+the dictionary if they're started so I'm.
+8:18.
+going to run them into sort and finally.
+8:25.
+if you look at it carefully it doesn't.
+8:26.
+show up very easily here but there are.
+8:29.
+in fact there is a duplicate word their.
+8:32.
+systems appears twice and in a real.
+8:35.
+document words like TIG would show up.
+8:36.
+many times so we'd like to get rid of.
+8:38.
+duplicates so let's throw that through.
+8:40.
+another program called unique so what.
+8:43.
+we've got so far is we've got the words.
+8:45.
+of my document in this case the sentence.
+8:47.
+one word per line in lowercase neatly.
+8:51.
+sorted and all of the duplicate words.
+8:52.
+thrown away so there's only one word one.
+8:55.
+instance of each different word then.
+8:57.
+what I'm going to do is run it into one.
+8:58.
+last program called mismatch which will.
+9:01.
+simply print all of the words that came.
+9:03.
+down this pipeline and.
+9:05.
+print out the ones that were in the.
+9:08.
+document that word in the dictionary.
+9:10.
+what we have here is five separate.
+9:14.
+programs cooperating to do this job and.
+9:17.
+in one giant pipeline now if you look at.
+9:20.
+the list that came out you'll see that.
+9:22.
+indeed we got laboratories and provide.
+9:24.
+which were our two spelling mistakes of.
+9:26.
+course we've got two other words as well.
+9:27.
+and this tells you not only was what.
+9:30.
+what's good about the approach but also.
+9:32.
+what's bad about it time sharing is not.
+9:34.
+a spelling mistake but it's a perfectly.
+9:36.
+fine example of technical jargon the.
+9:38.
+sort of thing that means something to.
+9:39.
+everybody in the computer business it.
+9:41.
+means nothing whatsoever to people who.
+9:43.
+are not computer types and the word UNIX.
+9:45.
+is a fine example of something that's.
+9:47.
+not going to be found in a normal.
+9:49.
+dictionary so what do we do first we.
+9:53.
+take the misspelled words and we go back.
+9:55.
+to the original document and we correct.
+9:57.
+them so we don't have any spelling.
+9:58.
+mistakes secondly we take the words that.
+10:00.
+like time-sharing and unix that are not.
+10:02.
+spelling mistakes but which showed up.
+10:04.
+here and we put them back into our.
+10:06.
+dictionary so that the next time.
+10:07.
+somebody has a document that contains.
+10:09.
+the UNIX or time-sharing they don't show.
+10:11.
+up as spelling mistakes so we've not.
+10:13.
+only done our own job but we've improved.
+10:14.
+the tool that we're using in the process.
+Programming.
+10:17.
+so you notice that I did that whole job.
+10:19.
+without writing any programs at all the.
+10:21.
+whole thing is cobbled together out of.
+10:23.
+programs that already exist it and all I.
+10:25.
+did was to use the fact that the system.
+10:27.
+provides this mechanism of the pipeline.
+10:29.
+so that I can take programs and stick.
+10:31.
+them together one after another to get.
+10:33.
+my job done and I think this is one of.
+10:35.
+the reasons why the system so productive.
+10:37.
+that there's a large collection of.
+10:40.
+things that people have already built.
+10:41.
+that we use and as we build our new.
+10:45.
+things then they become part of the.
+10:47.
+repertoire of things that people.
+10:48.
+subsequently can build on during the.
+10:51.
+last decade we have discovered a number.
+10:54.
+of new powerful pattern matching.
+10:56.
+algorithms that are useful for locating.
+10:59.
+patterns and texts many of these.
+11:02.
+algorithms have been developed using.
+11:05.
+insights obtained from theory obtained.
+11:07.
+by studying automata and language theory.
+11:09.
+as our knowledge of pattern matching.
+11:14.
+algorithms increases we can very quickly.
+11:17.
+take this knowledge and.
+11:19.
+package it in the form of UNIX programs.
+11:21.
+and we can spread these UNIX programs to.
+11:25.
+the entire community very quickly.
+11:35.
+the UNIX systems has many features which.
+11:38.
+make it easier for the programmer to.
+11:41.
+write programs.
+11:42.
+these include form atlas files the.
+11:46.
+hierarchical directory structure the.
+11:49.
+ability to pipeline the output of one.
+11:51.
+command as the input of another device.
+11:55.
+independent i/o all of these things make.
+11:58.
+programming considerably easier than on.
+12:01.
+most other systems the heart of the.
+File System.
+12:04.
+system is really the file system the.
+12:06.
+ability to store information for.
+12:08.
+extended periods of time and the reason.
+12:11.
+one of the reasons the system works as.
+12:12.
+well as it does is that the file system.
+12:14.
+is well designed and many systems you.
+12:17.
+have to say an awful lot about a file.
+12:19.
+before you can do anything with it you.
+12:20.
+have to say where it is and how big it.
+12:23.
+is and what kind of information it's.
+12:24.
+going to that's going to be in it.
+12:26.
+all kinds of things that are basically.
+12:27.
+utterly completely irrelevant here you.
+12:30.
+don't have to do any of that the file is.
+12:32.
+as big as it is it doesn't matter where.
+12:35.
+it is as long as you know what it's.
+12:36.
+called and so you basically don't have.
+12:38.
+to think of any of those complexities.
+12:40.
+that you have in other systems when you.
+12:42.
+want information in a file you put it.
+12:43.
+there when you want it back you get it.
+12:45.
+out again and you don't have to think.
+12:46.
+about size or number of Records or.
+12:49.
+number of fields or anything like that.
+12:50.
+unless it's really germane to your.
+12:52.
+program for most purposes it's utterly.
+12:54.
+irrelevant a file is simply a sequence.
+12:57.
+of bytes its main attribute is its size.
+13:00.
+by contrast and more conventional.
+13:02.
+systems file has dozen or so attributes.
+13:05.
+to specify or create a file it takes.
+13:08.
+endless amounts of chitchat if you want.
+13:11.
+a UNIX system file you simply ask for a.
+13:13.
+file and you can use it interchangeably.
+13:14.
+wherever you want to file the UNIX.
+Directory Hierarchy.
+13:17.
+system consists of a hierarchy of.
+13:20.
+directories which a directory is simply.
+13:22.
+a file that contains the names of either.
+13:25.
+other directories or files and this.
+13:28.
+whole thing goes on recursively when you.
+13:30.
+log into a UNIX system you normally are.
+13:32.
+sitting in a place that's called your.
+13:34.
+home directory or users directory and I.
+13:36.
+can say TWD which means print the name.
+13:38.
+of my working directory and it'll tell.
+13:39.
+me where I am it says at the moment that.
+13:41.
+I mean user bwk that's where I start.
+13:44.
+when I log in now I can go up a level in.
+13:48.
+that I can.
+13:49.
+change to parent level and now if I.
+13:52.
+print my working directory I'm in slash.
+13:54.
+user and I can go up one more level to.
+13:56.
+the root of the whole file system let me.
+13:58.
+go back down to BW k and I can list the.
+14:02.
+direct the files that I have in that.
+14:03.
+directory and I find there among other.
+14:08.
+things a directory called TV and I can.
+14:12.
+list the files that are there and I'll.
+14:13.
+find among other things the sentence.
+14:15.
+that we printed in a spelling mistake.
+14:17.
+finding program they look at that and.
+14:20.
+sure enough there it is so as you can.
+14:22.
+see the file system hierarchy makes it.
+14:25.
+possible for users to organize.
+14:27.
+information into its natural grouping.
+14:29.
+and to go up or down and find things.
+14:32.
+quickly and easily the UNIX system.
+Shell.
+14:35.
+interface for most people is through.
+14:37.
+program called the shell or the command.
+14:39.
+interpreter basically it's simply a.
+14:41.
+program that watches what you type and.
+14:44.
+treats it as requests to run particular.
+14:48.
+programs now there's nothing magic about.
+14:50.
+running programs the programs that you.
+14:53.
+run are actually just the names of files.
+14:55.
+in the file system the shell searches in.
+14:58.
+the file system in a particular way to.
+14:59.
+find a file whose name is the name of.
+15:02.
+the program that you think you're.
+15:03.
+running and it goes and executes it and.
+15:06.
+in fact it's not possible for you as a.
+15:10.
+user just by executing a program to tell.
+15:13.
+how that particular program has been.
+15:15.
+implemented for example it might have.
+15:17.
+been written in a language like Fortran.
+15:18.
+or C or it may have in fact been written.
+15:20.
+as something like the spell program that.
+15:23.
+we talked about earlier which is a.
+15:24.
+combination of other programs stuck.
+15:27.
+together with pipes or some similar.
+15:29.
+thing and all put in a single file as a.
+15:33.
+shell sequence or sequence of commands.
+15:36.
+what Brian did earlier was he typed all.
+15:40.
+the commands the the five program names.
+15:42.
+for his spelling checker on one line.
+15:45.
+using the pipeline facilities that's.
+15:48.
+nice except that you may want to check.
+15:50.
+documents often and you don't want to.
+15:54.
+have to type that long sequence of.
+15:55.
+commands so it's possible to put all of.
+15:58.
+these commands in a file and tell the.
+16:00.
+shell when.
+16:02.
+I type the name of that file I want you.
+16:04.
+to execute the commands that are inside.
+16:06.
+that file let me show you an example of.
+16:08.
+this we have a program called spline.
+16:12.
+which fits curves to a set of data.
+16:17.
+points and I've got a set of five data.
+16:19.
+points that we're going to see what the.
+16:21.
+curve looks like I'm going to run spline.
+16:23.
+through a program that turns this into.
+16:28.
+graphics called graph and I'm going to.
+16:30.
+run that through a special program that.
+16:33.
+turns the graphic language into.
+16:35.
+something specific for this terminal I.
+16:38.
+only need to type plot and data because.
+16:42.
+inside the file plot is the string of.
+16:45.
+commands and here is a result of.
+16:47.
+plotting those five data points on this.
+16:48.
+particular terminal the ability to put.
+16:51.
+commands in files and only have to type.
+16:54.
+the file name to get these commands.
+16:56.
+executed makes the computing business a.
+17:00.
+lot easier often you're doing things.
+17:02.
+that are repetitive and you don't want.
+17:04.
+to have to type long lists of things.
+17:06.
+this makes our life much easier and.
+17:08.
+allows us to tailor our environment for.
+17:11.
+the way we want to work another nice.
+17:13.
+feature of the UNIX programming.
+17:15.
+environment is the concept of input.
+17:17.
+output redirection normally when you.
+17:21.
+type a command the output from it goes.
+17:23.
+to your terminal and the input comes.
+17:25.
+from your keyboard.
+17:26.
+however the shell can be told by a.
+17:29.
+simple notation that when you run a.
+17:31.
+program you wish the output to be.
+17:32.
+directed into a file or that the input.
+17:35.
+be taken from a file for example to.
+Redirection.
+17:37.
+print the output of my spelling program.
+17:39.
+on the line printer instead of putting.
+17:42.
+it on my terminal all I have to do is.
+17:44.
+say my spell sentence greater than.
+17:47.
+device line printer rather than my spell.
+17:50.
+sentence and the output goes into the.
+17:52.
+file what looks like a file except that.
+17:55.
+it's actually a file that causes the.
+17:56.
+line printer to spring into action and.
+17:58.
+print my three or four spelling mistakes.
+18:01.
+on the line printer on many systems.
+18:04.
+redirection of input and output is.
+18:08.
+literally impossible because the.
+18:09.
+programs have wired into them the notion.
+18:11.
+that they have to read or write the.
+18:13.
+user's terminal and there's simply no.
+18:15.
+way.
+18:15.
+to convince them otherwise they'd have.
+18:17.
+to do that here that is not the case.
+18:20.
+here any program can have its input or.
+18:23.
+output redirected because the input and.
+18:25.
+output redirection is handled not by the.
+18:27.
+individual program but by the shell and.
+18:29.
+so that way it applies to all programs.
+18:31.
+without any exception at all and in fact.
+18:33.
+this goes a little further than you.
+18:35.
+might expect because not only are parts.
+18:38.
+of the disk files as they are in other.
+18:41.
+systems but in addition the i/o devices.
+18:45.
+the peripheral devices connected to the.
+18:47.
+computer are also files in the file.
+18:49.
+system for example the line printer and.
+18:51.
+the tape drive and even the thing that.
+18:52.
+dials telephone numbers are all devices.
+18:55.
+in the file system in the same program.
+18:57.
+that will copy information from one disk.
+18:59.
+file to another disk file will also copy.
+19:01.
+information from a disk file to the line.
+19:04.
+printer or from the magnetic tape drive.
+19:06.
+to the printer the same program exactly.
+19:08.
+a good operating system is easiest for.
+19:12.
+programmer to use if the programming.
+19:14.
+language fits with the style of the.
+19:17.
+system so along the way in the course of.
+19:19.
+the unit systems development Dennis.
+19:21.
+Ritchie created the C language C is a.
+19:24.
+very nice high-level language with many.
+19:27.
+of the modern programming constructs in.
+19:29.
+it the thing that's very important about.
+19:32.
+it is that it lets you avoid the details.
+19:35.
+of the machine when you want to but when.
+19:38.
+you need to and sometimes when you're.
+19:40.
+writing an operating system you really.
+19:42.
+do need to you can get at the details of.
+19:45.
+the machine and control everything but.
+19:47.
+you're not forced to do that and that's.
+19:49.
+important because that means you can.
+19:51.
+write operating systems in this language.
+19:53.
+and still have something that can be.
+19:55.
+portable to other machines the UNIX.
+19:58.
+system has been moved to many many.
+20:00.
+different kinds of computers again that.
+20:03.
+means that people can ignore the details.
+20:05.
+of what a machine is underneath and get.
+20:09.
+on with their job now so at that level C.
+20:13.
+is by far the favorite language at the.
+20:15.
+next level the shell programming.
+20:17.
+language is very popular back on some.
+20:20.
+machines people find that the shell.
+20:22.
+meets all of their programming needs.
+20:24.
+they are writing lots of procedures to.
+20:26.
+help them manage their work they don't.
+20:28.
+even have to.
+20:29.
+go to a language at the level of see as.
+20:33.
+it happens though because the system is.
+20:36.
+such a pleasant programming environment.
+20:38.
+programmers all over the world have.
+20:40.
+imported or added their own languages so.
+20:43.
+for instance you can find Fortran Algol.
+20:46.
+Lisp basic fact almost any language you.
+20:50.
+can think of exists on some UNIX system.
+20:53.
+somewhere what's important about the.
+20:54.
+unique system is not so much what Ricci.
+20:56.
+and Thompson put into it as what they.
+20:59.
+were able to leave out of it rather than.
+21:01.
+produce a large number of primitives.
+21:03.
+each one complex they were able to.
+21:07.
+choose a small number of simple.
+21:09.
+primitives which could be fitted.
+21:11.
+naturally together to accomplish complex.
+21:14.
+tasks this structure of the operating.
+21:16.
+system makes it natural and easy for.
+21:20.
+people who create applications to.
+21:21.
+produce applications in that same style.
+21:24.
+for example as the scale of integration.
+21:26.
+of silicon circuits gets ever larger we.
+21:29.
+find it necessary to have more and more.
+21:31.
+sophisticated design aids to help people.
+21:33.
+create large-scale integrated circuits.
+21:35.
+our existing design aids are advanced.
+21:37.
+and effective but advances in VLSI.
+21:40.
+create a need for even better tools.
+21:42.
+rather than produce those tools in the.
+21:44.
+form of one humongous program designed.
+21:47.
+to do everything the people here have.
+21:50.
+been producing small packages each.
+21:52.
+designed to do some individual function.
+21:54.
+that's helpful in the design of.
+21:56.
+integrated circuits then these.
+21:58.
+individual packages can be combined.
+22:00.
+using shell procedures to design a part.
+22:03.
+of a circuit or a circuit and the parts.
+22:05.
+of a circuit can be combined to make a.
+22:07.
+whole circuit Steve Johnson is one of.
+22:11.
+the people who has been involved in this.
+22:12.
+effort he is currently working on a.
+22:14.
+program called Elgin which takes boolean.
+22:16.
+equations as input and produces logic.
+22:19.
+circuit designs as output because tool.
+Tools.
+22:21.
+building is such a way of life on the.
+22:24.
+UNIX system over the years we've.
+22:26.
+developed tools that actually help us.
+22:28.
+make other tools these involve things.
+22:31.
+like parser generators lexical analyser.
+22:35.
+generators and other programs that help.
+22:38.
+us organize and develop tools these.
+22:44.
+tools have been used in the development.
+22:45.
+of L gen and many other applications.
+22:48.
+here we see the boolean equations for a.
+22:52.
+simple matter down here we have the.
+22:57.
+equations for the carryout and the sum.
+23:08.
+in the middle we have some descriptions.
+23:10.
+as to how we would like the cell to be.
+23:13.
+laid out geometrically see we would like.
+23:16.
+the two inputs on the left side the.
+23:20.
+carry in on the bottom the carryout on.
+23:24.
+the top and the output on the right side.
+23:28.
+the input equations first have to be.
+23:31.
+processed so that they can be more.
+23:34.
+easily represented in silicon this.
+23:36.
+process is very similar to recognizing.
+23:39.
+common sub-expressions in the input of a.
+23:41.
+compiler input language the boolean.
+23:45.
+equations are read and processed by a.
+23:48.
+program called yak which was originally.
+23:51.
+developed to help us build compilers but.
+23:54.
+has in fact been used in a large number.
+23:56.
+of application programs as well yak is.
+23:59.
+based on the theory of lalr 1 parsing.
+24:06.
+represents it builds a small finite.
+24:08.
+state machine which is able to control.
+24:11.
+the actions of the program which reads.
+24:14.
+the input detect errors accurately and.
+24:19.
+structure the input in such a way that.
+24:21.
+the program can then go ahead and.
+24:23.
+perform its operations on it after these.
+24:28.
+equations have been processed.
+24:30.
+it's then necessary to worry about the.
+24:33.
+geometric layout of the circuit this is.
+24:38.
+done in the next 2 portions of el jem.
+24:41.
+the first program worries about the.
+24:44.
+ordering of these columns it uses a.
+24:50.
+technique called graph partitioning to.
+24:53.
+attempt to iteratively come up with a.
+24:56.
+good solution to what is in fact an.
+24:58.
+extremely difficult problem in theory.
+25:01.
+after the columns have been ordered then.
+25:04.
+the tracks where the signals run are.
+25:07.
+laid out as well by another program and.
+25:11.
+finally in some sense we now have the.
+25:14.
+circuit designed and it's simply a.
+25:17.
+question of realizing it with the.
+25:19.
+particular rules.
+25:20.
+for our fabrication process and that is.
+25:24.
+done by a fourth program so once again.
+25:27.
+we have an example of taking a very.
+25:31.
+complex problem dividing it into pieces.
+25:33.
+representing each piece with a separate.
+25:36.
+program and then using the facilities of.
+25:39.
+the UNIX system to glue the pieces.
+25:41.
+together into a coherent whole again.
+25:45.
+computing is going to be more and more.
+25:47.
+inner woven with people's lives as the.
+25:49.
+years go by so computer technology is.
+25:53.
+going to have to evolve to be easier for.
+25:55.
+people to use the unit system is not the.
+25:58.
+end of the road in this regard but I.
+26:00.
+think it's a good step along the way.
+26:41.
+you.
+27:10.
+you.
+27:17.
+you.

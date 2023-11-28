@@ -1,0 +1,3145 @@
+﻿1
+00:00:15,039 --> 00:00:17,689
+the usual way to get a large computer
+
+
+2
+00:00:17,689 --> 00:00:21,890
+application developed involves a big
+
+
+3
+00:00:21,890 --> 00:00:23,810
+team of people working in close
+
+
+4
+00:00:23,810 --> 00:00:27,439
+coordination most of the time this works
+
+
+5
+00:00:27,439 --> 00:00:29,810
+surprisingly well but it does have its
+
+
+6
+00:00:29,810 --> 00:00:34,760
+problems and large projects tend to get
+
+
+7
+00:00:34,760 --> 00:00:38,930
+done poorly they take a long time they
+
+
+8
+00:00:38,930 --> 00:00:40,550
+consume an astonishing amount of money
+
+
+9
+00:00:40,550 --> 00:00:43,879
+and in many cases the individual team
+
+
+10
+00:00:43,879 --> 00:00:46,429
+members are dissatisfied so everybody in
+
+
+11
+00:00:46,429 --> 00:00:48,230
+the computing business is constantly
+
+
+12
+00:00:48,230 --> 00:00:51,050
+searching for ways to do a better job of
+
+
+13
+00:00:51,050 --> 00:00:55,280
+developing computer applications there
+
+
+14
+00:00:55,280 --> 00:00:57,339
+aren't likely to be any final answers
+
+
+15
+00:00:57,339 --> 00:01:00,079
+both because the problems are hard and
+
+
+16
+00:01:00,079 --> 00:01:02,510
+because as we find solutions we try even
+
+
+17
+00:01:02,510 --> 00:01:05,810
+more ambitious objectives but there are
+
+
+18
+00:01:05,810 --> 00:01:07,310
+some things that can be done to make
+
+
+19
+00:01:07,310 --> 00:01:09,080
+life easier for everybody on a large
+
+
+20
+00:01:09,080 --> 00:01:12,320
+programming project a good programming
+
+
+21
+00:01:12,320 --> 00:01:15,590
+environment helps a lot and in the next
+
+
+22
+00:01:15,590 --> 00:01:18,080
+few minutes we're going to show you some
+
+
+23
+00:01:18,080 --> 00:01:19,670
+of the properties of the UNIX operating
+
+
+24
+00:01:19,670 --> 00:01:22,280
+system that make it a good programming
+
+
+25
+00:01:22,280 --> 00:01:25,790
+environment for many purposes in Bell
+
+
+26
+00:01:25,790 --> 00:01:28,250
+Labs as in many industries almost
+
+
+27
+00:01:28,250 --> 00:01:30,320
+everyone has some kind of involvement
+
+
+28
+00:01:30,320 --> 00:01:32,690
+with software either they are actually
+
+
+29
+00:01:32,690 --> 00:01:34,700
+producing software and that is their job
+
+
+30
+00:01:34,700 --> 00:01:38,510
+or they are impacted by software or they
+
+
+31
+00:01:38,510 --> 00:01:41,180
+use software fact that Bell Labs about
+
+
+32
+00:01:41,180 --> 00:01:43,400
+50% of the people are actually producing
+
+
+33
+00:01:43,400 --> 00:01:45,740
+software and everyone else has some kind
+
+
+34
+00:01:45,740 --> 00:01:46,940
+of involvement with it
+
+
+35
+00:01:46,940 --> 00:01:49,130
+in fact that's one of our worse problems
+
+
+36
+00:01:49,130 --> 00:01:52,220
+today there is a crying need for useful
+
+
+37
+00:01:52,220 --> 00:01:55,640
+software to do effective jobs we just do
+
+
+38
+00:01:55,640 --> 00:01:57,170
+not have enough people for write all
+
+
+39
+00:01:57,170 --> 00:02:00,260
+that software keeping large amounts of
+
+
+40
+00:02:00,260 --> 00:02:02,420
+software working and keeping it working
+
+
+41
+00:02:02,420 --> 00:02:04,700
+in the face of change is a big job takes
+
+
+42
+00:02:04,700 --> 00:02:07,550
+a lot of skilled people to do this now
+
+
+43
+00:02:07,550 --> 00:02:10,970
+software is different from hardware when
+
+
+44
+00:02:10,970 --> 00:02:13,190
+you build hardware and send it out
+
+
+45
+00:02:13,190 --> 00:02:15,709
+you may have to fix it because it breaks
+
+
+46
+00:02:15,709 --> 00:02:18,830
+but you don't demand for example that
+
+
+47
+00:02:18,830 --> 00:02:20,360
+your radio suddenly turn into a
+
+
+48
+00:02:20,360 --> 00:02:22,670
+television and you don't demand that a
+
+
+49
+00:02:22,670 --> 00:02:24,290
+piece of hardware suddenly do a
+
+
+50
+00:02:24,290 --> 00:02:26,450
+completely different function but people
+
+
+51
+00:02:26,450 --> 00:02:27,830
+do that of software all
+
+
+52
+00:02:27,830 --> 00:02:30,890
+the time there's a continual demand for
+
+
+53
+00:02:30,890 --> 00:02:34,670
+changes enhancements new features that
+
+
+54
+00:02:34,670 --> 00:02:36,980
+people find necessary once they get used
+
+
+55
+00:02:36,980 --> 00:02:39,080
+to a system in other words we put the
+
+
+56
+00:02:39,080 --> 00:02:41,180
+system out there people get used to it
+
+
+57
+00:02:41,180 --> 00:02:43,730
+their jobs change they come back with
+
+
+58
+00:02:43,730 --> 00:02:45,590
+more demands for different sorts of
+
+
+59
+00:02:45,590 --> 00:02:48,860
+features in the system the result is
+
+
+60
+00:02:48,860 --> 00:02:50,390
+there's no way to get perfect
+
+
+61
+00:02:50,390 --> 00:02:52,760
+requirements in the first place and that
+
+
+62
+00:02:52,760 --> 00:02:54,290
+means that we have to build the software
+
+
+63
+00:02:54,290 --> 00:02:57,380
+to be very changed tolerant because we
+
+
+64
+00:02:57,380 --> 00:02:59,270
+do not want to throw the software away
+
+
+65
+00:02:59,270 --> 00:03:01,880
+the year after we wrote it there are a
+
+
+66
+00:03:01,880 --> 00:03:04,760
+couple ways to do that one is to make
+
+
+67
+00:03:04,760 --> 00:03:08,000
+the software fairly clear and easy to
+
+
+68
+00:03:08,000 --> 00:03:10,760
+read and understand and change and you
+
+
+69
+00:03:10,760 --> 00:03:12,920
+do that with some of the current popular
+
+
+70
+00:03:12,920 --> 00:03:14,620
+structured programming techniques
+
+
+71
+00:03:14,620 --> 00:03:18,320
+another way is to write many many small
+
+
+72
+00:03:18,320 --> 00:03:20,930
+modules of code that way when you have a
+
+
+73
+00:03:20,930 --> 00:03:23,630
+change perhaps you only throw out a few
+
+
+74
+00:03:23,630 --> 00:03:25,940
+small modules or make changes in a few
+
+
+75
+00:03:25,940 --> 00:03:28,370
+modules rather than in thousands and
+
+
+76
+00:03:28,370 --> 00:03:30,650
+thousands of lines of code what we
+
+
+77
+00:03:30,650 --> 00:03:32,360
+should be doing in the computing
+
+
+78
+00:03:32,360 --> 00:03:34,820
+business is trying to raise the level at
+
+
+79
+00:03:34,820 --> 00:03:37,160
+which we work so that a programmer can
+
+
+80
+00:03:37,160 --> 00:03:40,250
+write a few lines of code that turn into
+
+
+81
+00:03:40,250 --> 00:03:42,320
+many many instructions in the machine
+
+
+82
+00:03:42,320 --> 00:03:44,780
+that way when changes need to be made
+
+
+83
+00:03:44,780 --> 00:03:46,850
+one just changes a few lines of code
+
+
+84
+00:03:46,850 --> 00:03:49,340
+rather than thousands and thousands of
+
+
+85
+00:03:49,340 --> 00:03:52,160
+them in the mythical man-month
+
+
+86
+00:03:52,160 --> 00:03:54,950
+fred brooks estimates that it took 5,000
+
+
+87
+00:03:54,950 --> 00:03:56,930
+staff years of effort to produce the
+
+
+88
+00:03:56,930 --> 00:03:59,390
+operating system for IBM's 360 series
+
+
+89
+00:03:59,390 --> 00:04:02,750
+computers clearly nobody is going to do
+
+
+90
+00:04:02,750 --> 00:04:04,430
+that sort of thing very often certainly
+
+
+91
+00:04:04,430 --> 00:04:06,200
+not for every new type of hardware or
+
+
+92
+00:04:06,200 --> 00:04:08,620
+for every new class of application
+
+
+93
+00:04:08,620 --> 00:04:11,209
+someone once said that software stands
+
+
+94
+00:04:11,209 --> 00:04:13,310
+between the user and the machine and to
+
+
+95
+00:04:13,310 --> 00:04:15,230
+me this conveys this picture of a great
+
+
+96
+00:04:15,230 --> 00:04:17,209
+wall of software up there that you have
+
+
+97
+00:04:17,209 --> 00:04:19,760
+to overcome to get anything done there's
+
+
+98
+00:04:19,760 --> 00:04:21,109
+certainly a grain of truth in the remark
+
+
+99
+00:04:21,109 --> 00:04:23,510
+anyway if you stop to look many many
+
+
+100
+00:04:23,510 --> 00:04:25,250
+operating systems seem to spend a
+
+
+101
+00:04:25,250 --> 00:04:27,860
+substantial fraction of their time and
+
+
+102
+00:04:27,860 --> 00:04:30,140
+effort not in helping you but in
+
+
+103
+00:04:30,140 --> 00:04:31,940
+impeding you in making your job
+
+
+104
+00:04:31,940 --> 00:04:33,919
+difficult sort of providing obstacles to
+
+
+105
+00:04:33,919 --> 00:04:36,169
+be overcome when Ken Thompson and Dennis
+
+
+106
+00:04:36,169 --> 00:04:37,040
+Ritchie start
+
+
+107
+00:04:37,040 --> 00:04:39,850
+the unit system 1969
+
+
+108
+00:04:39,850 --> 00:04:42,720
+they found a structure which simplified
+
+
+109
+00:04:42,720 --> 00:04:45,250
+many aspects of the interactions between
+
+
+110
+00:04:45,250 --> 00:04:48,400
+computers and people Thomson and Richie
+
+
+111
+00:04:48,400 --> 00:04:50,260
+were aiming to keep their system simple
+
+
+112
+00:04:50,260 --> 00:04:52,180
+and they found a collection of
+
+
+113
+00:04:52,180 --> 00:04:54,400
+primitives that enable them to do a
+
+
+114
+00:04:54,400 --> 00:04:56,050
+great deal with the very few primitives
+
+
+115
+00:04:56,050 --> 00:04:59,470
+a UNIX system is made up sort of of
+
+
+116
+00:04:59,470 --> 00:05:01,420
+three layers if you like the central
+
+
+117
+00:05:01,420 --> 00:05:03,550
+layer the kernel is the thing that
+
+
+118
+00:05:03,550 --> 00:05:05,310
+controls the resources of the machine
+
+
+119
+00:05:05,310 --> 00:05:08,100
+then wrapped around that at least in
+
+
+120
+00:05:08,100 --> 00:05:10,180
+conceptually is something called the
+
+
+121
+00:05:10,180 --> 00:05:12,160
+shell which is the interface between
+
+
+122
+00:05:12,160 --> 00:05:15,070
+most users and the kernel part it sits
+
+
+123
+00:05:15,070 --> 00:05:16,360
+there and waits for you to type commands
+
+
+124
+00:05:16,360 --> 00:05:18,280
+at it and then it interprets them and
+
+
+125
+00:05:18,280 --> 00:05:20,020
+then around that sort of an yet another
+
+
+126
+00:05:20,020 --> 00:05:22,720
+layer are useful programs things like
+
+
+127
+00:05:22,720 --> 00:05:24,970
+editors and compilers for programming
+
+
+128
+00:05:24,970 --> 00:05:26,800
+languages and document formatting
+
+
+129
+00:05:26,800 --> 00:05:29,110
+programs and programs that you write
+
+
+130
+00:05:29,110 --> 00:05:33,970
+yourself and what you can do is to think
+
+
+131
+00:05:33,970 --> 00:05:37,000
+of these UNIX system programs basically
+
+
+132
+00:05:37,000 --> 00:05:38,830
+as in some sense the building blocks
+
+
+133
+00:05:38,830 --> 00:05:41,770
+with which you can create things and the
+
+
+134
+00:05:41,770 --> 00:05:43,270
+thing that distinguishes UNIX system
+
+
+135
+00:05:43,270 --> 00:05:45,400
+from any other system is the degree to
+
+
+136
+00:05:45,400 --> 00:05:47,080
+which those building blocks can be glued
+
+
+137
+00:05:47,080 --> 00:05:49,300
+together in a variety of different ways
+
+
+138
+00:05:49,300 --> 00:05:51,250
+not just obvious ways but in many cases
+
+
+139
+00:05:51,250 --> 00:05:54,070
+very unobvious ways to get different
+
+
+140
+00:05:54,070 --> 00:05:57,220
+jobs done the system is very flexible in
+
+
+141
+00:05:57,220 --> 00:05:59,110
+that respect I think the notion of
+
+
+142
+00:05:59,110 --> 00:06:00,850
+pipelining is the fundamental
+
+
+143
+00:06:00,850 --> 00:06:03,300
+contribution if the system is you can
+
+
+144
+00:06:03,300 --> 00:06:06,580
+take a bunch of programs two or more
+
+
+145
+00:06:06,580 --> 00:06:08,290
+programs and stick them together end to
+
+
+146
+00:06:08,290 --> 00:06:10,150
+end so that the data simply flows from
+
+
+147
+00:06:10,150 --> 00:06:11,470
+the one on the left to the one on the
+
+
+148
+00:06:11,470 --> 00:06:13,840
+right and the system itself looks after
+
+
+149
+00:06:13,840 --> 00:06:15,220
+all the connections all of the
+
+
+150
+00:06:15,220 --> 00:06:17,170
+synchronization making sure that the
+
+
+151
+00:06:17,170 --> 00:06:18,700
+data goes from the one into the other
+
+
+152
+00:06:18,700 --> 00:06:21,010
+the program's themselves don't know
+
+
+153
+00:06:21,010 --> 00:06:22,780
+anything about the connection as far as
+
+
+154
+00:06:22,780 --> 00:06:23,830
+they're concerned they're just talking
+
+
+155
+00:06:23,830 --> 00:06:25,390
+to the terminal let me give you an
+
+
+156
+00:06:25,390 --> 00:06:29,190
+example of how this works in practice
+
+
+157
+00:06:29,190 --> 00:06:32,230
+the system is as I mentioned is used a
+
+
+158
+00:06:32,230 --> 00:06:34,810
+lot for document preparation kinds of
+
+
+159
+00:06:34,810 --> 00:06:37,360
+things programs for helping you type
+
+
+160
+00:06:37,360 --> 00:06:39,550
+letters or produce technical papers or
+
+
+161
+00:06:39,550 --> 00:06:42,970
+write books in all of those things of
+
+
+162
+00:06:42,970 --> 00:06:44,230
+course people when they're typing into
+
+
+163
+00:06:44,230 --> 00:06:45,880
+machine make spelling mistakes so let's
+
+
+164
+00:06:45,880 --> 00:06:47,050
+see how we could use some of these
+
+
+165
+00:06:47,050 --> 00:06:48,880
+building block notions in practice to
+
+
+166
+00:06:48,880 --> 00:06:51,070
+help you develop a program for finding
+
+
+167
+00:06:51,070 --> 00:06:52,810
+spelling mistakes suppose I take a
+
+
+168
+00:06:52,810 --> 00:06:53,590
+sentence this is a
+
+
+169
+00:06:53,590 --> 00:06:57,160
+sentence which is in a paper that John
+
+
+170
+00:06:57,160 --> 00:07:01,900
+Massey and I wrote some years ago now if
+
+
+171
+00:07:01,900 --> 00:07:03,070
+you look at it carefully you'll see that
+
+
+172
+00:07:03,070 --> 00:07:04,720
+there are actually a couple of spelling
+
+
+173
+00:07:04,720 --> 00:07:07,120
+mistakes in there now suppose that we
+
+
+174
+00:07:07,120 --> 00:07:08,710
+wanted to find the spelling mistakes
+
+
+175
+00:07:08,710 --> 00:07:10,150
+using a machine how would we do that
+
+
+176
+00:07:10,150 --> 00:07:12,790
+well basically what we would do the
+
+
+177
+00:07:12,790 --> 00:07:14,080
+simplest thing I can think of is to
+
+
+178
+00:07:14,080 --> 00:07:18,490
+split the sentence there in two words
+
+
+179
+00:07:18,490 --> 00:07:20,170
+individual words and then compare the
+
+
+180
+00:07:20,170 --> 00:07:22,030
+words against a dictionary and every
+
+
+181
+00:07:22,030 --> 00:07:23,650
+time we find a word which is in that
+
+
+182
+00:07:23,650 --> 00:07:25,270
+sentence but not in dictionary it's at
+
+
+183
+00:07:25,270 --> 00:07:27,250
+least a plausible contender for being a
+
+
+184
+00:07:27,250 --> 00:07:29,590
+spelling mistake now how do we do that
+
+
+185
+00:07:29,590 --> 00:07:31,690
+what I want to show is that you can do
+
+
+186
+00:07:31,690 --> 00:07:33,640
+that using just existing UNIX programs
+
+
+187
+00:07:33,640 --> 00:07:35,410
+just gluing them together to get the job
+
+
+188
+00:07:35,410 --> 00:07:38,080
+done suppose that we say first we will
+
+
+189
+00:07:38,080 --> 00:07:40,770
+take a program called make words and
+
+
+190
+00:07:40,770 --> 00:07:43,300
+we'll run that on the sentence now what
+
+
+191
+00:07:43,300 --> 00:07:46,450
+that does is break the thing up into one
+
+
+192
+00:07:46,450 --> 00:07:50,260
+word per line now I'll take the output
+
+
+193
+00:07:50,260 --> 00:07:53,170
+and I'll pipe it into another program
+
+
+194
+00:07:53,170 --> 00:07:54,490
+which will simply convert it into
+
+
+195
+00:07:54,490 --> 00:07:56,200
+lowercase the reason I want to convert
+
+
+196
+00:07:56,200 --> 00:07:57,850
+it into lowercase is that my dictionary
+
+
+197
+00:07:57,850 --> 00:07:59,650
+doesn't have any capitalizations and so
+
+
+198
+00:07:59,650 --> 00:08:02,260
+words like Bell and UNIX which are
+
+
+199
+00:08:02,260 --> 00:08:03,730
+capitalized here would show up as
+
+
+200
+00:08:03,730 --> 00:08:06,580
+spelling mistakes unless I did this now
+
+
+201
+00:08:06,580 --> 00:08:08,320
+the next thing that I want to do my
+
+
+202
+00:08:08,320 --> 00:08:09,880
+dictionary is in fact sorted in
+
+
+203
+00:08:09,880 --> 00:08:12,010
+alphabetical order dictionaries are and
+
+
+204
+00:08:12,010 --> 00:08:13,930
+so it's a lot easier for me to compare
+
+
+205
+00:08:13,930 --> 00:08:16,690
+the words of my document to the words in
+
+
+206
+00:08:16,690 --> 00:08:18,760
+the dictionary if they're started so I'm
+
+
+207
+00:08:18,760 --> 00:08:25,480
+going to run them into sort and finally
+
+
+208
+00:08:25,480 --> 00:08:26,710
+if you look at it carefully it doesn't
+
+
+209
+00:08:26,710 --> 00:08:29,710
+show up very easily here but there are
+
+
+210
+00:08:29,710 --> 00:08:32,350
+in fact there is a duplicate word their
+
+
+211
+00:08:32,350 --> 00:08:35,050
+systems appears twice and in a real
+
+
+212
+00:08:35,050 --> 00:08:36,970
+document words like TIG would show up
+
+
+213
+00:08:36,970 --> 00:08:38,380
+many times so we'd like to get rid of
+
+
+214
+00:08:38,380 --> 00:08:40,270
+duplicates so let's throw that through
+
+
+215
+00:08:40,270 --> 00:08:43,720
+another program called unique so what
+
+
+216
+00:08:43,720 --> 00:08:45,790
+we've got so far is we've got the words
+
+
+217
+00:08:45,790 --> 00:08:47,590
+of my document in this case the sentence
+
+
+218
+00:08:47,590 --> 00:08:51,130
+one word per line in lowercase neatly
+
+
+219
+00:08:51,130 --> 00:08:52,930
+sorted and all of the duplicate words
+
+
+220
+00:08:52,930 --> 00:08:55,390
+thrown away so there's only one word one
+
+
+221
+00:08:55,390 --> 00:08:57,520
+instance of each different word then
+
+
+222
+00:08:57,520 --> 00:08:58,930
+what I'm going to do is run it into one
+
+
+223
+00:08:58,930 --> 00:09:01,300
+last program called mismatch which will
+
+
+224
+00:09:01,300 --> 00:09:03,010
+simply print all of the words that came
+
+
+225
+00:09:03,010 --> 00:09:05,540
+down this pipeline and
+
+
+226
+00:09:05,540 --> 00:09:08,180
+print out the ones that were in the
+
+
+227
+00:09:08,180 --> 00:09:10,810
+document that word in the dictionary
+
+
+228
+00:09:10,810 --> 00:09:14,390
+what we have here is five separate
+
+
+229
+00:09:14,390 --> 00:09:17,380
+programs cooperating to do this job and
+
+
+230
+00:09:17,380 --> 00:09:20,990
+in one giant pipeline now if you look at
+
+
+231
+00:09:20,990 --> 00:09:22,340
+the list that came out you'll see that
+
+
+232
+00:09:22,340 --> 00:09:24,470
+indeed we got laboratories and provide
+
+
+233
+00:09:24,470 --> 00:09:26,390
+which were our two spelling mistakes of
+
+
+234
+00:09:26,390 --> 00:09:27,860
+course we've got two other words as well
+
+
+235
+00:09:27,860 --> 00:09:30,290
+and this tells you not only was what
+
+
+236
+00:09:30,290 --> 00:09:32,150
+what's good about the approach but also
+
+
+237
+00:09:32,150 --> 00:09:34,850
+what's bad about it time sharing is not
+
+
+238
+00:09:34,850 --> 00:09:36,560
+a spelling mistake but it's a perfectly
+
+
+239
+00:09:36,560 --> 00:09:38,660
+fine example of technical jargon the
+
+
+240
+00:09:38,660 --> 00:09:39,830
+sort of thing that means something to
+
+
+241
+00:09:39,830 --> 00:09:41,570
+everybody in the computer business it
+
+
+242
+00:09:41,570 --> 00:09:43,100
+means nothing whatsoever to people who
+
+
+243
+00:09:43,100 --> 00:09:45,320
+are not computer types and the word UNIX
+
+
+244
+00:09:45,320 --> 00:09:47,900
+is a fine example of something that's
+
+
+245
+00:09:47,900 --> 00:09:49,220
+not going to be found in a normal
+
+
+246
+00:09:49,220 --> 00:09:53,390
+dictionary so what do we do first we
+
+
+247
+00:09:53,390 --> 00:09:55,550
+take the misspelled words and we go back
+
+
+248
+00:09:55,550 --> 00:09:57,050
+to the original document and we correct
+
+
+249
+00:09:57,050 --> 00:09:58,040
+them so we don't have any spelling
+
+
+250
+00:09:58,040 --> 00:10:00,560
+mistakes secondly we take the words that
+
+
+251
+00:10:00,560 --> 00:10:02,810
+like time-sharing and unix that are not
+
+
+252
+00:10:02,810 --> 00:10:04,310
+spelling mistakes but which showed up
+
+
+253
+00:10:04,310 --> 00:10:06,290
+here and we put them back into our
+
+
+254
+00:10:06,290 --> 00:10:07,970
+dictionary so that the next time
+
+
+255
+00:10:07,970 --> 00:10:09,860
+somebody has a document that contains
+
+
+256
+00:10:09,860 --> 00:10:11,420
+the UNIX or time-sharing they don't show
+
+
+257
+00:10:11,420 --> 00:10:13,250
+up as spelling mistakes so we've not
+
+
+258
+00:10:13,250 --> 00:10:14,900
+only done our own job but we've improved
+
+
+259
+00:10:14,900 --> 00:10:17,170
+the tool that we're using in the process
+
+
+260
+00:10:17,170 --> 00:10:19,640
+so you notice that I did that whole job
+
+
+261
+00:10:19,640 --> 00:10:21,650
+without writing any programs at all the
+
+
+262
+00:10:21,650 --> 00:10:23,330
+whole thing is cobbled together out of
+
+
+263
+00:10:23,330 --> 00:10:25,070
+programs that already exist it and all I
+
+
+264
+00:10:25,070 --> 00:10:27,560
+did was to use the fact that the system
+
+
+265
+00:10:27,560 --> 00:10:29,630
+provides this mechanism of the pipeline
+
+
+266
+00:10:29,630 --> 00:10:31,190
+so that I can take programs and stick
+
+
+267
+00:10:31,190 --> 00:10:33,020
+them together one after another to get
+
+
+268
+00:10:33,020 --> 00:10:35,780
+my job done and I think this is one of
+
+
+269
+00:10:35,780 --> 00:10:37,250
+the reasons why the system so productive
+
+
+270
+00:10:37,250 --> 00:10:40,130
+that there's a large collection of
+
+
+271
+00:10:40,130 --> 00:10:41,780
+things that people have already built
+
+
+272
+00:10:41,780 --> 00:10:45,740
+that we use and as we build our new
+
+
+273
+00:10:45,740 --> 00:10:47,060
+things then they become part of the
+
+
+274
+00:10:47,060 --> 00:10:48,700
+repertoire of things that people
+
+
+275
+00:10:48,700 --> 00:10:51,590
+subsequently can build on during the
+
+
+276
+00:10:51,590 --> 00:10:54,140
+last decade we have discovered a number
+
+
+277
+00:10:54,140 --> 00:10:56,980
+of new powerful pattern matching
+
+
+278
+00:10:56,980 --> 00:10:59,480
+algorithms that are useful for locating
+
+
+279
+00:10:59,480 --> 00:11:02,000
+patterns and texts many of these
+
+
+280
+00:11:02,000 --> 00:11:05,030
+algorithms have been developed using
+
+
+281
+00:11:05,030 --> 00:11:07,640
+insights obtained from theory obtained
+
+
+282
+00:11:07,640 --> 00:11:09,770
+by studying automata and language theory
+
+
+283
+00:11:09,770 --> 00:11:14,180
+as our knowledge of pattern matching
+
+
+284
+00:11:14,180 --> 00:11:17,060
+algorithms increases we can very quickly
+
+
+285
+00:11:17,060 --> 00:11:19,260
+take this knowledge and
+
+
+286
+00:11:19,260 --> 00:11:21,390
+package it in the form of UNIX programs
+
+
+287
+00:11:21,390 --> 00:11:25,050
+and we can spread these UNIX programs to
+
+
+288
+00:11:25,050 --> 00:11:35,660
+the entire community very quickly
+
+
+289
+00:11:35,660 --> 00:11:38,600
+the UNIX systems has many features which
+
+
+290
+00:11:38,600 --> 00:11:41,060
+make it easier for the programmer to
+
+
+291
+00:11:41,060 --> 00:11:42,170
+write programs
+
+
+292
+00:11:42,170 --> 00:11:46,580
+these include form atlas files the
+
+
+293
+00:11:46,580 --> 00:11:49,340
+hierarchical directory structure the
+
+
+294
+00:11:49,340 --> 00:11:51,260
+ability to pipeline the output of one
+
+
+295
+00:11:51,260 --> 00:11:55,070
+command as the input of another device
+
+
+296
+00:11:55,070 --> 00:11:58,910
+independent i/o all of these things make
+
+
+297
+00:11:58,910 --> 00:12:01,730
+programming considerably easier than on
+
+
+298
+00:12:01,730 --> 00:12:04,790
+most other systems the heart of the
+
+
+299
+00:12:04,790 --> 00:12:06,530
+system is really the file system the
+
+
+300
+00:12:06,530 --> 00:12:08,540
+ability to store information for
+
+
+301
+00:12:08,540 --> 00:12:11,240
+extended periods of time and the reason
+
+
+302
+00:12:11,240 --> 00:12:12,890
+one of the reasons the system works as
+
+
+303
+00:12:12,890 --> 00:12:14,750
+well as it does is that the file system
+
+
+304
+00:12:14,750 --> 00:12:17,630
+is well designed and many systems you
+
+
+305
+00:12:17,630 --> 00:12:19,220
+have to say an awful lot about a file
+
+
+306
+00:12:19,220 --> 00:12:20,840
+before you can do anything with it you
+
+
+307
+00:12:20,840 --> 00:12:23,030
+have to say where it is and how big it
+
+
+308
+00:12:23,030 --> 00:12:24,770
+is and what kind of information it's
+
+
+309
+00:12:24,770 --> 00:12:26,450
+going to that's going to be in it
+
+
+310
+00:12:26,450 --> 00:12:27,980
+all kinds of things that are basically
+
+
+311
+00:12:27,980 --> 00:12:30,620
+utterly completely irrelevant here you
+
+
+312
+00:12:30,620 --> 00:12:32,480
+don't have to do any of that the file is
+
+
+313
+00:12:32,480 --> 00:12:35,000
+as big as it is it doesn't matter where
+
+
+314
+00:12:35,000 --> 00:12:36,200
+it is as long as you know what it's
+
+
+315
+00:12:36,200 --> 00:12:38,960
+called and so you basically don't have
+
+
+316
+00:12:38,960 --> 00:12:40,340
+to think of any of those complexities
+
+
+317
+00:12:40,340 --> 00:12:42,260
+that you have in other systems when you
+
+
+318
+00:12:42,260 --> 00:12:43,760
+want information in a file you put it
+
+
+319
+00:12:43,760 --> 00:12:45,230
+there when you want it back you get it
+
+
+320
+00:12:45,230 --> 00:12:46,460
+out again and you don't have to think
+
+
+321
+00:12:46,460 --> 00:12:49,160
+about size or number of Records or
+
+
+322
+00:12:49,160 --> 00:12:50,570
+number of fields or anything like that
+
+
+323
+00:12:50,570 --> 00:12:52,490
+unless it's really germane to your
+
+
+324
+00:12:52,490 --> 00:12:54,740
+program for most purposes it's utterly
+
+
+325
+00:12:54,740 --> 00:12:57,290
+irrelevant a file is simply a sequence
+
+
+326
+00:12:57,290 --> 00:13:00,140
+of bytes its main attribute is its size
+
+
+327
+00:13:00,140 --> 00:13:02,600
+by contrast and more conventional
+
+
+328
+00:13:02,600 --> 00:13:05,960
+systems file has dozen or so attributes
+
+
+329
+00:13:05,960 --> 00:13:08,660
+to specify or create a file it takes
+
+
+330
+00:13:08,660 --> 00:13:11,210
+endless amounts of chitchat if you want
+
+
+331
+00:13:11,210 --> 00:13:13,610
+a UNIX system file you simply ask for a
+
+
+332
+00:13:13,610 --> 00:13:14,810
+file and you can use it interchangeably
+
+
+333
+00:13:14,810 --> 00:13:17,900
+wherever you want to file the UNIX
+
+
+334
+00:13:17,900 --> 00:13:20,170
+system consists of a hierarchy of
+
+
+335
+00:13:20,170 --> 00:13:22,970
+directories which a directory is simply
+
+
+336
+00:13:22,970 --> 00:13:25,220
+a file that contains the names of either
+
+
+337
+00:13:25,220 --> 00:13:28,100
+other directories or files and this
+
+
+338
+00:13:28,100 --> 00:13:30,920
+whole thing goes on recursively when you
+
+
+339
+00:13:30,920 --> 00:13:32,780
+log into a UNIX system you normally are
+
+
+340
+00:13:32,780 --> 00:13:34,070
+sitting in a place that's called your
+
+
+341
+00:13:34,070 --> 00:13:36,050
+home directory or users directory and I
+
+
+342
+00:13:36,050 --> 00:13:38,330
+can say TWD which means print the name
+
+
+343
+00:13:38,330 --> 00:13:39,890
+of my working directory and it'll tell
+
+
+344
+00:13:39,890 --> 00:13:41,480
+me where I am it says at the moment that
+
+
+345
+00:13:41,480 --> 00:13:44,420
+I mean user bwk that's where I start
+
+
+346
+00:13:44,420 --> 00:13:48,200
+when I log in now I can go up a level in
+
+
+347
+00:13:48,200 --> 00:13:49,230
+that I can
+
+
+348
+00:13:49,230 --> 00:13:52,380
+change to parent level and now if I
+
+
+349
+00:13:52,380 --> 00:13:54,150
+print my working directory I'm in slash
+
+
+350
+00:13:54,150 --> 00:13:56,400
+user and I can go up one more level to
+
+
+351
+00:13:56,400 --> 00:13:58,830
+the root of the whole file system let me
+
+
+352
+00:13:58,830 --> 00:14:02,070
+go back down to BW k and I can list the
+
+
+353
+00:14:02,070 --> 00:14:03,930
+direct the files that I have in that
+
+
+354
+00:14:03,930 --> 00:14:08,520
+directory and I find there among other
+
+
+355
+00:14:08,520 --> 00:14:12,390
+things a directory called TV and I can
+
+
+356
+00:14:12,390 --> 00:14:13,710
+list the files that are there and I'll
+
+
+357
+00:14:13,710 --> 00:14:15,960
+find among other things the sentence
+
+
+358
+00:14:15,960 --> 00:14:17,940
+that we printed in a spelling mistake
+
+
+359
+00:14:17,940 --> 00:14:20,160
+finding program they look at that and
+
+
+360
+00:14:20,160 --> 00:14:22,920
+sure enough there it is so as you can
+
+
+361
+00:14:22,920 --> 00:14:25,350
+see the file system hierarchy makes it
+
+
+362
+00:14:25,350 --> 00:14:27,270
+possible for users to organize
+
+
+363
+00:14:27,270 --> 00:14:29,610
+information into its natural grouping
+
+
+364
+00:14:29,610 --> 00:14:32,610
+and to go up or down and find things
+
+
+365
+00:14:32,610 --> 00:14:35,670
+quickly and easily the UNIX system
+
+
+366
+00:14:35,670 --> 00:14:37,950
+interface for most people is through
+
+
+367
+00:14:37,950 --> 00:14:39,930
+program called the shell or the command
+
+
+368
+00:14:39,930 --> 00:14:41,490
+interpreter basically it's simply a
+
+
+369
+00:14:41,490 --> 00:14:44,630
+program that watches what you type and
+
+
+370
+00:14:44,630 --> 00:14:48,270
+treats it as requests to run particular
+
+
+371
+00:14:48,270 --> 00:14:50,810
+programs now there's nothing magic about
+
+
+372
+00:14:50,810 --> 00:14:53,280
+running programs the programs that you
+
+
+373
+00:14:53,280 --> 00:14:55,590
+run are actually just the names of files
+
+
+374
+00:14:55,590 --> 00:14:58,320
+in the file system the shell searches in
+
+
+375
+00:14:58,320 --> 00:14:59,970
+the file system in a particular way to
+
+
+376
+00:14:59,970 --> 00:15:02,430
+find a file whose name is the name of
+
+
+377
+00:15:02,430 --> 00:15:03,540
+the program that you think you're
+
+
+378
+00:15:03,540 --> 00:15:06,410
+running and it goes and executes it and
+
+
+379
+00:15:06,410 --> 00:15:10,170
+in fact it's not possible for you as a
+
+
+380
+00:15:10,170 --> 00:15:13,110
+user just by executing a program to tell
+
+
+381
+00:15:13,110 --> 00:15:15,540
+how that particular program has been
+
+
+382
+00:15:15,540 --> 00:15:17,040
+implemented for example it might have
+
+
+383
+00:15:17,040 --> 00:15:18,450
+been written in a language like Fortran
+
+
+384
+00:15:18,450 --> 00:15:20,970
+or C or it may have in fact been written
+
+
+385
+00:15:20,970 --> 00:15:23,520
+as something like the spell program that
+
+
+386
+00:15:23,520 --> 00:15:24,780
+we talked about earlier which is a
+
+
+387
+00:15:24,780 --> 00:15:27,120
+combination of other programs stuck
+
+
+388
+00:15:27,120 --> 00:15:29,520
+together with pipes or some similar
+
+
+389
+00:15:29,520 --> 00:15:33,890
+thing and all put in a single file as a
+
+
+390
+00:15:33,890 --> 00:15:36,980
+shell sequence or sequence of commands
+
+
+391
+00:15:36,980 --> 00:15:40,200
+what Brian did earlier was he typed all
+
+
+392
+00:15:40,200 --> 00:15:42,740
+the commands the the five program names
+
+
+393
+00:15:42,740 --> 00:15:45,780
+for his spelling checker on one line
+
+
+394
+00:15:45,780 --> 00:15:48,630
+using the pipeline facilities that's
+
+
+395
+00:15:48,630 --> 00:15:50,820
+nice except that you may want to check
+
+
+396
+00:15:50,820 --> 00:15:54,270
+documents often and you don't want to
+
+
+397
+00:15:54,270 --> 00:15:55,740
+have to type that long sequence of
+
+
+398
+00:15:55,740 --> 00:15:58,560
+commands so it's possible to put all of
+
+
+399
+00:15:58,560 --> 00:16:00,930
+these commands in a file and tell the
+
+
+400
+00:16:00,930 --> 00:16:02,070
+shell when
+
+
+401
+00:16:02,070 --> 00:16:04,769
+I type the name of that file I want you
+
+
+402
+00:16:04,769 --> 00:16:06,540
+to execute the commands that are inside
+
+
+403
+00:16:06,540 --> 00:16:08,880
+that file let me show you an example of
+
+
+404
+00:16:08,880 --> 00:16:12,660
+this we have a program called spline
+
+
+405
+00:16:12,660 --> 00:16:17,970
+which fits curves to a set of data
+
+
+406
+00:16:17,970 --> 00:16:19,680
+points and I've got a set of five data
+
+
+407
+00:16:19,680 --> 00:16:21,420
+points that we're going to see what the
+
+
+408
+00:16:21,420 --> 00:16:23,790
+curve looks like I'm going to run spline
+
+
+409
+00:16:23,790 --> 00:16:28,019
+through a program that turns this into
+
+
+410
+00:16:28,019 --> 00:16:30,600
+graphics called graph and I'm going to
+
+
+411
+00:16:30,600 --> 00:16:33,000
+run that through a special program that
+
+
+412
+00:16:33,000 --> 00:16:35,779
+turns the graphic language into
+
+
+413
+00:16:35,779 --> 00:16:38,339
+something specific for this terminal I
+
+
+414
+00:16:38,339 --> 00:16:42,990
+only need to type plot and data because
+
+
+415
+00:16:42,990 --> 00:16:45,300
+inside the file plot is the string of
+
+
+416
+00:16:45,300 --> 00:16:47,069
+commands and here is a result of
+
+
+417
+00:16:47,069 --> 00:16:48,720
+plotting those five data points on this
+
+
+418
+00:16:48,720 --> 00:16:51,660
+particular terminal the ability to put
+
+
+419
+00:16:51,660 --> 00:16:54,810
+commands in files and only have to type
+
+
+420
+00:16:54,810 --> 00:16:56,699
+the file name to get these commands
+
+
+421
+00:16:56,699 --> 00:17:00,209
+executed makes the computing business a
+
+
+422
+00:17:00,209 --> 00:17:02,339
+lot easier often you're doing things
+
+
+423
+00:17:02,339 --> 00:17:04,380
+that are repetitive and you don't want
+
+
+424
+00:17:04,380 --> 00:17:06,809
+to have to type long lists of things
+
+
+425
+00:17:06,809 --> 00:17:08,850
+this makes our life much easier and
+
+
+426
+00:17:08,850 --> 00:17:11,069
+allows us to tailor our environment for
+
+
+427
+00:17:11,069 --> 00:17:13,980
+the way we want to work another nice
+
+
+428
+00:17:13,980 --> 00:17:15,419
+feature of the UNIX programming
+
+
+429
+00:17:15,419 --> 00:17:17,790
+environment is the concept of input
+
+
+430
+00:17:17,790 --> 00:17:21,120
+output redirection normally when you
+
+
+431
+00:17:21,120 --> 00:17:23,429
+type a command the output from it goes
+
+
+432
+00:17:23,429 --> 00:17:25,439
+to your terminal and the input comes
+
+
+433
+00:17:25,439 --> 00:17:26,750
+from your keyboard
+
+
+434
+00:17:26,750 --> 00:17:29,010
+however the shell can be told by a
+
+
+435
+00:17:29,010 --> 00:17:31,409
+simple notation that when you run a
+
+
+436
+00:17:31,409 --> 00:17:32,850
+program you wish the output to be
+
+
+437
+00:17:32,850 --> 00:17:35,190
+directed into a file or that the input
+
+
+438
+00:17:35,190 --> 00:17:37,830
+be taken from a file for example to
+
+
+439
+00:17:37,830 --> 00:17:39,840
+print the output of my spelling program
+
+
+440
+00:17:39,840 --> 00:17:42,120
+on the line printer instead of putting
+
+
+441
+00:17:42,120 --> 00:17:44,220
+it on my terminal all I have to do is
+
+
+442
+00:17:44,220 --> 00:17:47,940
+say my spell sentence greater than
+
+
+443
+00:17:47,940 --> 00:17:50,970
+device line printer rather than my spell
+
+
+444
+00:17:50,970 --> 00:17:52,890
+sentence and the output goes into the
+
+
+445
+00:17:52,890 --> 00:17:55,320
+file what looks like a file except that
+
+
+446
+00:17:55,320 --> 00:17:56,730
+it's actually a file that causes the
+
+
+447
+00:17:56,730 --> 00:17:58,409
+line printer to spring into action and
+
+
+448
+00:17:58,409 --> 00:18:01,200
+print my three or four spelling mistakes
+
+
+449
+00:18:01,200 --> 00:18:04,520
+on the line printer on many systems
+
+
+450
+00:18:04,520 --> 00:18:08,010
+redirection of input and output is
+
+
+451
+00:18:08,010 --> 00:18:09,419
+literally impossible because the
+
+
+452
+00:18:09,419 --> 00:18:11,610
+programs have wired into them the notion
+
+
+453
+00:18:11,610 --> 00:18:13,950
+that they have to read or write the
+
+
+454
+00:18:13,950 --> 00:18:15,540
+user's terminal and there's simply no
+
+
+455
+00:18:15,540 --> 00:18:15,960
+way
+
+
+456
+00:18:15,960 --> 00:18:17,429
+to convince them otherwise they'd have
+
+
+457
+00:18:17,429 --> 00:18:20,610
+to do that here that is not the case
+
+
+458
+00:18:20,610 --> 00:18:23,039
+here any program can have its input or
+
+
+459
+00:18:23,039 --> 00:18:25,409
+output redirected because the input and
+
+
+460
+00:18:25,409 --> 00:18:27,210
+output redirection is handled not by the
+
+
+461
+00:18:27,210 --> 00:18:29,190
+individual program but by the shell and
+
+
+462
+00:18:29,190 --> 00:18:31,049
+so that way it applies to all programs
+
+
+463
+00:18:31,049 --> 00:18:33,690
+without any exception at all and in fact
+
+
+464
+00:18:33,690 --> 00:18:35,309
+this goes a little further than you
+
+
+465
+00:18:35,309 --> 00:18:38,700
+might expect because not only are parts
+
+
+466
+00:18:38,700 --> 00:18:41,039
+of the disk files as they are in other
+
+
+467
+00:18:41,039 --> 00:18:45,240
+systems but in addition the i/o devices
+
+
+468
+00:18:45,240 --> 00:18:47,279
+the peripheral devices connected to the
+
+
+469
+00:18:47,279 --> 00:18:49,499
+computer are also files in the file
+
+
+470
+00:18:49,499 --> 00:18:51,299
+system for example the line printer and
+
+
+471
+00:18:51,299 --> 00:18:52,799
+the tape drive and even the thing that
+
+
+472
+00:18:52,799 --> 00:18:55,590
+dials telephone numbers are all devices
+
+
+473
+00:18:55,590 --> 00:18:57,330
+in the file system in the same program
+
+
+474
+00:18:57,330 --> 00:18:59,759
+that will copy information from one disk
+
+
+475
+00:18:59,759 --> 00:19:01,769
+file to another disk file will also copy
+
+
+476
+00:19:01,769 --> 00:19:04,289
+information from a disk file to the line
+
+
+477
+00:19:04,289 --> 00:19:06,119
+printer or from the magnetic tape drive
+
+
+478
+00:19:06,119 --> 00:19:08,249
+to the printer the same program exactly
+
+
+479
+00:19:08,249 --> 00:19:12,090
+a good operating system is easiest for
+
+
+480
+00:19:12,090 --> 00:19:14,970
+programmer to use if the programming
+
+
+481
+00:19:14,970 --> 00:19:17,309
+language fits with the style of the
+
+
+482
+00:19:17,309 --> 00:19:19,799
+system so along the way in the course of
+
+
+483
+00:19:19,799 --> 00:19:21,869
+the unit systems development Dennis
+
+
+484
+00:19:21,869 --> 00:19:24,509
+Ritchie created the C language C is a
+
+
+485
+00:19:24,509 --> 00:19:27,029
+very nice high-level language with many
+
+
+486
+00:19:27,029 --> 00:19:29,460
+of the modern programming constructs in
+
+
+487
+00:19:29,460 --> 00:19:32,039
+it the thing that's very important about
+
+
+488
+00:19:32,039 --> 00:19:35,610
+it is that it lets you avoid the details
+
+
+489
+00:19:35,610 --> 00:19:38,369
+of the machine when you want to but when
+
+
+490
+00:19:38,369 --> 00:19:40,679
+you need to and sometimes when you're
+
+
+491
+00:19:40,679 --> 00:19:42,299
+writing an operating system you really
+
+
+492
+00:19:42,299 --> 00:19:45,149
+do need to you can get at the details of
+
+
+493
+00:19:45,149 --> 00:19:47,549
+the machine and control everything but
+
+
+494
+00:19:47,549 --> 00:19:49,080
+you're not forced to do that and that's
+
+
+495
+00:19:49,080 --> 00:19:51,419
+important because that means you can
+
+
+496
+00:19:51,419 --> 00:19:53,159
+write operating systems in this language
+
+
+497
+00:19:53,159 --> 00:19:55,919
+and still have something that can be
+
+
+498
+00:19:55,919 --> 00:19:58,590
+portable to other machines the UNIX
+
+
+499
+00:19:58,590 --> 00:20:00,299
+system has been moved to many many
+
+
+500
+00:20:00,299 --> 00:20:03,029
+different kinds of computers again that
+
+
+501
+00:20:03,029 --> 00:20:05,460
+means that people can ignore the details
+
+
+502
+00:20:05,460 --> 00:20:09,299
+of what a machine is underneath and get
+
+
+503
+00:20:09,299 --> 00:20:13,350
+on with their job now so at that level C
+
+
+504
+00:20:13,350 --> 00:20:15,659
+is by far the favorite language at the
+
+
+505
+00:20:15,659 --> 00:20:17,549
+next level the shell programming
+
+
+506
+00:20:17,549 --> 00:20:20,460
+language is very popular back on some
+
+
+507
+00:20:20,460 --> 00:20:22,440
+machines people find that the shell
+
+
+508
+00:20:22,440 --> 00:20:24,330
+meets all of their programming needs
+
+
+509
+00:20:24,330 --> 00:20:26,789
+they are writing lots of procedures to
+
+
+510
+00:20:26,789 --> 00:20:28,799
+help them manage their work they don't
+
+
+511
+00:20:28,799 --> 00:20:29,789
+even have to
+
+
+512
+00:20:29,789 --> 00:20:33,899
+go to a language at the level of see as
+
+
+513
+00:20:33,899 --> 00:20:36,359
+it happens though because the system is
+
+
+514
+00:20:36,359 --> 00:20:38,299
+such a pleasant programming environment
+
+
+515
+00:20:38,299 --> 00:20:40,679
+programmers all over the world have
+
+
+516
+00:20:40,679 --> 00:20:43,859
+imported or added their own languages so
+
+
+517
+00:20:43,859 --> 00:20:46,440
+for instance you can find Fortran Algol
+
+
+518
+00:20:46,440 --> 00:20:50,460
+Lisp basic fact almost any language you
+
+
+519
+00:20:50,460 --> 00:20:53,009
+can think of exists on some UNIX system
+
+
+520
+00:20:53,009 --> 00:20:54,570
+somewhere what's important about the
+
+
+521
+00:20:54,570 --> 00:20:56,789
+unique system is not so much what Ricci
+
+
+522
+00:20:56,789 --> 00:20:59,190
+and Thompson put into it as what they
+
+
+523
+00:20:59,190 --> 00:21:01,769
+were able to leave out of it rather than
+
+
+524
+00:21:01,769 --> 00:21:03,779
+produce a large number of primitives
+
+
+525
+00:21:03,779 --> 00:21:07,349
+each one complex they were able to
+
+
+526
+00:21:07,349 --> 00:21:09,330
+choose a small number of simple
+
+
+527
+00:21:09,330 --> 00:21:11,519
+primitives which could be fitted
+
+
+528
+00:21:11,519 --> 00:21:14,070
+naturally together to accomplish complex
+
+
+529
+00:21:14,070 --> 00:21:16,229
+tasks this structure of the operating
+
+
+530
+00:21:16,229 --> 00:21:20,190
+system makes it natural and easy for
+
+
+531
+00:21:20,190 --> 00:21:21,809
+people who create applications to
+
+
+532
+00:21:21,809 --> 00:21:24,019
+produce applications in that same style
+
+
+533
+00:21:24,019 --> 00:21:26,970
+for example as the scale of integration
+
+
+534
+00:21:26,970 --> 00:21:29,700
+of silicon circuits gets ever larger we
+
+
+535
+00:21:29,700 --> 00:21:31,289
+find it necessary to have more and more
+
+
+536
+00:21:31,289 --> 00:21:33,359
+sophisticated design aids to help people
+
+
+537
+00:21:33,359 --> 00:21:35,460
+create large-scale integrated circuits
+
+
+538
+00:21:35,460 --> 00:21:37,979
+our existing design aids are advanced
+
+
+539
+00:21:37,979 --> 00:21:40,320
+and effective but advances in VLSI
+
+
+540
+00:21:40,320 --> 00:21:42,210
+create a need for even better tools
+
+
+541
+00:21:42,210 --> 00:21:44,340
+rather than produce those tools in the
+
+
+542
+00:21:44,340 --> 00:21:47,729
+form of one humongous program designed
+
+
+543
+00:21:47,729 --> 00:21:50,519
+to do everything the people here have
+
+
+544
+00:21:50,519 --> 00:21:52,679
+been producing small packages each
+
+
+545
+00:21:52,679 --> 00:21:54,840
+designed to do some individual function
+
+
+546
+00:21:54,840 --> 00:21:56,220
+that's helpful in the design of
+
+
+547
+00:21:56,220 --> 00:21:58,679
+integrated circuits then these
+
+
+548
+00:21:58,679 --> 00:22:00,809
+individual packages can be combined
+
+
+549
+00:22:00,809 --> 00:22:03,359
+using shell procedures to design a part
+
+
+550
+00:22:03,359 --> 00:22:05,820
+of a circuit or a circuit and the parts
+
+
+551
+00:22:05,820 --> 00:22:07,559
+of a circuit can be combined to make a
+
+
+552
+00:22:07,559 --> 00:22:11,009
+whole circuit Steve Johnson is one of
+
+
+553
+00:22:11,009 --> 00:22:12,389
+the people who has been involved in this
+
+
+554
+00:22:12,389 --> 00:22:14,700
+effort he is currently working on a
+
+
+555
+00:22:14,700 --> 00:22:16,590
+program called Elgin which takes boolean
+
+
+556
+00:22:16,590 --> 00:22:19,019
+equations as input and produces logic
+
+
+557
+00:22:19,019 --> 00:22:21,749
+circuit designs as output because tool
+
+
+558
+00:22:21,749 --> 00:22:24,359
+building is such a way of life on the
+
+
+559
+00:22:24,359 --> 00:22:26,220
+UNIX system over the years we've
+
+
+560
+00:22:26,220 --> 00:22:28,559
+developed tools that actually help us
+
+
+561
+00:22:28,559 --> 00:22:31,950
+make other tools these involve things
+
+
+562
+00:22:31,950 --> 00:22:35,220
+like parser generators lexical analyser
+
+
+563
+00:22:35,220 --> 00:22:38,639
+generators and other programs that help
+
+
+564
+00:22:38,639 --> 00:22:44,220
+us organize and develop tools these
+
+
+565
+00:22:44,220 --> 00:22:45,480
+tools have been used in the development
+
+
+566
+00:22:45,480 --> 00:22:48,259
+of L gen and many other applications
+
+
+567
+00:22:48,259 --> 00:22:52,830
+here we see the boolean equations for a
+
+
+568
+00:22:52,830 --> 00:22:57,419
+simple matter down here we have the
+
+
+569
+00:22:57,419 --> 00:23:08,140
+equations for the carryout and the sum
+
+
+570
+00:23:08,140 --> 00:23:10,600
+in the middle we have some descriptions
+
+
+571
+00:23:10,600 --> 00:23:13,840
+as to how we would like the cell to be
+
+
+572
+00:23:13,840 --> 00:23:16,809
+laid out geometrically see we would like
+
+
+573
+00:23:16,809 --> 00:23:20,919
+the two inputs on the left side the
+
+
+574
+00:23:20,919 --> 00:23:24,399
+carry in on the bottom the carryout on
+
+
+575
+00:23:24,399 --> 00:23:28,980
+the top and the output on the right side
+
+
+576
+00:23:28,980 --> 00:23:31,990
+the input equations first have to be
+
+
+577
+00:23:31,990 --> 00:23:34,630
+processed so that they can be more
+
+
+578
+00:23:34,630 --> 00:23:36,970
+easily represented in silicon this
+
+
+579
+00:23:36,970 --> 00:23:39,309
+process is very similar to recognizing
+
+
+580
+00:23:39,309 --> 00:23:41,679
+common sub-expressions in the input of a
+
+
+581
+00:23:41,679 --> 00:23:45,250
+compiler input language the boolean
+
+
+582
+00:23:45,250 --> 00:23:48,220
+equations are read and processed by a
+
+
+583
+00:23:48,220 --> 00:23:51,220
+program called yak which was originally
+
+
+584
+00:23:51,220 --> 00:23:54,909
+developed to help us build compilers but
+
+
+585
+00:23:54,909 --> 00:23:56,529
+has in fact been used in a large number
+
+
+586
+00:23:56,529 --> 00:23:59,820
+of application programs as well yak is
+
+
+587
+00:23:59,820 --> 00:24:06,210
+based on the theory of lalr 1 parsing
+
+
+588
+00:24:06,210 --> 00:24:08,559
+represents it builds a small finite
+
+
+589
+00:24:08,559 --> 00:24:11,590
+state machine which is able to control
+
+
+590
+00:24:11,590 --> 00:24:14,679
+the actions of the program which reads
+
+
+591
+00:24:14,679 --> 00:24:19,169
+the input detect errors accurately and
+
+
+592
+00:24:19,169 --> 00:24:21,789
+structure the input in such a way that
+
+
+593
+00:24:21,789 --> 00:24:23,669
+the program can then go ahead and
+
+
+594
+00:24:23,669 --> 00:24:28,779
+perform its operations on it after these
+
+
+595
+00:24:28,779 --> 00:24:30,460
+equations have been processed
+
+
+596
+00:24:30,460 --> 00:24:33,220
+it's then necessary to worry about the
+
+
+597
+00:24:33,220 --> 00:24:38,200
+geometric layout of the circuit this is
+
+
+598
+00:24:38,200 --> 00:24:41,200
+done in the next 2 portions of el jem
+
+
+599
+00:24:41,200 --> 00:24:44,710
+the first program worries about the
+
+
+600
+00:24:44,710 --> 00:24:50,289
+ordering of these columns it uses a
+
+
+601
+00:24:50,289 --> 00:24:53,610
+technique called graph partitioning to
+
+
+602
+00:24:53,610 --> 00:24:56,139
+attempt to iteratively come up with a
+
+
+603
+00:24:56,139 --> 00:24:58,210
+good solution to what is in fact an
+
+
+604
+00:24:58,210 --> 00:25:01,440
+extremely difficult problem in theory
+
+
+605
+00:25:01,440 --> 00:25:04,659
+after the columns have been ordered then
+
+
+606
+00:25:04,659 --> 00:25:07,840
+the tracks where the signals run are
+
+
+607
+00:25:07,840 --> 00:25:11,309
+laid out as well by another program and
+
+
+608
+00:25:11,309 --> 00:25:14,950
+finally in some sense we now have the
+
+
+609
+00:25:14,950 --> 00:25:17,110
+circuit designed and it's simply a
+
+
+610
+00:25:17,110 --> 00:25:19,000
+question of realizing it with the
+
+
+611
+00:25:19,000 --> 00:25:20,320
+particular rules
+
+
+612
+00:25:20,320 --> 00:25:24,190
+for our fabrication process and that is
+
+
+613
+00:25:24,190 --> 00:25:27,910
+done by a fourth program so once again
+
+
+614
+00:25:27,910 --> 00:25:31,030
+we have an example of taking a very
+
+
+615
+00:25:31,030 --> 00:25:33,990
+complex problem dividing it into pieces
+
+
+616
+00:25:33,990 --> 00:25:36,640
+representing each piece with a separate
+
+
+617
+00:25:36,640 --> 00:25:39,880
+program and then using the facilities of
+
+
+618
+00:25:39,880 --> 00:25:41,680
+the UNIX system to glue the pieces
+
+
+619
+00:25:41,680 --> 00:25:45,990
+together into a coherent whole again
+
+
+620
+00:25:45,990 --> 00:25:47,920
+computing is going to be more and more
+
+
+621
+00:25:47,920 --> 00:25:49,810
+inner woven with people's lives as the
+
+
+622
+00:25:49,810 --> 00:25:53,020
+years go by so computer technology is
+
+
+623
+00:25:53,020 --> 00:25:55,150
+going to have to evolve to be easier for
+
+
+624
+00:25:55,150 --> 00:25:58,300
+people to use the unit system is not the
+
+
+625
+00:25:58,300 --> 00:26:00,280
+end of the road in this regard but I
+
+
+626
+00:26:00,280 --> 00:26:41,080
+think it's a good step along the way
+
+
+627
+00:26:41,080 --> 00:27:10,370
+you
+
+
+628
+00:27:10,370 --> 00:27:17,340
+you
+
+
+629
+00:27:17,340 --> 00:27:19,400
+you
+
+

@@ -1,0 +1,121 @@
+Foreword and acknowledgments This is a draft text intended for a class on operating systems.
+It explains the main concepts of operating systems by studying an example kernel, named xv6.
+xv6 is modeled on Dennis Ritchie’s and Ken Thompson’s Unix Version 6 (v6) [14].
+xv6 loosely follows the structure and style of v6, but is implemented in ANSI C [6] for a multi-core RISC-V [12].
+This text should be read along with the source code for xv6, an approach inspired by John Li- ons’ Commentary on UNIX 6th Edition [9].
+See https://pdos.csail.mit.edu/6.S081 for pointers to on-line resources for v6 and xv6, including several lab assignments using xv6.
+We have used this text in 6.828 and 6.S081, the operating systems classes at MIT.
+We thank the faculty, teaching assistants, and students of those classes who have all directly or indirectly con- tributed to xv6.
+In particular, we would like to thank Adam Belay, Austin Clements, and Nickolai Zeldovich.
+前言和致谢
+这是一份用于操作系统课程的草稿文本。
+它通过研究一个名为xv6的示例内核来解释操作系统的主要概念。
+xv6是基于Dennis Ritchie和Ken Thompson的Unix Version 6（v6）[14]的模型。
+xv6在结构和风格上与v6大致相似，但是它是用ANSI C [6]实现的，适用于多核RISC-V [12]。
+这份文本应该与xv6的源代码一起阅读，这种方法受到了John Li-ons对UNIX第6版的评论[9]的启发。
+请参阅https://pdos.csail.mit.edu/6.S081，了解有关v6和xv6的在线资源，包括使用xv6的几个实验任务。
+我们在MIT的操作系统课程6.828和6.S081中使用了这份文本。
+我们感谢那些直接或间接为xv6做出贡献的教师、助教和学生。
+特别感谢Adam Belay、Austin Clements和Nickolai Zeldovich。
+
+ Finally, we would like to thank people who emailed us bugs in the text or sugges- tions for improvements: Abutalib Aghayev, Sebastian Boehm, Anton Burtsev, Raphael Carvalho, Tej Chajed, Rasit Eskicioglu, Color Fuzzy, Giuseppe, Tao Guo, Naoki Hayama, Robert Hilder- man, Wolfgang Keller, Austin Liew, Pavan Maddamsetti, Jacek Masiulaniec, Michael McConville, m3hm00d, miguelgvieira, Mark Morrissey, Harry Pan, Askar Saﬁn, Salman Shah, Adeodato Simó, Ruslan Savchenko, Pawel Szczurko, Warren Toomey, tyfkda, tzerbib, Xi Wang, and Zou Chang Wei.
+If you spot errors or have suggestions for improvement, please send email to Frans Kaashoek and Robert Morris (kaashoek,rtm@csail.mit.edu).
+7 Chapter 1 Operating system interfaces The job of an operating system is to share a computer among multiple programs and to provide a more useful set of services than the hardware alone supports.
+最后，我们要感谢那些给我们发送了文本错误或改进建议的人：Abutalib Aghayev，Sebastian Boehm，Anton Burtsev，Raphael Carvalho，Tej Chajed，Rasit Eskicioglu，Color Fuzzy，Giuseppe，Tao Guo，Naoki Hayama，Robert Hilderman，Wolfgang Keller，Austin Liew，Pavan Maddamsetti，Jacek Masiulaniec，Michael McConville，m3hm00d，miguelgvieira，Mark Morrissey，Harry Pan，Askar Saﬁn，Salman Shah，Adeodato Simó，Ruslan Savchenko，Pawel Szczurko，Warren Toomey，tyfkda，tzerbib，Xi Wang和Zou Chang Wei。
+如果您发现错误或有改进建议，请发送电子邮件至Frans Kaashoek和Robert Morris（kaashoek,rtm@csail.mit.edu）。
+第1章 操作系统接口 操作系统的任务是在多个程序之间共享计算机，并提供比硬件本身更有用的服务。
+
+ An operating system manages and abstracts the low-level hardware, so that, for example, a word processor need not concern itself with which type of disk hardware is being used.
+An operating system shares the hardware among multiple programs so that they run (or appear to run) at the same time.
+Finally, operating systems provide controlled ways for programs to interact, so that they can share data or work together.
+An operating system provides services to user programs through an interface.
+Designing a good interface turns out to be difﬁcult.
+On the one hand, we would like the interface to be simple and narrow because that makes it easier to get the implementation right.
+On the other hand, we may be tempted to offer many sophisticated features to applications.
+The trick in resolving this tension is to design interfaces that rely on a few mechanisms that can be combined to provide much generality.
+This book uses a single operating system as a concrete example to illustrate operating system concepts.
+操作系统管理和抽象底层硬件，因此，例如，一个文字处理器不需要关心使用的是哪种类型的磁盘硬件。
+操作系统将硬件共享给多个程序，使它们同时运行（或看起来同时运行）。
+最后，操作系统提供受控的程序交互方式，以便它们可以共享数据或协同工作。
+操作系统通过接口为用户程序提供服务。
+设计一个好的接口事实证明是困难的。
+一方面，我们希望接口简单而窄，因为这样更容易正确实现。
+另一方面，我们可能会诱惑提供许多复杂的功能给应用程序。
+解决这种紧张关系的诀窍是设计依赖于少数机制的接口，这些机制可以组合在一起提供很多的通用性。
+本书使用一个操作系统作为具体示例来说明操作系统的概念。
+
+ That operating system, xv6, provides the basic interfaces introduced by Ken Thompson and Dennis Ritchie’s Unix operating system [14], as well as mimicking Unix’s internal design.
+Unix provides a narrow interface whose mechanisms combine well, offering a surprising degree of generality.
+This interface has been so successful that modern operating systems—BSD, Linux, Mac OS X, Solaris, and even, to a lesser extent, Microsoft Windows—have Unix-like interfaces.
+Understanding xv6 is a good start toward understanding any of these systems and many others.
+As Figure 1.1 shows, xv6 takes the traditional form of a kernel, a special program that provides services to running programs.
+Each running program, called a process, has memory containing instructions, data, and a stack.
+The instructions implement the program’s computation.
+The data are the variables on which the computation acts.
+The stack organizes the program’s procedure calls.
+A given computer typically has many processes but only a single kernel.
+该操作系统xv6提供了Ken Thompson和Dennis Ritchie的Unix操作系统[14]引入的基本接口，同时模仿了Unix的内部设计。
+Unix提供了一个狭窄的接口，其机制结合得很好，提供了出乎意料的通用性。
+这个接口非常成功，以至于现代操作系统（如BSD、Linux、Mac OS X、Solaris，甚至在较小程度上的Microsoft Windows）都具有类似Unix的接口。
+理解xv6是理解这些系统和其他许多系统的良好起点。
+如图1.1所示，xv6采用了传统的内核形式，即一个特殊的程序，为运行的程序提供服务。
+每个运行的程序，称为进程，都有包含指令、数据和堆栈的内存。
+指令实现了程序的计算。
+数据是计算所作用的变量。
+堆栈组织了程序的过程调用。
+一台计算机通常有许多进程，但只有一个内核。
+
+ When a process needs to invoke a kernel service, it invokes a system call, one of the calls in the operating system’s interface.
+The system call enters the kernel; the kernel performs the service and returns.
+Thus a process alternates between executing in user space and kernel space.
+The kernel uses the hardware protection mechanisms provided by a CPU1 to ensure that each 1This text generally refers to the hardware element that executes a computation with the term CPU, an acronym for central processing unit.
+Other documentation (e.g., the RISC-V speciﬁcation) also uses the words processor, core, and hart instead of CPU.
+9 Figure 1.1: A kernel and two user processes.
+process executing in user space can access only its own memory.
+The kernel executes with the hardware privileges required to implement these protections; user programs execute without those privileges.
+When a user program invokes a system call, the hardware raises the privilege level and starts executing a pre-arranged function in the kernel.
+当一个进程需要调用内核服务时，它会调用系统调用，即操作系统接口中的一个调用。
+系统调用进入内核；内核执行服务并返回。
+因此，一个进程在用户空间和内核空间之间交替执行。
+内核使用CPU提供的硬件保护机制，确保每个在用户空间执行的进程只能访问自己的内存。
+内核以实现这些保护所需的硬件特权执行；用户程序在没有这些特权的情况下执行。
+当用户程序调用系统调用时，硬件会提升特权级别并开始执行内核中预先安排的函数。
+
+ The collection of system calls that a kernel provides is the interface that user programs see.
+The xv6 kernel provides a subset of the services and system calls that Unix kernels traditionally offer.
+Figure 1.2 lists all of xv6’s system calls.
+The rest of this chapter outlines xv6’s services—processes, memory, ﬁle descriptors, pipes, and a ﬁle system—and illustrates them with code snippets and discussions of how the shell, Unix’s command-line user interface, uses them.
+The shell’s use of system calls illustrates how carefully they have been designed.
+The shell is an ordinary program that reads commands from the user and executes them.
+The fact that the shell is a user program, and not part of the kernel, illustrates the power of the system call interface: there is nothing special about the shell.
+It also means that the shell is easy to replace; as a result, modern Unix systems have a variety of shells to choose from, each with its own user interface and scripting features.
+内核提供的系统调用集合是用户程序看到的接口。
+ xv6内核提供了传统Unix内核通常提供的一部分服务和系统调用。
+ 图1.2列出了所有xv6的系统调用。
+本章的其余部分概述了xv6的服务-进程、内存、文件描述符、管道和文件系统，并通过代码片段和对shell的使用进行讨论，Unix的命令行用户界面如何使用它们。
+ shell对系统调用的使用说明了它们是如何精心设计的。
+ shell是一个普通的程序，它从用户那里读取命令并执行它们。
+ shell是一个用户程序，而不是内核的一部分，这说明了系统调用接口的强大之处：shell没有什么特别之处。
+ 这也意味着shell很容易被替换；因此，现代Unix系统有各种不同的shell可供选择，每个shell都有自己的用户界面和脚本功能。
+
+ The xv6 shell is a simple implementation of the essence of the Unix Bourne shell.
+Its implementation can be found at (user/sh.c:1).
+1.1 Processes and memory An xv6 process consists of user-space memory (instructions, data, and stack) and per-process state private to the kernel.
+Xv6 time-shares processes: it transparently switches the available CPUs among the set of processes waiting to execute.
+When a process is not executing, xv6 saves its CPU registers, restoring them when it next runs the process.
+The kernel associates a process identiﬁer, or PID, with each process.
+A process may create a new process using the fork system call.
+Fork creates a new process, called the child process, with exactly the same memory contents as the calling process, called the parent process.
+Fork returns in both the parent and the child.
+In the parent, fork returns the child’s PID; in the child, fork returns zero.
+xv6 shell是Unix Bourne shell的简单实现。
+其实现可以在（user/sh.c:1）找到。
+1.1进程和内存xv6进程由用户空间内存（指令、数据和堆栈）和内核私有的进程状态组成。
+Xv6进行进程的时间共享：它在等待执行的进程集合中透明地切换可用的CPU。
+当一个进程不在执行时，xv6保存其CPU寄存器，并在下次运行该进程时恢复它们。
+内核为每个进程关联一个进程标识符（PID）。
+进程可以使用fork系统调用创建一个新进程。
+fork创建一个新进程，称为子进程，其内存内容与调用进程（称为父进程）完全相同。
+fork在父进程和子进程中都返回。
+在父进程中，fork返回子进程的PID；在子进程中，fork返回零。
+

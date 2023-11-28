@@ -1,0 +1,2313 @@
+0:01.
+all right um welcome to six s081 operating systems.
+0:08.
+um i'm robert i'll be co-lecturing with franz and david and nicholas for the tas.
+0:17.
+please during these zoom lectures ask questions you can either interrupt me by audio or enter something.
+0:24.
+into the chat window and one of the staff will see an ask question for you and by the way we'll be.
+0:30.
+recording these lectures and we'll post the recordings later so you can review them or for.
+0:36.
+people who can't make this time so they can never like see the lectures all right i want to start by um.
+0:43.
+laying out some of the goals of the course so number one is to um understand.
+0:50.
+uh the design and implementation of operating systems and you know the uh.
+0:58.
+design is sort of high-level structure and implementation is really about what the code looks like.
+1:04.
+and we'll be spending a lot of time with both um and in the interest of.
+1:11.
+getting a deep understanding of what's going on you'll get hands-on experience with a small.
+0:01.
+好的，欢迎来到六S081操作系统课程。
+0:08.
+我是罗伯特，我将与弗兰茨、大卫和尼古拉斯一起进行讲课。
+0:17.
+在这些Zoom讲座期间，请随时提问，您可以通过音频打断我，或在聊天窗口中输入问题。
+0:24.
+我们的工作人员会看到您的问题并为您解答。
+另外，我们将录制这些讲座，并稍后发布录像，以便您复习，或者供那些无法参加的人观看。
+0:36.
+好的，我想先介绍一下课程的一些目标，首先是理解操作系统的设计和实现，您将了解高层结构和代码的实现。
+1:04.
+我们将花费大量时间来深入了解操作系统的工作原理，并且您将有机会亲自实践。
+
+ 1:21.
+with a small operating system the xv6 operating system.
+1:26.
+and in addition to actually looking at an existing operating system you'll be in the labs get a bunch of.
+1:33.
+experience extending the operating system modifying improving its behavior and writing system software that um it.
+1:41.
+uses the operating system interfaces if it works an application.
+1:46.
+so um so this is what you're going to be doing in the course.
+1:52.
+we're also interested in what the purpose of the operating system itself is as well as of the course.
+2:00.
+so for that i have a sort of list of a couple of things which um you know there's lots of operating.
+2:07.
+system different operating systems out there they typically have a common set of purposes.
+2:16.
+one of them is to abstract the hardware.
+2:21.
+um that is you know what you're given typically as a kind of starting point is you buy a computer a computer as a cpu.
+2:27.
+in memory but that's a very low level uh set of resources it's fantastic to have much higher level.
+1:21.
+用一个小型操作系统xv6操作系统。
+1:26.
+除了实际查看现有操作系统外，您还将在实验室中获得一堆经验。
+1:33.
+扩展操作系统，修改和改进其行为，并编写使用操作系统接口的系统软件。
+1:41.
+如果它可以工作，就是一个应用程序。
+1:46.
+所以这就是您在课程中要做的事情。
+1:52.
+我们还对操作系统本身的目的以及课程的目的感兴趣。
+2:00.
+所以我列出了一些事物的列表，这些事物通常是操作系统的共同目的。
+2:07.
+其中之一是抽象硬件。
+2:21.
+就是说，通常作为起点的是购买一台计算机，计算机有一个CPU和内存，但这是非常低级的资源，希望有更高级的资源。
+
+ 2:33.
+um interfaces and abstractions that applications can use such as processes or file systems both.
+2:41.
+for convenience and for portability another very important.
+2:46.
+task of an operating system is to multiplex the hardware among many applications you might be.
+2:53.
+running a text editor and a compiler or maybe multiple different database.
+3:00.
+servers or something on your operating system it's fantastic to be able to have the operating system run both of them at the.
+3:05.
+same time or all the things are going on at the same time without having them interfere that's.
+3:11.
+often called multiplexing um because there may be a lot of things happening on the operating system at the.
+3:17.
+same time it's it's critical that they not interfere unintentionally even if they have bugs.
+3:23.
+and that's a task is called isolation the idea that.
+3:30.
+different activities should not be allowed to interfere on the other hand there are times when different activities would like to.
+3:36.
+2:33。
+嗯，接口和抽象是应用程序可以使用的，比如进程或文件系统。
+2:41。
+为了方便和可移植性，操作系统的另一个非常重要的任务是将硬件多路复用给许多应用程序。
+你可能正在运行一个文本编辑器和一个编译器，或者可能是多个不同的数据库服务器或其他东西在你的操作系统上，能够让操作系统同时运行它们都是很棒的。
+3:05。
+或者所有的事情都在同时进行，而不会相互干扰，这通常被称为多路复用。
+3:11。
+因为操作系统上可能会发生很多事情，它们之间不能有意地干扰，即使它们有错误。
+3:23。
+这个任务被称为隔离，即不同的活动不应该允许相互干扰。
+另一方面，有时候不同的活动希望能够相互干扰。
+
+ interfere we'd like to interact or cooperate so for example if i create a file with a text editor.
+3:42.
+and i'd like my compiler to read the file we definitely want to allow that kind of sharing.
+3:48.
+so we want to allow sharing when it's sort of what the user has in mind um.
+3:55.
+but in many circumstances the user doesn't want sharing maybe you're logged into a time sharing machine like athena and.
+4:02.
+you don't want other people to read your files so we also need as well as sharing we want to not share when we don't want to.
+4:09.
+which we could call security or a permission system or an access control system.
+4:16.
+another thing that people value in operating systems is if you spend a lot of money on hardware on a computer.
+4:21.
+you'd like your application to be able to get the sort of full performance that the hardware ought to be able to.
+4:27.
+provide and you know a lot of that is just application programming.
+4:34.
+干涉我们希望互动或合作，例如，如果我用文本编辑器创建一个文件。
+3:42。
+我希望我的编译器读取这个文件，我们肯定希望允许这种共享。
+3:48。
+所以我们希望在用户心目中的那种情况下允许共享。
+3:55。
+但在许多情况下，用户不希望共享，也许你登录到像Athena这样的时间共享机器上。
+4:02。
+你不希望其他人读取你的文件，所以除了共享，我们还希望在不想共享时不共享。
+4:09。
+我们可以称之为安全性或权限系统或访问控制系统。
+4:16。
+人们在操作系统中还重视的另一件事是，如果你在计算机硬件上花了很多钱。
+4:21。
+你希望你的应用程序能够获得硬件应该提供的完全性能。
+4:27。
+提供的，你知道很多都是应用程序编程。
+4:34。
+
+ but inevitably unfortunately some of it is the operating system has to make sure that whatever services it provides.
+4:42.
+don't get in the way of applications getting high performance so you want to at least not get in the.
+4:47.
+way and maybe even help applications achieve good performance.
+4:56.
+finally with most operating systems have to support a wide range of.
+5:02.
+different applications maybe it's a laptop running a text editor maybe it's running games.
+5:07.
+maybe your operating system needs to support database servers or cloud computation and usually because.
+5:14.
+operating systems are quite expensive to design and build people use the same operating systems.
+5:20.
+for many different tasks like linux for example which i'm sure many of you are running is used in all of the situations i mentioned so.
+5:27.
+the same operating system really has to be able to support a range of often quite different uses.
+5:36.
+但不可避免地，不幸的是，其中一些是操作系统必须确保无论提供什么服务。
+4:42。
+不要妨碍应用程序获得高性能，所以你至少不要妨碍。
+4:47。
+的方式，甚至可能帮助应用程序实现良好的性能。
+4:56。
+最后，大多数操作系统必须支持各种各样的。
+5:02。
+不同的应用程序，也许是运行文本编辑器的笔记本电脑，也许是运行游戏的笔记本电脑。
+5:07。
+也许您的操作系统需要支持数据库服务器或云计算，通常因为。
+5:14。
+操作系统的设计和构建成本相当昂贵，人们使用相同的操作系统。
+5:20。
+用于许多不同的任务，例如Linux，我相信你们中的许多人都在使用，它在我提到的所有情况下都被使用，所以。
+5:27。
+同一个操作系统确实必须能够支持一系列通常非常不同的用途。
+5:36。
+
+ so we're hoping to be able to support um sort of all these different goals uh simultaneously um and we'll hear more.
+5:44.
+about all of them during the course all right uh operating systems.
+5:49.
+uh sort of people worked out a set of um design ideas over the decades that have.
+5:56.
+worked pretty well sort of ways of organizing things and i'm going to lay out for you the sort of.
+6:04.
+classic organization it's a sort of standard deal for uh for this course and.
+6:13.
+um is actually quite common around for many operating systems so this is sort of you know os internal organization or.
+6:21.
+um the way i think about it is a in terms of a draw a box for the.
+6:28.
+computer um the computer sort of comes with a bunch of hardware resources.
+6:33.
+which i'll put at the bottom maybe there's cpu and ram and a disk for storage.
+6:39.
+and maybe a network interface so this sort of hardware that's the lowest layer um so if at the top.
+6:47.
+所以我们希望能够同时支持所有这些不同的目标，我们将在课程中听到更多关于它们的内容。
+关于操作系统，人们在几十年间总结出了一套相当不错的设计思想，用于组织事物的方式。
+我将为您介绍一种经典的组织方式，这是这门课程的标准内容，实际上在许多操作系统中都很常见。
+我将以一个框来描述它，这个框代表计算机。
+计算机自带一些硬件资源，比如CPU、内存、存储器和网络接口，这些硬件位于最底层。
+
+ we want to run various applications maybe a text editor i happen to use vi as a text editor if you're going to.
+6:53.
+run a c compiler say cc you know if you run lots of other things we're going to talk a lot today.
+6:59.
+about the shell which is the command line interface so we have all.
+7:04.
+these different programs that are running and this is the sort of world in which.
+7:10.
+applications run is usually called user space and as distinct from that there's a.
+7:16.
+single program um a special program that's always running called the kernel and the kernel.
+7:23.
+is sort of the guardian of the resources of the computer it's what first boots up you turn on the computer.
+7:30.
+there's just one of it it maintains data to help it manage each of these processes and the kernel also maintains.
+7:37.
+lots of data structures to help it interface and all the different kinds of.
+7:43.
+hardware that uh these user programs need to use.
+7:49.
+我们想要运行各种应用程序，也许包括一个文本编辑器，我碰巧使用vi作为文本编辑器，如果你要运行C编译器，比如cc，你知道如果你运行很多其他东西，我们今天会谈很多。
+关于shell，它是命令行界面，所以我们有所有这些不同的正在运行的程序，这通常被称为用户空间，与之不同的是，有一个特殊的程序一直在运行，称为内核，内核是计算机资源的守护者，它是首先启动的，当你打开计算机时，只有一个内核，它维护数据以帮助它管理每个这些进程，内核还维护许多数据结构，以帮助它与所有不同类型的硬件进行接口。
+
+ the kernel also has built in a bunch of services um and so for example there's typically a.
+7:56.
+file system implementation inside the kernel that implements things like file names and.
+8:02.
+file contents and directories and understands how to store the files in the disk so your programs.
+8:08.
+are going to talk to the files inside the kernel and the file system implementation is going to talk to the disk and in this course.
+8:17.
+what we mostly focus on is all the things that have to happen inside the kernel and on the interfaces between user.
+8:24.
+programs and the kernel as well as the sort of structure of the software.
+8:30.
+inside the kernel so we care a lot about these services inside the kernel.
+8:37.
+[Music] one of them is the file system i mentioned there's also uh.
+8:43.
+management of processes each of these running programs is called a process and it has things like its own memory for example.
+8:50.
+as well as a share of the cpu time so kernel manages.
+8:56.
+内核还内置了一系列的服务，例如通常在内核中有一个文件系统实现，它实现了文件名、文件内容、目录等，并且知道如何将文件存储在磁盘上，因此您的程序将与内核中的文件进行通信，而文件系统实现将与磁盘进行通信。
+在这门课程中，我们主要关注内核内部发生的所有事情，以及用户程序与内核之间的接口以及内核软件的结构。
+因此，我们非常关心内核内部的这些服务。
+其中之一是我提到的文件系统，还有进程管理，每个正在运行的程序都被称为一个进程，它具有自己的内存和一部分CPU时间，因此内核管理着这些进程。
+
+ processes as a kernel service [Music].
+9:02.
+the kernel manages the allocation of memory the different processes need.
+9:07.
+different amounts of memory the kernel multiplexes and divides up the memory.
+9:13.
+allocates the memory among all the different processes.
+9:22.
+um the kernel as i mentioned influenced the file system file system really comes in two or three.
+9:28.
+logical or a bunch of logical parts but for now we can think of it in terms of managing file content that's what's.
+9:35.
+inside files figuring out where on disk each file's content ought to live the.
+9:40.
+file system also somewhat separately manages a name space each file has a name and there's a hierarchy of directories.
+9:48.
+every directory has a bunch of files in it all that's managed by the file system there's typically.
+9:55.
+some sort of security arrangement maybe we'll call it access control.
+10:01.
+by which the colonel decides that you know when a given process wants to read use some resource maybe read something.
+10:07.
+进程作为内核服务[音乐]。
+9:02。
+内核管理不同进程所需的内存分配。
+9:07。
+内核对内存进行多路复用和划分，分配给所有不同的进程。
+9:13。
+嗯，正如我提到的，内核影响文件系统，文件系统实际上分为两个或三个部分。
+9:28。
+逻辑或一堆逻辑部分，但现在我们可以将其视为管理文件内容，这就是文件中的内容。
+9:35。
+在磁盘上找出每个文件的内容应该存放在哪里。
+9:40。
+文件系统还分别管理命名空间，每个文件都有一个名称，有一个目录层次结构。
+9:48。
+每个目录中都有一堆文件，所有这些都由文件系统管理，通常还有一种安全安排，也许我们称之为访问控制。
+10:01。
+内核决定当给定的进程想要读取使用某个资源时，你知道读取某些东西。
+10:07。
+
+ from the disk or use some memory the access control machinery inside the kernel is what gets to decide yes is that allowed is that not allowed.
+10:14.
+and that can get pretty complicated if we're talking about time sharing systems like athena systems where there's.
+10:19.
+you know each of these processes may be run by a different user and have different access control rules.
+10:24.
+applied to what it's allowed to get at and in a real.
+10:29.
+full-blown operating system there's turns out to be many many other services you know there's typically some way for.
+10:35.
+different processes to talk to each other called inter-process communication there's typically a whole bunch of.
+10:41.
+software associated with the network things like the tcp ip protocols for talking in the network.
+10:49.
+there's typically support for sound cards there may be drivers for hundreds of different disks and hundreds of.
+10:55.
+从磁盘中或使用一些内存，内核内部的访问控制机制决定了是否允许访问。
+10:14。
+如果我们谈论像雅典娜系统这样的分时系统，情况可能会变得非常复杂，因为每个进程可能由不同的用户运行，并且具有不同的访问控制规则。
+10:19。
+应用于它所允许访问的内容，并且在一个真正的完整操作系统中，还有许多其他服务，通常有一些方式让不同的进程彼此通信，称为进程间通信，通常有一整套与网络相关的软件，例如用于在网络中通信的TCP/IP协议，通常还支持声卡，可能有数百个不同磁盘和数百个驱动程序。
+10:55。
+
+ different network cards so in a full blown operating system there's a huge amount of stuff here and this may run to millions of lines of.
+11:02.
+code inside the kernel so that's sort of a quick overview of.
+11:07.
+what's inside the kernel we're also interested in how applications interact with the kernel.
+11:13.
+and what that interface looks like.
+11:19.
+the usual so this is the api.
+11:26.
+for the kernel how applications get at the kernel.
+11:33.
+typically that's done with something called system calls and these are things that look like function calls that programs.
+11:39.
+can make but actually jump into the kernel and execute a.
+11:45.
+system called implementation in the kernel i'll talk a bunch about that in the latter part of this lecture for now just to give you a.
+11:52.
+flavor here what a couple of different system calls might look like in the source code of an application.
+12:00.
+one might be that if you want if an application wants to open a file it make it calls the open system call.
+12:07.
+不同的网络卡，所以在一个完整的操作系统中，这里有大量的东西，可能达到数百万行代码。
+11:02.内核中的代码，所以这是内核内部的一个快速概述。
+11:07.我们还对应用程序如何与内核进行交互以及接口的样子感兴趣。
+11:13.11:19.通常情况下，这是API。
+11:26.用于内核的应用程序如何访问内核。
+11:33.通常是通过一种称为系统调用的方式来实现的，这些系统调用看起来像函数调用，程序可以调用它们，但实际上是跳转到内核并执行一个。
+11:45.内核中的系统调用实现，我将在本讲座的后半部分详细讨论这个问题，现在只是给你一个。
+11:52.味道，一个应用程序在源代码中可能是这样的几个不同的系统调用。
+12:00.一个可能是，如果一个应用程序想要打开一个文件，它会调用open系统调用。
+12:07.
+ and tells the open system called the name of the file so maybe it wants to open a file for.
+12:12.
+writing called out and it would be an extra argument here saying one in this case saying i want to write that file.
+12:18.
+and so this thing that looks like a function call if opens the system calls actually.
+12:24.
+special code that jumps into the kernel and the kernel can retrieve these arguments execute some kernel code that implements.
+12:30.
+open maybe talks to the disk and then returns a value and that's this file descriptor.
+12:36.
+as fd stands for file descriptor which is the program can then use as sort of a.
+12:41.
+handle to refer to this open file if you want to write to a file the.
+12:48.
+system called to do that is called write you have to pass it one of these file descriptors.
+12:53.
+the same as was returned by open um these are now arguments that are passed in the system call.
+12:59.
+from the program into the kernel you give it a pointer to a buffer of characters so an easy way.
+13:06.
+并告诉打开系统所调用的文件名，所以可能是想要打开一个文件。
+12:12。
+写出来的叫做，并且这里会有一个额外的参数，表示在这种情况下，我想要写入那个文件。
+12:18。
+所以这个看起来像函数调用的东西实际上是打开系统调用。
+12:24。
+特殊的代码跳转到内核，内核可以检索这些参数，执行一些实现打开的内核代码。
+12:30。
+可能会与磁盘通信，然后返回一个值，这就是文件描述符。
+12:36。
+fd代表文件描述符，程序可以将其用作对这个打开文件的引用。
+如果要写入文件，12:41。
+系统调用来做这个的是write，你必须传递给它其中一个文件描述符。
+12:53。
+与open返回的相同，这些现在是从程序传递到内核的参数。
+你给它一个指向字符缓冲区的指针，这是一种简单的方法。
+13:06。
+
+ to do that in the c programming language which these examples are written by is the double quotes and then.
+13:12.
+the string the bytes of the string this backslash n is a new line and the third argument is the count of.
+13:18.
+characters that you want to write and so this really gets point passed as an address.
+13:24.
+in memory so you're telling the kernel look please write six bytes from this address to the file that this file descriptor.
+13:31.
+refers to a much more exciting uh system call that you encounter is the fork system call.
+13:39.
+fork is the system call that creates a new process um and it returns actually creates a.
+13:46.
+process that's identical to the caller and fork returns the an identifier the.
+13:51.
+process identifier or pid of the new process it's actually a little more complicated than that and.
+13:57.
+we'll hear more about this so again these are all look like function calls.
+14:04.
+在C编程语言中，要做到这一点，这些示例是用双引号写的。
+13:12.字符串的字节，这个反斜杠n是一个新行，第三个参数是要写入的字符计数，所以这实际上是将地址传递给内存中的内核，请写入从该地址开始的六个字节到此文件描述符所引用的文件中。
+13:31.更令人兴奋的系统调用是fork系统调用。
+13:39.fork是创建一个新进程的系统调用，它实际上创建了一个与调用者完全相同的进程，并返回新进程的标识符，即进程标识符或pid。
+实际上比这复杂一些，我们将在后面听到更多关于这个的内容，所以这些都看起来像函数调用。
+14:04.
+ but the system calls are special because they jump into the kernel that's just taste i'll see more later.
+14:15.
+well that is a sort of quick overview um i want to just mention why i find.
+14:22.
+operating the study of operating systems to be both challenging and interesting.
+14:32.
+why you know why it's maybe worth intellectually worth taking a course in.
+14:37.
+this area so one reason why it's hard is that the environment's unforgiving the.
+14:43.
+programming environment inside the kernel is unforgiving because you're.
+14:50.
+you're when you're programming when you're modifying the kernel or extending the kernel writing a new operating system kernel.
+14:55.
+you're providing the infrastructure that everybody else assumes is already present to run their programs.
+15:01.
+right and everybody else gets an operating system under their program when they write ordinary application programs but.
+15:07.
+when we build operating systems what we get is the hardware underneath our operating system which turns out to.
+但系统调用是特殊的，因为它们会跳转到内核中，这只是一种尝试，我以后会看到更多。
+14:15。
+嗯，这是一种快速概述，我想提一下为什么我觉得操作系统的研究既具有挑战性又有趣。
+14:22。
+为什么你知道为什么值得在这个领域上花时间学习。
+14:37。
+这个领域之所以困难的原因之一是环境是无情的。
+14:43。
+内核内的编程环境是无情的，因为当你编程、修改内核或编写新的操作系统内核时，你提供的基础设施是其他人假设已经存在的运行他们程序的基础。
+15:01。
+对，当他们编写普通应用程序时，每个人都会得到一个操作系统来运行他们的程序，但是当我们构建操作系统时，我们得到的是操作系统下面的硬件。
+
+ 15:14.
+be more difficult to deal with in this course we we get to use a hardware simulator.
+15:20.
+called qmu that you know simulates a cpu and a computer and that makes life a little.
+15:26.
+bit better but it's it's still a kind of a difficult environment to program it.
+15:32.
+another reason why it's hard and interesting is because if you're designing an operating system you have to satisfy a bunch of.
+15:38.
+tensions that require real design thought so one is that you'd like your operating.
+15:44.
+system to be both efficient which often means that it sort of operates at a low level close to the.
+15:50.
+hardware but for ease of use and because real live people have to write programs.
+15:56.
+that use your operating system we'd like it also to be provide abstract high-level portable.
+16:03.
+interfaces and it's a neat trick to provide abstract interfaces that are simple um affordable but that are also.
+16:10.
+efficient another tension is that we'd like to provide a very powerful.
+16:16.
+15:14。
+在这门课程中，当我们开始使用硬件模拟器时，会变得更加困难。
+15:20。
+这个模拟器叫做qmu，它模拟了一个CPU和一台计算机，这使得编程变得稍微容易一些。
+15:26。
+但是它仍然是一个相对困难的环境来进行编程。
+15:32。
+另一个困难且有趣的原因是，如果你正在设计一个操作系统，你必须满足一系列需要真正的设计思考的要求。
+15:38。
+其中一个要求是，你希望你的操作系统既高效，这通常意味着它在接近硬件的低级别上运行。
+15:50。
+但为了易用性，因为真实的人们需要编写使用你的操作系统的程序，我们也希望它提供抽象的高级可移植接口。
+16:03。
+提供既简单又高效的抽象接口是一个巧妙的技巧。
+16:10。
+另一个要求是，我们希望提供一个非常强大的。
+16:16。
+
+ operating system services so that the operating system can shoulder a lot of the burden.
+16:22.
+of running programs we'd like to powerful operating system services.
+16:29.
+but we also want to have simple interfaces.
+16:35.
+that is we don't want tremendously complex hard to understand interfaces for programmers to use because.
+16:41.
+they're not going to understand them and they may find it hard to use um so this is really simple api and so.
+16:48.
+this is possible to do to provide simple interfaces that have powerful machinery.
+16:55.
+inside them and so we'll always be searching for sort of simple interfaces that provide.
+17:02.
+powerful services hey robert we have a question in the chat uh what is unique slash different about.
+17:09.
+saying system calls jump into the kernel i.e as opposed to a standard function call that jumps to another function.
+17:18.
+well the colonel has the kernels um a piece of code that's always resident.
+17:23.
+操作系统服务使操作系统能够承担大部分负担。
+16:22。
+我们希望拥有强大的操作系统服务来运行程序。
+16:29。
+但我们也希望有简单的接口。
+16:35。
+也就是说，我们不希望为程序员提供非常复杂难以理解的接口，因为他们不会理解，可能会发现难以使用。
+所以这是一个非常简单的API。
+16:48。
+这是可能的，提供强大的内部机制的简单接口。
+16:55。
+因此，我们将一直寻找提供强大服务的简单接口。
+17:02。
+嘿，罗伯特，我们在聊天中有一个问题，关于系统调用跳转到内核，与跳转到另一个函数的标准函数调用有什么不同/独特之处。
+17:09。
+嗯，内核有内核的一段代码，它始终驻留在内存中。
+17:23。
+
+ that has special privileges that were that because it booted the machine booted the kernel.
+17:30.
+um the kernel has special inter privileges that can get directly at all kinds of hardware like the disk.
+17:35.
+device that ordinary user programs can't get at so if you make a fun an ordinary function call um.
+17:43.
+the the function you're calling doesn't get it just doesn't get any special privileges with respect to the hardware.
+17:49.
+whereas if you make a system call into the kernel um we'll talk about how this works but that.
+17:54.
+ends up um as it when it jumps into when the system call jumps into the kernel.
+17:59.
+the system call implementation in the kernel then gets all these special privileges so that it it can modify all kinds of.
+18:07.
+sensitive and protected uh hardware resources like for example getting directly at the.
+18:13.
+hard disk we'll see a lot more detail for all this uh shortly okay so.
+18:21.
+具有特殊特权的是因为它引导了机器引导了内核。
+17:30。
+内核具有特殊的内部特权，可以直接访问各种硬件，如磁盘。
+17:35。
+普通用户程序无法访问的设备，所以如果你进行一个普通的函数调用。
+17:43。
+你调用的函数就不会获得任何特殊的硬件特权。
+17:49。
+而如果你进行一个系统调用进入内核，我们将讨论这是如何工作的，但是当系统调用进入内核时。
+17:54。
+内核中的系统调用实现将获得所有这些特殊特权，以便可以修改各种敏感和受保护的硬件资源，例如直接访问硬盘。
+18:07。
+我们很快会详细了解所有这些。
+18:13。
+好的，所以。
+18:21。
+
+ a final tension that we wanna that all operating systems need to satisfy is you wanna give programs as much flexibility.
+18:26.
+as you can you don't want to constrain them so you want to have very flexible.
+18:33.
+interfaces but you do need to constrain programs somewhat because you absolutely have to have some notion of security.
+18:39.
+you can't you we'd love for programs to give programmers complete freedom but it.
+18:44.
+can't be complete can't be really complete because we don't want programs to get directly at the hardware or to interfere.
+18:50.
+with other programs or to sort of be able to interfere with the operation of the.
+18:55.
+operating system itself so these are all you know it's possible to do a good job.
+19:02.
+and we'll talk a lot about it but it's always a bit of a puzzle to provide sort of both of these.
+19:08.
+the properties in both of these columns another thing that makes os design hard.
+19:13.
+我们希望所有操作系统都能满足的最终紧张感是给予程序尽可能多的灵活性。
+18:26。
+你不想限制它们，所以你需要非常灵活的接口。
+18:33。
+但是你确实需要在一定程度上限制程序，因为你绝对需要一些安全概念。
+18:39。
+我们希望程序员能够完全自由地编写程序，但是不能完全自由，因为我们不希望程序直接访问硬件或干扰其他程序，或者干扰操作系统本身的运行。
+18:44。
+这些都是可以做好的，我们将会详细讨论，但是提供这两个方面的特性总是有些困难。
+19:02。
+这也是使操作系统设计变得困难的另一个因素。
+19:13。
+
+ and interesting is that operating systems provide a lot of features and a lot of services but they actually tend to interact.
+19:20.
+and sometimes in odd ways they require a lot of thought so even in the simple examples i gave.
+19:26.
+with open and fork those two interact actually if a program allocates a file descriptor with the.
+19:32.
+open system call and then that same program forks and the semantics of fork.
+19:41.
+just turn out to be that you create a new process that's a copy of the current process this file descriptor you opened.
+19:49.
+if that's truly to be a copy this file descriptor still has to um be present and usable in the child.
+19:56.
+and you know so that's to be thought through that is the files the open and filed scripters interact with fork in.
+20:01.
+this interesting way and somebody has to figure out oh should the child be able to.
+20:06.
+get at the file descriptors created before fork was called and the answer happens to be yes in the.
+20:12.
+有趣的是，操作系统提供了许多功能和服务，但它们实际上往往会相互交互。
+19:20。
+有时候以奇怪的方式，它们需要很多思考，即使在我给出的简单示例中。
+19:26。
+通过open和fork这两个命令，它们实际上会相互作用，如果一个程序使用open系统调用分配一个文件描述符，然后同一个程序进行fork操作，fork的语义就是创建一个当前进程的副本，这个已经打开的文件描述符如果要成为副本，它仍然必须存在并且在子进程中可用。
+19:49。
+所以这需要仔细考虑，也就是说，文件、打开和文件描述符与fork以一种有趣的方式相互作用，有人必须想出，子进程是否能够获取在调用fork之前创建的文件描述符，答案恰好是可以。
+20:12。
+
+ operating systems we're going to look at all right and so other things that are.
+20:18.
+turned out to be interesting i already mentioned that operating systems have to cater to a wide variety.
+20:24.
+of uses the same os used both for database servers and and smartphones for example.
+20:31.
+and operating systems as time goes on the hardware that you run the hardware.
+20:37.
+you get with typical computers changes maybe you get super fast ssd storage instead of mechanical hard drives for.
+20:44.
+example about 15 years ago multi-core computers went from being rare curiosities to.
+20:51.
+being pervasive and recently we've seen you know order of magnitude speedups in how.
+20:57.
+fast networks operate and so all these require rethinks um.
+21:02.
+periodically of how operating systems are designed now um so so those are those are sort of.
+21:10.
+intellectually why you might take the course there's also some even more practical reasons why you might be glad.
+21:16.
+操作系统，我们要看看，好的，还有其他一些有趣的东西。
+20:18。
+事实证明，我已经提到过操作系统必须适应各种各样的用途，例如，同一个操作系统既用于数据库服务器，也用于智能手机。
+20:24。
+随着时间的推移，操作系统所运行的硬件也在改变，也许你会得到超快的固态硬盘存储而不是机械硬盘。
+20:37。
+例如，大约15年前，多核计算机从稀有的好奇变得普遍存在。
+20:51。
+最近，我们看到了网络运行速度的数量级提升，所以所有这些都需要重新思考操作系统的设计。
+21:02。
+现在，这些是你可能选择这门课程的智力原因，还有一些更实际的原因，你可能会为此感到高兴。
+21:16。
+
+ to have taken this course one is if you're interested in what happens inside computers what goes on under.
+21:21.
+and saw under the hood sort of in secret when you turn on your computer this is a good course to take similarly.
+21:28.
+if you like infrastructure that is if if you enjoy building uh sort of services that other.
+21:33.
+programs can then use this is of course essentially all about infrastructure because that's that's.
+21:39.
+what operating systems are if you ever need to spend a lot of time tracking down bugs in.
+21:45.
+application code or tracking down security problems often that um involves understanding.
+21:51.
+what was going on inside the operating system because it's ultimately the operating system that enforces a lot of security.
+21:57.
+and when things go wrong it's sort of the operating system that has to pick up the pieces so that's often involved in uh tracking.
+22:05.
+down bugs and finally yes two more questions from the chat so the first is how important is it for.
+22:11.
+如果你对计算机内部发生的事情感兴趣，对计算机启动时发生的事情感到好奇，那么参加这门课程是一个不错的选择。
+同样地，如果你喜欢基础设施，如果你喜欢构建其他程序可以使用的服务，那么这门课程也适合你。
+这门课程主要关注基础设施，因为操作系统就是基础设施的一部分。
+如果你经常需要花很多时间来追踪应用程序代码中的错误或者解决安全问题，那么你就需要了解操作系统内部发生的事情，因为最终是操作系统来执行很多安全措施。
+当出现问题时，操作系统需要解决这些问题，所以追踪错误通常涉及到操作系统。
+最后，还有两个来自聊天室的问题。
+第一个问题是它有多重要。
+
+ application developers to truly deeply understand the operating systems they're developing their applications for.
+22:16.
+do they necessarily need to be experts you don't have to be an expert but if you spend.
+22:22.
+um a lot of time developing and maintaining and debugging applications you'll eventually end up knowing a lot.
+22:28.
+about the operating system whether you whether you meant to or not it just.
+22:34.
+it just comes up and you're often forced to understand.
+22:39.
+and the second question is do high-level programming languages like python use system calls directly are.
+22:45.
+there built-ins slash wrappers for convenience a lot of high-level languages are.
+22:50.
+sort of at one remove from system calls that's absolutely true so.
+22:56.
+partially because a lot of languages want to provide portable a portable environment that.
+23:02.
+works on many different operating systems so they can't necessarily commit to the specific system calls of any one.
+23:08.
+应用程序开发人员需要真正深入地了解他们为其应用程序开发的操作系统。
+22:16.
+他们是否必须成为专家？你不必成为专家，但如果你花了很多时间开发、维护和调试应用程序，你最终会对操作系统有很多了解。
+22:22.
+无论你是否有意，它都会出现，你经常被迫去理解。
+22:39.
+第二个问题是，像Python这样的高级编程语言是否直接使用系统调用，还是有内置/包装器以方便使用？很多高级语言与系统调用有一定的距离，这是绝对正确的。
+22:56.
+部分原因是因为很多语言希望提供一个可移植的环境，可以在许多不同的操作系统上运行，所以它们不能完全依赖于任何一个特定的系统调用。
+23:08.
+ operating system um so i'm the answer the question i think is if you use python.
+23:14.
+uh you're somewhat insulated from the system call interface you know internally of course python makes.
+23:20.
+has to make system calls to get its work done and certainly in python and many other.
+23:25.
+languages there is usually a way to get directly at the system calls of whatever.
+23:31.
+your operating system you're running on and folks for questions you can just.
+23:37.
+feel free to jump in yourself and ask questions you don't need to go through the chat.
+23:43.
+okay um all right sorry um.
+23:50.
+i'm going to spend a couple of minutes now talking about the class structure of.
+23:57.
+6 s081 before switching back to actual.
+24:04.
+technical content so the uh there's a website for the course which i don't want to write out.
+24:09.
+just now but it's um you can find it by looking for 6s 081 on google and the website um has.
+24:19.
+um the schedule uh it has the assignments on the schedule.
+24:26.
+操作系统，嗯，我认为问题的答案是如果你使用Python。
+23:14。
+嗯，你在一定程度上与系统调用接口隔离开来，当然，Python在内部会进行系统调用来完成工作，而且在Python和许多其他语言中，通常有一种直接访问操作系统系统调用的方法。
+23:25。
+无论你运行在什么操作系统上，你都可以直接获取系统调用。
+23:31。
+如果有问题，你可以随时提问，不需要通过聊天。
+23:37。
+好的，嗯，抱歉。
+23:43。
+现在我要花几分钟来讲解6s081的课程结构，然后再切换回实际的技术内容。
+23:57。
+这门课程有一个网站，我现在不想写出来，但你可以在谷歌上搜索6s081找到它，网站上有课程表和作业安排。
+24:26。
+
+ it has the lab assignments um and it has the sort of information about course structure like.
+24:32.
+the grading policy on it the other big resource you're gonna want to keep track.
+24:37.
+of is piazza i guess everybody who's here got here by the way piazza but.
+24:43.
+as well as so we use piazza really for two main things one is as a way of people to be able to ask.
+24:50.
+questions about the lab assignments and uh course staff will try to answer these.
+24:55.
+questions but you should feel absolutely free to answer each other's questions as well and the other big thing that happens on.
+25:01.
+piazza if there's announcements if there's any announcements about the course we'll put the announcements on piazza so.
+25:07.
+you should keep an eye on piazza for announcements even if you're not using it for lab help.
+25:16.
+the one of the big parts of the course is that these lectures.
+25:22.
+the lectures will cover basic ideas in operating systems.
+25:30.
+它有实验任务，还有关于课程结构的信息，比如24:32的评分政策。
+你还需要关注的另一个重要资源是Piazza，我猜每个人都是通过Piazza来到这里的。
+我们使用Piazza主要有两个目的，一个是让人们能够提问实验任务和课程相关的问题，课程工作人员会尽力回答这些问题，但你也可以自由地回答其他人的问题。
+另一个重要的事情是，如果有关于课程的公告，我们会在Piazza上发布公告，所以你应该密切关注Piazza上的公告，即使你不使用它来寻求实验帮助。
+课程的一个重要部分是这些讲座，讲座将涵盖操作系统的基本思想。
+
+ some of the lectures will be devoted to detailed study of the code in xv6 which is our.
+25:36.
+small teaching operating system and so talk about how it works we'll look at the code and sort of show the.
+25:43.
+code executing during lectures and in addition before many of the lectures there'll be assignments.
+25:48.
+reading assignments from a book that sort of describes how xv6 operates and why it's designed that.
+25:55.
+way so you should do the readings before the class so that you'll understand.
+26:00.
+the discussion in the class some of the lectures are devoted to background to help you do the labs sort.
+26:07.
+of explanations about c works of how the risc 5 which is the microprocessor that we'll be using.
+26:13.
+that you'll find helpful in in understanding how to do the labs and towards the end of the course i will.
+26:20.
+spend some lectures discussing some operating system papers um research papers and and some classic.
+26:26.
+一些讲座将专注于对我们的xv6代码进行详细研究。
+25:36.这是一个小型的教学操作系统，我们将讨论它的工作原理，我们将查看代码并展示代码在讲座中的执行情况。
+此外，在许多讲座之前，将有一些作业阅读任务，这本书描述了xv6的运行方式以及其设计原理。
+因此，您应该在课前完成阅读，以便理解课堂上的讨论。
+一些讲座将致力于背景知识，以帮助您完成实验，例如关于C语言的解释，以及我们将使用的RISC 5微处理器的工作原理，这将对您完成实验非常有帮助。
+在课程的最后，我将花一些讲座的时间讨论一些操作系统论文、研究论文和一些经典论文。
+
+ papers in the field which uh you know we'll ask that you read before the lectures and then we'll sort of talk about the.
+26:33.
+papers in during the lecture for all the lectures or almost all the lectures we ask that you submit a question about.
+26:39.
+the reading for the lecture before the actual time.
+26:44.
+of the lecture which many or all of you did for this lecture for which thank you.
+26:49.
+and we will read those questions to help us guide us about what to talk about and.
+26:55.
+we'll try to answer as many of the questions as we can although there's rarely time unfortunately for us to answer all of.
+27:01.
+them the next big part the course of the labs there's a programming lab.
+27:07.
+do almost every week and the point of the labs is to help you.
+27:13.
+get hands-on experience with implementing and using operating systems.
+27:20.
+um the lab that's due next week is actually about using using about.
+27:26.
+writing applications that make the call the system calls we'll be talking about um.
+27:31.
+在这个领域的论文，你知道，在讲座之前我们会要求你阅读这些论文，然后我们会在讲座中讨论。
+对于所有的讲座，或者几乎所有的讲座，我们要求你在实际时间之前提交一个关于讲座阅读的问题。
+对于这个讲座，你们中的许多人或者所有人都做到了，谢谢。
+我们会阅读这些问题，以帮助我们指导我们要谈论什么，并且我们会尽量回答尽可能多的问题，尽管很遗憾我们很少有时间回答所有的问题。
+课程的下一个重要部分是实验室，每周都会有一个编程实验室，实验室的目的是帮助你们获得操作系统的实际经验。
+下周到期的实验室实际上是关于使用我们将要讨论的系统调用编写应用程序的。
+
+ whereas most of those labs after that are involve you either implementing basic operating.
+27:37.
+system features or adding uh kernel extensions to the xv6.
+27:42.
+uh operating system the very last slab and one in which you actually add a network.
+27:48.
+stack and a network driver so you'll be able to connect in over the network to the operating system that you run um.
+27:55.
+you should if you have problems with the labs uh there'll be office hours that the um tas will hold in addition.
+28:03.
+you can post questions to piazza and very often you'll be able to get useful answers.
+28:08.
+from piazza more quickly than from office hours we welcome you discussing the labs.
+28:15.
+talking about the labs talking about how to design the lab solutions but we ask you.
+28:21.
+please do not look at other people's solutions for the labs please all the code you write should be your own and.
+28:26.
+you shouldn't share code or look at other solutions.
+28:32.
+the grading for the course will be mostly determined.
+28:40.
+而大多数实验室之后都涉及到你要么实现基本操作系统功能，要么向xv6添加内核扩展。
+最后一个实验室是你实际上要添加网络堆栈和网络驱动程序，这样你就可以通过网络连接到你运行的操作系统。
+如果你在实验室中遇到问题，会有办公时间供助教提供帮助。
+你也可以在piazza上提问，通常你会更快地得到有用的答案。
+我们欢迎你讨论实验室，讨论如何设计实验室解决方案，但请不要查看其他人的解决方案。
+你编写的所有代码都应该是你自己的，不要分享代码或查看其他解决方案。
+课程的评分主要由此决定。
+
+ from the labs this year so 70 of the grade will be um uh based on.
+28:48.
+whether or not that your lab the lab you submit passes the tests and we for grading we run the same tests.
+28:53.
+um that we supply you so if your lab passes the all the tests that we give you then chances are you get full credit.
+28:59.
+for the lab um 20 of the grade um is going to be from lab check off.
+29:05.
+meetings uh we'll for each of you we'll pick a couple of randomly selected labs.
+29:11.
+and one of the teams will talk to you and ask you questions about your implementation just to make sure that.
+29:17.
+you really understand what's going on so this lab check-offs.
+29:23.
+there's um ten percent remaining there's a question be like a.
+29:30.
+yes or no one or zero type of thing or would they be like could someone get like if they.
+29:38.
+answered some of the questions right but not all the questions right would they get in between so they're great you know i.
+29:45.
+今年的实验室成绩中，70%将基于你提交的实验室是否通过测试以及我们运行的相同测试结果。
+如果你的实验室通过了我们提供的所有测试，那么你有机会得到满分。
+另外，20%的成绩将来自实验室检查会议。
+我们会随机选择几个实验室，然后由其中一个团队与你交流并询问你对实现的理解情况，以确保你真正理解实验的内容。
+剩下的10%将是一个问题，可能是一个是或否、一或零的类型，或者可能是一些问题回答正确但不是全部正确的情况。
+
+ haven't thought this through um there's certainly room for partial credit but.
+29:51.
+it's not a it won't be binary it'll definitely be you can receive partial credit okay.
+29:59.
+all right um the last 10 is going to be driven by the homework and participation during lecture and in.
+30:06.
+piazza there'll be no exam or quizzes.
+30:13.
+this year um and so what that means is that most of the.
+30:18.
+you know ninety percent of the grade is being driven by the lab so.
+30:23.
+you know you should spend a lot of time in the labs make sure that you start early and have.
+30:29.
+enough time to complete them and work out bugs in order to get full credit.
+30:37.
+and you know as a result of that this is going to be a very kind of hands-on software oriented course or any.
+30:44.
+questions about the machinery of the course.
+30:53.
+uh we've got a couple questions in chat so the first is a logistical question.
+30:59.
+我还没有考虑清楚，嗯，肯定有部分分数可以得到，但是不会是二进制的，肯定可以得到部分分数，好的。
+最后10分将由作业和课堂参与驱动，在Piazza上没有考试或测验。
+今年是这样的，这意味着大部分成绩是由实验驱动的，你应该在实验室里花很多时间，确保早点开始并有足够的时间完成它们并解决错误以获得满分。
+因此，这门课程将是一个非常实践性的软件导向课程，有关课程的机制有任何问题吗？我们在聊天中有几个问题，首先是一个后勤问题。
+
+ currently 6s081 isn't listed as usable for the systems concentration in the are there plans added to the list of.
+31:05.
+classes later i think for that because it's not an aags it's an aus.
+31:10.
+it can't be used to fulfill mn requirements as it's not a graduate level class but.
+31:19.
+um and then we have is the only homework to submit questions looking at the calendar that appears to be the case.
+31:28.
+unless i'm forgetting something i think that's the case yes so.
+31:35.
+have uh are there gonna be cutoffs for grades like x percent gets an a.
+31:40.
+y percent gets a b etc no no um.
+31:48.
+you know we're going to try to free student estimate um.
+31:54.
+our impression of how well you've understood the material and assign a grade based on that so.
+32:00.
+there's there's no predetermined cutoffs.
+32:07.
+all right anything else.
+32:13.
+all right just real quick for folks in the chat uh asking about the.
+32:21.
+concentration requirement i'm not a hundred percent certain uh but six soa one is not it's like a.
+目前6s081在系统专业中没有列为可用课程，是否有计划将其添加到列表中呢？31:05。
+我认为以后可能会有这样的计划，因为它不是AAGS课程，而是AUS课程。
+31:10。
+它不能用来满足研究生学位要求，因为它不是研究生水平的课程。
+31:19。
+然后我们只需要提交问题作业，根据日历上的情况看，似乎是这样的。
+31:28。
+除非我忘记了什么，我认为是这样的，是的。
+31:35。
+关于成绩是否会有分数线，比如百分之x的学生获得A，百分之y的学生获得B等等，不，不，我们会尽量根据学生对材料的理解程度来评估，并根据此给出成绩。
+31:48。
+没有预先确定的分数线。
+32:07。
+好的，还有其他问题吗？32:13。
+好的，对于聊天中询问专业要求的人，我不太确定，但是6soa一似乎不是。
+
+ 32:27.
+temporary number before the class gets this official one so it certainly won't be uh listed anywhere if you needed to.
+32:34.
+fulfill a concentration i think your best bet is probably to fill out a petition or to email somebody like katrina.
+32:39.
+lakerts to see what the status is we don't control.
+32:45.
+you know what what classes fill these kind of requirements unfortunately and for what language.
+32:52.
+we'll be using the class will be in c.
+32:58.
+all right um all right for the rest of the lecture i.
+33:04.
+want to uh talk about how um house what system calls look like to applications.
+33:11.
+and you know since the system calls are the interface to the services that the.
+33:16.
+operating system provides it it's actually pretty important what those system files look like what applications expect from system calls.
+33:23.
+and how they behave so it's sort of worth understanding what the interface looks like.
+33:29.
+32:27.
+在班级获得正式号码之前，这是一个临时号码，所以它肯定不会在任何地方列出，如果你需要的话。
+32:34.
+如果你想满足一个专业集中的要求，我认为你最好是填写一份请愿书或给像卡特里娜这样的人发电子邮件。
+32:39.
+lakerts，看看现在的状态是什么，我们无法控制。
+32:45.
+你知道什么课程符合这些要求，不幸的是，还有什么语言。
+32:52.
+我们将使用的课程将是c。
+32:58.
+好的，好的，接下来的讲座我想谈谈应用程序如何看待系统调用。
+33:04.
+由于系统调用是操作系统提供的服务的接口，了解这些系统文件的样子以及应用程序对系统调用的期望是非常重要的。
+33:11.
+以及它们的行为，所以了解接口的样子是值得的。
+33:29.
+ you'll be using the system calls we talk about in the first lab and extending and improving the.
+33:36.
+implementation internal implementation of these system calls in subsequent labs what i'm going to do is show some simple.
+33:43.
+examples of little programs that call system calls and then i'll run.
+33:51.
+them and and next v6 for you um i'm going to run them the xv6 is a it's.
+33:58.
+a unix a simplified unix-like operating system unix is a old operating system sort of at least.
+34:06.
+intellectual basis for many present day operating systems such as linux and os x so it's in very common use.
+34:14.
+xv6 our teaching operating system is much simpler.
+34:19.
+it's sort of inspired by unix and has the same overall structure but is dramatically simpler than any real unix.
+34:26.
+operating system and it's simple enough that hopefully um.
+34:33.
+you know it would be relatively straightforward for you to read all the source code as well as read the book um in a couple.
+34:41.
+你将使用我们在第一个实验中讨论的系统调用，并在后续实验中扩展和改进这些系统调用的内部实现。
+我要做的是展示一些简单的调用系统调用的小程序的示例，然后运行它们。
+下一个v6是为你准备的，xv6是一个简化的类Unix操作系统，Unix是一个旧的操作系统，至少是许多现代操作系统（如Linux和OS X）的知识基础，因此它被广泛使用。
+我们的教学操作系统xv6要简单得多。
+它受到Unix的启发，具有相同的整体结构，但比任何真正的Unix操作系统都要简单得多。
+它足够简单，希望你能相对轻松地阅读所有的源代码，并阅读这本书，大约需要几天的时间。
+
+ of weeks certainly during the semester in order to kind of understand all of what happens inside xv6.
+34:49.
+x86 runs on the risc-5 processor risc-5 microprocessor and this is the.
+34:55.
+same microprocessor that's the focus of recent 6004 so many of you may actually know quite a.
+35:02.
+bit about the risk 5 instruction set in theory you could run xv6 on top of a.
+35:09.
+risk 5 computer and people have done that.
+35:14.
+but we're going to run it under the qmu machine emulator so just to write this.
+35:19.
+down we got our operating system is xv6 it runs on risk 5 microprocessor.
+35:28.
+and not just risk 5 microprocessor but we assume a certain amount of surrounding hardware like.
+35:34.
+memory and a disk and a console interface for us to talk to it um but we.
+35:40.
+actually run under the qmu machine simulator so that which.
+35:49.
+runs under linux so that all of you can actually run xv6 without having to have hardware.
+35:56.
+okay so i'm gonna switch to uh showing you.
+36:10.
+在学期期间的几个星期里，为了更好地理解xv6内部发生的一切，我们需要运行在risc-5处理器上的x86。
+这也是最近6004课程关注的微处理器。
+所以你们中的很多人可能对risc-5指令集有一定的了解。
+理论上，你可以在risc-5计算机上运行xv6，实际上也有人这样做过。
+但是我们将在qmu机器模拟器下运行它。
+所以，我们的操作系统是xv6，它运行在risc-5微处理器上。
+不仅如此，我们还需要一定数量的周边硬件，如内存、磁盘和控制台接口，以便与其进行通信。
+但是我们实际上是在qmu机器模拟器下运行的，而qmu又运行在Linux上，这样你们所有人都可以在没有硬件的情况下运行xv6。
+好的，我要切换到向你展示的模式了。
+
+ code all right so um first thing is.
+36:18.
+i've uh set up xv6 on my laptop um and i'm going to run it and type make.
+36:25.
+qmu which you'll find yourself doing quite a bit during the labs um which compiles xv6 it's written in c.
+36:30.
+so it's compiled with a c compiler maybe i'll make clean for you so you can see the actual.
+36:37.
+compilation and i might type make qmu which has the effect of compiling and building xv6 kernel and.
+36:44.
+all the user processes and then running them under the qmu emulator.
+36:51.
+it takes a moment to run the compiles and now we're up and running xv6 and the.
+36:59.
+dollar sign prompt you see is the shell which is the command line interface to.
+37:05.
+xv6 modeled after the shell on unix which is if you log into an athena workstation.
+37:12.
+it's the it's like the shell that athena shows you.
+37:18.
+x36 is itself tiny and it comes with a small number of utility programs and including for example the ls program.
+37:25.
+代码没问题，首先是36:18。
+我在我的笔记本上设置了xv6，然后我要运行它并输入make命令。
+36:25。
+在实验中，你会经常使用qmu，它用于编译xv6，它是用C语言编写的。
+36:30。
+所以它是用C编译器编译的，也许我会为你执行make clean命令，这样你就可以看到实际的编译过程。
+36:37。
+我可能会输入make qmu命令，它的效果是编译和构建xv6内核以及所有用户进程，然后在qmu模拟器下运行它们。
+36:44。
+运行编译需要一些时间，现在我们已经运行了xv6，看到的是一个美元符号提示符，它是xv6的命令行界面。
+37:05。
+xv6的shell是模仿Unix系统的shell，如果你登录到Athena工作站，你会看到类似的shell。
+37:12。
+xv6本身很小，只带有少量的实用程序，包括ls程序。
+37:25。
+
+ which i'm about to run run ls and it gives me a list of all the files in xv6 of which there are only.
+37:32.
+about two dozen including things like grep and kill and make deer.
+37:38.
+and rn which may be familiar to you as uh as unix utilities.
+37:44.
+okay the first program i'm going to show you to illustrate system calls is um program called copy.
+37:59.
+um here's the source it's just a page.
+38:08.
+and so what you're seeing here is a program that starts on line eight and main there's the sort of convention for c.
+38:14.
+programs it sits in a loop at line 12.
+and over and over again it reads some.
+38:21.
+data as input and on line 13 and then writes the data just read to its output on line 16.
+if i run copy.
+38:32.
+uh in xv6 just waiting to read input if i type some input and reads it and spits.
+38:39.
+it back out to me so it's very simple program just does i out.
+38:45.
+it's written in c as i mentioned um if you're you don't already know c it's worthwhile getting the.
+38:50.
+我即将运行ls命令，它会给我列出xv6中的所有文件，其中只有37:32。
+大约有两打，包括grep、kill和make deer等。
+37:38。
+还有rn，可能对你来说很熟悉，它是Unix实用工具。
+37:44。
+好的，我要展示给你的第一个程序是一个叫做copy的程序，用来说明系统调用。
+37:59。
+这是源代码，只有一页。
+38:08。
+你在这里看到的是一个从第8行开始的程序，main函数是C语言的一种约定。
+38:14。
+程序在第12行处循环执行，一遍又一遍地读取一些数据作为输入，在第13行将刚刚读取的数据写入输出，在第16行。
+如果我在xv6中运行copy，它会等待读取输入，如果我输入一些内容，它会将其读取并输出给我，所以这是一个非常简单的程序，只是做了输入输出。
+38:32。
+它是用C语言编写的，如果你还不了解C语言，值得学习一下。
+38:50。
+
+ um standard c programming language book by kernhan and ritchie and i think there's a more full.
+38:58.
+reference to it on the course website which explains to you in a.
+39:03.
+very straightforward way how to program and see.
+39:08.
+as i mentioned before read and write this this program makes two really three system calls read write.
+39:13.
+and exit are system calls if you look at the call to read on line 13.
+39:20.
+it takes three arguments the first argument is a file descriptor which is really a reference to a previously open.
+39:26.
+file and the shell uh ensures that when a program starts by default its.
+39:33.
+file descriptor 0 is connected to the console input and its file descriptive 1 is connected to the.
+39:40.
+console output and that's why i was able to type to this copy program and see the output.
+39:49.
+of course you know these file descriptors are expected the program expects these file descriptors have been.
+39:54.
+《C程序设计语言》是一本由Kernhan和Ritchie编写的标准C编程语言书籍，我认为还有更详细的参考资料。
+在课程网站上有对它的引用，以非常简单明了的方式解释了如何编程和查看。
+正如我之前提到的，这个程序使用了两个真正的系统调用read和write，还有一个exit。
+如果你看一下第13行的read调用，它有三个参数，第一个参数是文件描述符，实际上是对之前打开的文件的引用。
+Shell确保当程序启动时，默认情况下它的文件描述符0连接到控制台输入，文件描述符1连接到控制台输出，这就是为什么我能够输入这个复制程序并看到输出。
+当然，你知道这些文件描述符是程序所期望的，它期望这些文件描述符已经被...
+ previously opened and set up by the shell for it and this this zero one file descriptors is a pervasive unix.
+40:02.
+convention many many unix programs expect to read and file descriptor one and read file.
+40:08.
+scripture zero and write to file description one um the second argument to read is a.
+40:14.
+pointer to some memory um where the program is asking the operating system to read data.
+40:21.
+into that address and memory so that's the buff argument and line 10 allocates 64 bytes of memory.
+40:28.
+on the stack per read to read into and the third argument to read is the.
+40:33.
+maximum number of bytes that the program wants to read and the size of buff says just 60.
+40:38.
+maximum 64 buckets so the recall reads up to 64 bytes from whatever.
+40:44.
+is connected to file descriptor zero and that was my terminal in this example the return value from read it either.
+40:51.
+repeat it which may return the number of bytes read which would be six in the case of.
+40:58.
+之前由shell打开和设置，这个零一文件描述符是一个普遍的Unix约定。
+许多Unix程序期望读取文件描述符一和读取文件。
+read的第二个参数是一个指向某个内存的指针，程序要求操作系统读取数据到该地址和内存中，这就是buff参数，第10行分配了64字节的内存在堆栈中用于读取，read的第三个参数是程序想要读取的最大字节数，buff的大小只有60，最大64个字节，所以recall从连接到文件描述符零的地方读取最多64个字节，这个例子中read的返回值可能是读取的字节数，如果是六的话。
+
+ me typing xyz y um lead might be reading from a file if it gets to the end of the file there's no.
+41:04.
+more bytes read will return zero i know some other error occurred like.
+41:09.
+the file descriptor doesn't exist read may return minus one and so.
+41:14.
+in many of these examples like on line 16 there i don't my example code doesn't check.
+41:21.
+system call returns for errors um but you should be more careful than me um.
+41:27.
+uh the you should figure out how system calls reflect errors is usually a minus one return value.
+41:33.
+and check all system call returns for errors and if if you want to know what the.
+41:39.
+system call arguments and return values are there's a table and i think chapter 2 in the book that.
+41:45.
+explains all of the xv6 system call arguments and.
+41:50.
+return values the question regarding the resist call what if we set the max read.
+41:57.
+bytes to size of buff to one plus size of buff or bigger so what if we try to read more than the.
+42:02.
+我打字xyz y um lead可能是从文件中读取的，如果到达文件末尾，就没有了。
+41:04.读取的字节数将返回零，我知道还会发生其他错误，比如。
+41:09.文件描述符不存在，读取可能返回负一，所以。
+41:14.在许多这些示例中，比如在第16行，我的示例代码没有检查。
+41:21.系统调用返回的错误，但你应该比我更小心。
+41:27.你应该弄清楚系统调用如何反映错误，通常是返回值为负一。
+41:33.并检查所有系统调用的返回值是否有错误，如果你想知道什么是。
+41:39.系统调用的参数和返回值，有一个表格，我想是在书的第2章中。
+41:45.解释了所有xv6系统调用的参数和。
+41:50.返回值关于resist调用的问题，如果我们将最大读取。
+41:57.字节数设置为buff的大小加一或更大，那么如果我们尝试读取超过。
+42:02.
+ size yeah then if there was 65 bytes to read then the operating.
+42:08.
+system would happily we'll just copy those 65 bytes to the memory that you provide and of.
+42:15.
+course there's something else on the stack up there maybe the return program encounter or an argument or something.
+42:21.
+and so if you pass 65 then you're inviting the colonel to write junk um to an unexpected place in.
+42:28.
+your stack and so that's a bug and it may cause you for him to crash.
+42:34.
+or do something else unexpected um so as a programmer you're you have to be careful here there's nobody.
+42:40.
+writing in c with these kind of interfaces there's it's very very easy to write code that.
+42:47.
+the compiler is happy with and will run but absolutely does the wrong thing.
+42:53.
+so that's too bad but um that's the way it is.
+43:00.
+okay uh one thing to note is that this copy program and indeed the read and write system calls.
+43:06.
+大小，如果有65个字节要读取，那么操作系统会愉快地将这65个字节复制到您提供的内存中。
+当然，栈上可能还有其他东西，比如返回程序遇到的参数或其他东西。
+所以，如果您传递65个字节，那么您就邀请内核将垃圾写入您的栈的意外位置，这是一个错误，可能会导致崩溃或其他意外情况。
+所以作为程序员，您必须小心，使用这种接口编写C代码的人很容易编写出编译器满意并且可以运行但完全错误的代码。
+这太糟糕了，但这就是现实。
+好的，需要注意的一点是，这个复制程序以及读取和写入系统调用。
+
+ they don't care about the format of data they're reading or writing they just read them write and read and.
+43:11.
+write and this copy program just deal with 8-bit bytes with streams of 8-bit bytes.
+43:18.
+how you interpret them is totally up to the application so the application maybe parse these as data records or as c.
+43:26.
+source code or who knows what the operating system um.
+43:32.
+it only thinks in terms of a stream of 8-bit bytes okay so copy assume this code my copy.
+43:39.
+program assumed that the file descriptors were already set up um but we need to we need to have a way.
+43:44.
+to create file descriptors and the most straightforward way to do that is um.
+43:50.
+with the open system call and so here's the source for a program that called open that.
+43:58.
+uses the open system call a question from the chat what do you mean by a stream of bytes.
+44:07.
+i i i just mean that if a file contains a bunch of bytes.
+44:12.
+他们不关心他们读取或写入的数据格式，他们只是读取并写入它们。
+43:11.
+写入和读取。
+这个复制程序只处理8位字节和8位字节流。
+43:18.
+如何解释它们完全取决于应用程序，所以应用程序可能将它们解析为数据记录或C源代码，或者谁知道操作系统。
+43:26.
+它只以8位字节流的形式思考，所以复制假设这段代码。
+43:39.
+程序假设文件描述符已经设置好了，但我们需要一种方法。
+43:44.
+来创建文件描述符，最直接的方法是使用open系统调用，所以这是一个调用open的程序的源代码。
+43:58.
+使用open系统调用。
+聊天室中的一个问题是，什么是字节流？44:07.
+我只是指如果一个文件包含一堆字节。
+44:12.
+ then read and successive yes building a file contains a million bytes if you make a sequence of recalls each.
+44:19.
+for 100 bytes it'll just read the first hundred bytes and then the second hundred bytes and then.
+44:24.
+the third hundred bytes um that's all i mean.
+44:31.
+all right so this program um called open first i'll run it for you what it does is uh opens creates a new.
+44:40.
+file called output.txt and then writes some bytes to it and then it finishes so we.
+44:45.
+don't see anything because it broke data to this file it opened but we can look at this output.txt file that it.
+44:52.
+created and see the ooo that it wrote there so line 11 in the program is.
+45:00.
+makes the open system call gives it a file name output.text and the o underscore stuff um in the second.
+45:08.
+argument to open are flags that tell the open system call implementation in the kernel that we'd.
+45:14.
+like to create a file with its name and that we're going to write it open returns a newly allocated file.
+45:20.
+然后读取并连续是的建立一个包含一百万字节的文件，如果你每次调用都是一个序列。
+44:19.对于100字节，它只会读取前100字节，然后是第二个100字节，然后是。
+44:24.第三个100字节，这就是我想说的。
+44:31.好的，所以这个程序叫做open first，我会为你运行它，它的作用是打开并创建一个新的。
+44:40.名为output.txt的文件，然后向其中写入一些字节，然后结束。
+所以我们。
+44:45.看不到任何东西，因为它将数据写入了这个打开的文件，但我们可以查看它创建的output.txt文件。
+44:52.并看到它写入的ooo。
+所以程序中的第11行。
+45:00.调用了open系统调用，给它一个文件名output.text和第二个参数中的o下划线等等，这些是告诉内核中的open系统调用实现我们想要创建一个带有这个名字的文件，并且我们将要写入它。
+open返回一个新分配的文件。
+45:20.
+ descriptor and the file the script is just a small number it's probably two or three or.
+45:26.
+four or something and then we pass that same file descriptor to write along with a buffer.
+45:32.
+and a number of bytes to write that writes data to the file that the file descriptor refers.
+45:39.
+to what that file descriptor is actually doing is indexing into a little table.
+45:45.
+inside the kernel the kernel maintains state for each process that's running each program that.
+45:50.
+you run and among other things the kernel remembers a table for every running process of index by file.
+45:57.
+descriptors and the table sort of tells the kernel what each file descriptor.
+46:02.
+refers to.
+46:08.
+a critical point is that each process has its own sort of space of file descriptors so uh.
+46:15.
+before running two different processes two different programs and different processes and they both open a.
+46:20.
+file they may actually get the same number back as a file descriptor but because the kernel maintains a.
+46:25.
+描述符和文件脚本只是一个很小的数字，可能是两个或三个或45:26.四个或其他什么，然后我们将相同的文件描述符传递给写入函数，以及一个缓冲区。
+45:32.和要写入的字节数，将数据写入文件描述符所指的文件。
+45:39.实际上，文件描述符正在索引到内核中的一个小表中。
+45:45.内核为每个正在运行的进程维护状态，每个程序都有一个表，由文件描述符索引。
+45:57.描述符和表告诉内核每个文件描述符指的是什么。
+46:02.一个关键点是每个进程都有自己的文件描述符空间，所以在运行两个不同的进程，两个不同的程序和不同的进程，它们都打开一个。
+46:20.文件，它们实际上可能会得到相同的文件描述符作为返回，但因为内核维护了一个。
+46:25.
+ separate file descriptor for each process the same file descriptor number may.
+46:31.
+refer to different files in different processes.
+46:36.
+any questions about open about this little program yeah we got a question in the chat a question from someone not familiar with.
+46:43.
+c uh how are these files being described different from normalc programs is it because we're only using.
+46:49.
+kernel calls i.e couldn't we also open or write a file in python.
+46:59.
+i don't think i understand that it's a c program that's opening and writing a.
+47:08.
+file um okay.
+47:15.
+i think i'm gonna move on um all right so.
+47:23.
+you um ask what actually happens when uh maybe the question is whether someone is doing.
+47:29.
+it in c any different than doing it in python minus the syntax.
+47:34.
+well it's it's not really um.
+47:40.
+there's certainly ways to um python provides nice function calls for.
+47:47.
+opening and doing all these things or opening files for example in reading writing files um they're sort.
+47:54.
+每个进程都有一个单独的文件描述符，相同的文件描述符号可能在不同的进程中指向不同的文件。
+关于这个小程序的open有任何问题吗？是的，在聊天中有一个不熟悉C语言的人提出了一个问题，这些文件描述符与普通的C程序有什么不同，是因为我们只使用内核调用，也就是说我们不能在Python中打开或写入文件吗？我不认为我理解了，这是一个C程序打开和写入文件的问题，好的，我想我要继续了，好的，你问实际上发生了什么，当有人用C做这个，是否与用Python做有什么不同，除了语法之外。
+嗯，实际上并不是真的有很大的区别，Python提供了很好的函数调用来打开和执行所有这些操作，或者打开文件，例如读写文件，它们是一样的。
+
+ of a layer of they're higher somewhat higher level functions typically um not you know.
+47:59.
+pointers to memory for example um and python does more error checking for.
+48:05.
+you but when you open a file in python or write a file in python the.
+48:11.
+python calls you make boil down to system calls just like these.
+48:19.
+is that a good answer.
+48:25.
+i think so all right.
+48:31.
+all right um all right i've been over here talking to the uh.
+48:39.
+xv6s unix like shell and the shells what people often.
+48:44.
+call the command line interface as opposed to some more graphical user.
+48:49.
+interface the shell turns if you haven't used the cell the shell turns out to be.
+48:56.
+a pretty useful interface for things like system management of unix systems.
+49:01.
+it provides a lot of utilities for uh messing around with files and for programming development and for.
+49:07.
+writing scripts to do all these things so you saw me before run i just want to demonstrate a few shell.
+49:14.
+他们更高级的功能通常是一层一层的，不是你知道的。
+47:59.
+例如，指向内存的指针，而Python会进行更多的错误检查。
+48:05.
+但是当你在Python中打开文件或写入文件时，所做的Python调用归结为系统调用，就像这些一样。
+48:19.
+这是一个好答案吗？48:25.
+我认为是的，好吧。
+48:31.
+好吧，我一直在这里和xv6的类Unix shell交谈，人们通常称之为命令行界面，而不是一些更图形化的用户界面。
+48:39.
+如果你还没有使用过shell，那么shell实际上是一个非常有用的接口，用于管理Unix系统。
+49:01.
+它提供了许多实用程序，用于处理文件、编程开发和编写脚本来完成所有这些任务，所以你之前看到我运行的只是想演示一些shell的功能。
+49:14.
+ features ordinarily when you type things um you're telling the shell to run a.
+49:19.
+program so when i type ls what that means is i'm asking the shell to run the program.
+49:25.
+whose name is ls and what that really means is there's a file in the file system called ls that.
+49:31.
+contains some instructions some machine instructions and i'm asking the shell to run.
+49:37.
+the instructions that are in the file called ls run ls now ls what it actually does is.
+49:44.
+get a listing of the files in the current directory and you can see up there on the fourth line that among the other files that.
+49:52.
+ls says exists in this list is a file called ls which is in fact the file containing.
+49:58.
+the instructions i just ran the shell does a few other things for you other than running programs.
+50:05.
+it allows you to redirect io so for example if i say ls greater than out.
+50:11.
+what that means is i'm asking the shell to run the ls command but with its output redirected.
+50:16.
+通常情况下，当您键入内容时，您是在告诉shell运行一个程序。
+所以当我键入ls时，这意味着我在请求shell运行名为ls的程序。
+实际上，这意味着文件系统中有一个名为ls的文件，其中包含一些机器指令，我正在请求shell运行该文件中的指令。
+现在运行ls实际上是获取当前目录中的文件列表，您可以在第四行看到，在其他文件中，ls列出了一个名为ls的文件，实际上这个文件包含了我刚刚运行的指令。
+除了运行程序之外，shell还为您做了一些其他事情。
+它允许您重定向输入输出，例如，如果我说ls > out，这意味着我正在请求shell运行ls命令，但将其输出重定向到out文件中。
+
+ to the file called out and i run ls we don't see any output because the.
+50:22.
+output all went out um now i can out contains a bunch of.
+50:27.
+data um we could the cat command reads a file and displays the contents.
+50:34.
+of the file so i say cat out i'm just going to see now the now this is the saved output.
+50:40.
+of ls you can also run a command like grep and i can give it an argument x and what grep x is the grep command searches for.
+50:47.
+patterns again um if i run grep x it's going to search for lines of.
+50:55.
+input that contain x i can redirect tell the shell to redirect its input from the file out.
+51:01.
+in order to look for instances of x in that saved ls output.
+51:07.
+and turns out there's three files um whose names contain x's.
+51:14.
+um we're going to spend a bunch of time with the shell um it the shell is sort of the most.
+51:21.
+traditional um and fundamental interface to uh to unix because when units was first developed.
+51:28.
+到名为out的文件中运行ls命令，我们看不到任何输出，因为所有的输出都已经输出了。
+现在，out文件包含了一堆数据。
+我们可以使用cat命令读取文件并显示文件的内容。
+所以我输入cat out，我将看到现在这是ls的保存输出。
+你也可以运行像grep这样的命令，我可以给它一个参数x，grep x命令会搜索模式。
+如果我运行grep x，它将搜索包含x的输入行。
+我可以告诉shell从文件out中重定向输入，以便在保存的ls输出中查找x的实例。
+结果发现有三个文件的名称包含x。
+我们将花费很多时间来学习shell，因为shell是Unix最传统和基本的接口。
+因为当Unix首次开发时。
+
+ all there was was simple terminal interfaces like the one we're using and the main use of unix originally was.
+51:35.
+time sharing a bunch of people logging into the same machine much like athena.
+51:40.
+and talking to shells a question about system calls and the.
+51:46.
+compiler how does a compiler handle system calls does assembly generated make a procedure call to some code segment.
+51:53.
+uh defined by the operating system uh there's a special risk five.
+51:58.
+instruction that a program can call that transfers control into the kernel so indeed when you write c code that.
+52:05.
+makes the system called like open or right i mean technically what actually happens is open is a c.
+52:12.
+function in the c library but the instructions in that function.
+52:17.
+are really machine instructions it's not you know open the open function that we're calling.
+52:23.
+isn't a c function it's implemented assembler and the assembly code.
+52:30.
+所有的一切都只是简单的终端界面，就像我们正在使用的这个，Unix最初的主要用途是时间共享，许多人登录到同一台机器上，就像Athena一样，并且与shell进行交互，有一个关于系统调用和编译器的问题，编译器如何处理系统调用，汇编生成的代码段是否会调用某个过程，由操作系统定义的特殊risk五指令，程序可以调用该指令将控制权转移到内核中，所以当你编写像open或write这样的系统调用的c代码时，技术上实际发生的是open是c库中的一个c函数，但是该函数中的指令实际上是机器指令，我们调用的open函数并不是一个c函数，它是用汇编语言实现的。
+
+ consists of this special instruction it's actually called e-call on the risk 5 the special instruction.
+52:35.
+that transfers control into the kernel and then the kernel looks at the process's memory and registers to figure.
+52:42.
+out what the arguments were.
+52:50.
+all right um the next example i want to look at is an example program that calls fork.
+52:58.
+to create a new process um so this is the very simple use of fork.
+53:04.
+at line 12 we're calling fork and what fork does is creates a copy.
+53:10.
+of the memory of instructions and data of the calling process now we have two processes with identical.
+53:16.
+memory fork the fork system called returns in both processes in the original.
+53:23.
+process the fork system call returns the process id which is a.
+53:29.
+an integer greater than zero for in the original process fork returns the process id of the newly.
+53:35.
+created process and in the newly created process fork returns zero so we sort of break even though the.
+53:42.
+由于内容中没有任何指示，所以我将直接将内容翻译成简体中文：
+
+这个特殊指令被称为e-call，它在风险5中使用。
+52:35。
+这个特殊指令将控制权转移到内核，然后内核查看进程的内存和寄存器来确定参数是什么。
+52:42。
+好的，下一个例子我想看一下的是一个调用fork的示例程序。
+52:58。
+用于创建一个新进程的fork的使用非常简单。
+53:04。
+在第12行，我们调用了fork，fork的作用是创建一个调用进程的内存、指令和数据的副本。
+现在我们有两个具有相同内存的进程。
+53:16。
+fork系统调用在两个进程中都返回。
+在原始进程中，fork系统调用返回进程ID，这是一个大于零的整数。
+在新创建的进程中，fork返回零。
+所以我们可以说，fork调用后我们保持了平衡。
+53:42。
+
+ processes of identical memory can break the symmetry of old versus new.
+53:48.
+process by the return value from fork then in line 16 you can see code that.
+53:53.
+checks and says if process id is equal 0 must be the child we must now be running in the child.
+54:00.
+the course is two processes and in the other process in the calling process which is usually called the parent the process id is.
+54:07.
+greater than zero so the child will print child and the parent a good parent.
+54:14.
+and then they'll both exit so when i run for um here's what we get.
+54:22.
+so it may look like garbage but what's actually happening is that after the fork both of these processes.
+54:28.
+are running they're both running at the same time um and qmu is actually emulating a multi.
+54:34.
+a multi-core microprocessor for me so they really are running.
+54:39.
+at the very same time and so when they produce output they're producing each byte of their output at the same time as.
+54:44.
+相同内存的进程可以打破旧与新的对称性。
+53:48。
+通过fork的返回值来处理，然后在第16行可以看到代码。
+53:53。
+检查并说如果进程ID等于0，必须是子进程，我们现在必须在子进程中运行。
+54:00。
+这门课是两个进程，在另一个进程中，在通常被称为父进程的调用进程中，进程ID是。
+54:07。
+大于零，所以子进程将打印child，父进程将打印good parent。
+54:14。
+然后它们都将退出，所以当我运行时，这是我们得到的结果。
+54:22。
+所以它可能看起来像垃圾，但实际上发生的是，在fork之后，这两个进程都在运行，它们同时运行，qmu实际上是在为我模拟一个多核微处理器，所以它们确实在同时运行。
+54:39。
+所以当它们产生输出时，它们的输出每个字节都是同时产生的。
+54:44。
+
+ the other process is producing the corresponding byte of its output so the outputs and the two processes are.
+54:50.
+interleaved um you can see that they're both typing f um they're both going to type fork.
+54:56.
+returned um so you can see the f from both of them and the o for both of them and they are for both them and so on.
+55:02.
+and one of them uh you can see the zero at the end of that first line is in the child fourth return zero um and.
+55:10.
+i'm guessing that the in the parent four return 19 that is the child's.
+55:16.
+process id is nineteen under exit six that basically means the 19th process that was created since boot um and then one.
+55:23.
+of them prints child and you can see the ch ild and interleave with that is the other.
+55:29.
+one pretty parent so this is sort of a silly use of fork but we can see so vividly in.
+55:36.
+this output that it's created two processes that are and both of them are running we're fork returning both processes and.
+55:42.
+另一个进程正在生成其输出的相应字节，因此输出和两个进程是交错的。
+54:50。
+你可以看到它们都在输入f，它们都将输入fork。
+54:56。
+返回的结果是，你可以看到它们两个都有f，它们两个都有o，它们两个都有r，以此类推。
+55:02。
+其中一个，你可以看到第一行末尾的0在子进程的返回值中是零，而在父进程的返回值中是19。
+55:10。
+我猜在父进程的返回值19中，是子进程的进程ID，退出状态是6，这基本上意味着自启动以来创建的第19个进程。
+然后，其中一个打印出child，你可以看到ch ild和它交错的是另一个进程，即父进程。
+这是fork的一个愚蠢用法，但我们可以在这个输出中清楚地看到它创建了两个进程，它们都在运行，fork返回了两个进程。
+55:42。
+
+ they're both running but also note that one printed child and the other parent.
+55:48.
+so it's important that fork returns differently in the two processes.
+55:59.
+the question is the child process as a result of fork always identical to the parent process or could they be.
+56:05.
+different i um.
+56:11.
+in xv6 are identical except for the return value from fork.
+56:17.
+you know so the instructions are the same the data's the same the stack is is the same um and also both.
+56:24.
+processes you know the processes are copies and they both have their own separate.
+56:30.
+address spaces that is you know they both have they both think that their memory starts at zero and.
+56:35.
+goes on up from there um but but it's different it's different.
+56:40.
+different memory um for the two of them in a more sophisticated operating system.
+56:46.
+there are some details which we definitely don't care about um that may occasionally cause parent.
+56:53.
+他们都在运行，但请注意一个打印了子进程，另一个打印了父进程。
+55:48。
+所以fork在这两个进程中返回的结果是不同的很重要。
+55:59。
+问题是作为fork的结果，子进程是否总是与父进程相同，或者它们可能是不同的。
+56:05。
+在xv6中，除了fork的返回值不同之外，子进程和父进程是相同的。
+56:17。
+你知道，指令是相同的，数据也是相同的，堆栈也是相同的，而且两个进程都是副本。
+56:24。
+进程都有自己独立的地址空间，也就是说，它们都认为它们的内存从零开始，并且向上延伸，但是它们的内存是不同的。
+56:35。
+在更复杂的操作系统中，有一些我们肯定不关心的细节，可能会偶尔导致父进程和子进程不同。
+56:53。
+
+ and child to differ but in xv6 they're the same except the return value so the memory is the same in addition.
+57:00.
+the file descriptor table is copied.
+57:05.
+so if the parent had some files open then the child sees the same set of file.
+57:12.
+descriptors although the child is seeing them in a copy of the table of file descriptor.
+57:18.
+information and so we'll see in a moment that it's quite important that.
+57:24.
+fork copies the table of open file descriptors as well as the memory.
+57:31.
+okay so uh port creates a new process but when we run stuff in the shell um.
+57:38.
+the shell indeed creates a new process to run each command that you type but it needs to actually run the command.
+57:44.
+in it so you know if i type ls we need to the shell forks to create a process to run ls but.
+57:51.
+there needs to be some way for this for that new process actually run the instructions from the ls program.
+57:58.
+to load those instructions from the file called lx um and the example program i mean i'll show.
+和子进程在xv6中是不同的，除了返回值外，它们是相同的，所以内存也是相同的。
+57:00.
+文件描述符表被复制。
+57:05.
+所以如果父进程打开了一些文件，那么子进程看到的是相同的一组文件。
+57:12.
+描述符，尽管子进程是在文件描述符表的副本中看到它们的。
+57:18.
+信息，所以我们很快就会看到这一点非常重要。
+57:24.
+fork除了内存之外，还会复制打开文件描述符表。
+57:31.
+好的，所以fork创建了一个新的进程，但是当我们在shell中运行东西时。
+57:38.
+shell确实会为您键入的每个命令创建一个新的进程来运行，但是它需要实际运行该命令。
+57:44.
+在其中，所以如果我键入ls，我们需要shell分叉创建一个进程来运行ls，但是。
+57:51.
+这个新进程需要一些方法来实际运行ls程序中的指令。
+57:58.
+从名为lx的文件中加载这些指令，我会展示一个示例程序。
+
+ 58:04.
+you in a minute uh uses echo echo is a very simple command that.
+58:09.
+just takes whatever arguments you pass to it and writes them into its output and i prepared for you a program called.
+58:15.
+exec.
+58:21.
+um which uh run which makes the exact system.
+58:28.
+called which replaces the calling process with the instructions read from a.
+58:33.
+particular from the file you specify and loads the instructions from that file.
+58:39.
+over the current process sort of discard it discarding its current memory and then starts executing those.
+58:44.
+instructions so the call to exec the system call exec on line 12..
+58:52.
+it's going to have the effect of the operating system loading the instructions from the file called echo into the current process sort of.
+58:59.
+replacing the memory of the current process and then starting to execute uh those instructions and in.
+59:06.
+addition you can pass arguments command line arguments echo exec allows you to pass an array of.
+59:12.
+58:04.
+一分钟内使用echo echo是一个非常简单的命令。
+58:09.
+它只是将您传递给它的任何参数写入其输出中，我为您准备了一个名为exec的程序。
+58:15.
+exec.
+58:21.
+运行它将使用精确的系统。
+58:28.
+被称为which的系统将用从文件中读取的指令替换调用进程，并加载该文件中的指令。
+58:33.
+在当前进程上覆盖它，丢弃其当前内存，然后开始执行这些指令。
+58:44.
+在第12行调用exec系统调用..58:52.
+它的效果是操作系统将从名为echo的文件中加载指令到当前进程中。
+58:59.
+替换当前进程的内存，然后开始执行这些指令，并且可以通过命令行参数传递参数。
+echo exec允许您传递一个数组。
+59:12.
+ command line arguments with just an array of pointers and see line 10 set sets up an array of character.
+59:20.
+pointers which are essentially strings and initializes that array to be.
+59:25.
+to contain the strings echo this is echo and that's equivalent to calling running.
+59:31.
+the act with command with the three arguments this is echo and so when i want exec.
+59:38.
+indeed um i see this output this is echo but even though i ran the exact command the.
+59:44.
+exact program what the exact program does is call it the exact system call to replace itself.
+59:50.
+with echo and so it was really the echo program um producing this output.
+59:58.
+and uh something about the exact system call that's important for us is that um it exec.
+1:00:04.
+preserves the current table of file descriptors so whatever files descriptor zero one two.
+1:00:10.
+etc were referred to before exec they refer to the same thing in this new program whose instructions.
+1:00:18.
+we've loaded another point is ordinarily exec does not return.
+命令行参数只使用一个指针数组，并在第10行设置了一个字符数组。
+59:20.
+这些指针本质上是字符串，并将该数组初始化为包含字符串"this is echo"的数组。
+59:25.
+这相当于调用运行命令"echo this is echo"。
+59:31.
+当我想要执行时，确实看到了这个输出"this is echo"，但即使我运行了完全相同的命令，实际上执行的是一个完全不同的程序。
+59:44.
+这个程序调用了一个精确的系统调用来替换自身，并使用了"echo"程序来产生这个输出。
+59:50.
+对我们来说，关于精确系统调用的一些重要信息是，它保留了当前的文件描述符表，所以在exec之前引用的文件描述符0、1、2等在这个新程序中仍然引用相同的内容。
+1:00:18.
+另外一个要注意的是，exec通常不会返回。
+
+ 1:00:23.
+because exec replaces the current is memory entirely um there's nothing.
+1:00:29.
+for exec to return to so exact you know reads the instructions from that file and executes them and.
+1:00:35.
+then that's it um the only time exec returns is if some error occurred.
+1:00:40.
+that prevented the operating system from running that program for you so for example if the program doesn't.
+1:00:45.
+exist at all since the exec can't find a file called echo for example.
+1:00:51.
+then exec would return negative one to signal that you know something i'm wrong.
+1:00:58.
+it couldn't couldn't find a file so ordinarily exact does not return it only returns if.
+1:01:03.
+um the kernel couldn't actually run the file for you.
+1:01:10.
+questions about exec one question in the chat is what is the last zero for in arc v.
+1:01:18.
+it marks the end of the array um c is so low level that.
+1:01:25.
+there's no the c array scheme doesn't have a way.
+1:01:33.
+1:00:23.
+因为exec完全替换了当前的内存，所以没有什么可以返回给exec的。
+1:00:29.
+exec从文件中读取指令并执行它们。
+1:00:35.
+exec只有在发生错误导致操作系统无法运行程序时才会返回。
+1:00:40.
+例如，如果程序根本不存在，因为exec找不到名为echo的文件。
+1:00:51.
+那么exec会返回负一来表示出现了错误。
+1:00:58.
+它找不到文件，所以通常情况下exec不会返回，只有在内核无法运行文件时才会返回。
+1:01:10.
+关于exec的问题，聊天中有一个问题是arc v中的最后一个零是什么意思。
+1:01:18.
+它标志着数组的结束，C语言是如此底层，以至于C数组方案没有一种方法。
+1:01:25.
+来表示数组的结束。
+1:01:33.
+ for code to find out how long the array is and so to tell the kernel that um.
+1:01:40.
+you know we meant that the array contains echo this is echo and nothing more um we put a zero as the last.
+1:01:48.
+strip as the last pointer each of those strings in double quotes is actually a pointer to some memory that contains.
+1:01:55.
+those bytes that fifth element of the array is a pointer whose value is zero.
+1:02:01.
+the convention is that a pointer whose value is zero or what's called a null pointer um.
+1:02:07.
+sort of signifies nothing um with it you know we're done and so the code in.
+1:02:14.
+the kernel has actually walks through this array until it finds the element whose value is zero.
+1:02:24.
+okay um right so this is how a program can replace itself.
+1:02:29.
+um with another program from a file but actually when we run stuff in the shell like echo abc.
+1:02:35.
+or ls or anything else um we don't want to replace the shell we don't want to have the shell just.
+1:02:41.
+用于找出数组的长度并告诉内核的代码。
+1:01:40.
+你知道我们的意思是数组包含回声这是回声，没有其他的，我们将零作为最后一个。
+1:01:48.
+每个双引号中的字符串实际上是指向包含某些字节的内存的指针。
+1:01:55.
+数组的第五个元素是一个值为零的指针。
+1:02:01.
+约定是指值为零的指针或所谓的空指针。
+1:02:07.
+在某种程度上表示没有什么。
+1:02:14.
+内核中的代码实际上会遍历这个数组，直到找到值为零的元素。
+1:02:24.
+好的，这就是程序如何替换自己的方式。
+1:02:29.
+从文件中用另一个程序替换，但实际上当我们在shell中运行像echo abc这样的东西时。
+1:02:35.
+或者ls或其他任何东西，我们不想替换shell，我们不想让shell只是。
+1:02:41.
+ call exact um because that would replace the shell with the echo command and then when echo exited.
+1:02:48.
+that would be it you know we don't want echo to replace the shell so what the shell actually does is fork and.
+1:02:54.
+then the child calls it zac and that's an extremely common unix idiom.
+1:03:00.
+these programs that um want to run a program but regain control what they do is call.
+1:03:05.
+fork and have the child call exact so here's a simple example this fork exact program.
+1:03:14.
+so in this program um called fork on line 12 and the child started line 14 we call.
+1:03:19.
+exec much like before the child process um.
+1:03:24.
+has to replace itself with the echo command and echo does this thing and then exits.
+1:03:31.
+and then the parent process regains control because um when the fork returns.
+1:03:37.
+the greater than zero value in the parent process so the parent process then continues to execute at 19 and unix provides a weight system called.
+1:03:45.
+呼叫确切的um，因为那会用echo命令替换shell，然后当echo退出时。
+1:02:48.那就是它，你知道我们不希望echo替换shell，所以shell实际上是fork然后。
+1:02:54.然后子进程调用它zac，这是一个非常常见的Unix习语。
+1:03:00.这些程序想要运行一个程序但又重新获得控制权，他们所做的是调用。
+1:03:05.fork并让子进程调用exact，这里有一个简单的例子，这个fork exact程序。
+1:03:14.所以在这个程序中，我们在第12行调用了fork，子进程在第14行开始，我们调用。
+1:03:19.exec就像之前一样，子进程必须用echo命令替换自己，echo做了这个事情然后退出。
+1:03:31.然后父进程重新获得控制权，因为当fork返回时。
+1:03:37.在父进程中返回大于零的值，所以父进程继续执行第19行，Unix提供了一个称为weight的系统。
+1:03:45.
+ line 20 for a process to wait for one of the for a child that it created with four because.
+1:03:51.
+when i run a command um here on the command line we want uh we want the shell to wait.
+1:03:59.
+for the command to finish before it prints the prop again before it prints this dollar sign prompt.
+1:04:04.
+asking me for more input and so it's the wait system call that allows the process to wait for.
+1:04:10.
+any of its children to return and this status argument is a.
+1:04:15.
+way for an exiting child to communicate one integer.
+1:04:22.
+32-bit value from the exiting child um to the waiting parent so in line 17 that.
+1:04:28.
+argument to exit that one that's the argument to exit the operating system.
+1:04:34.
+passes that one from the exiting child um to the call to wait at line 20.
+so.
+1:04:39.
+weight that the ampersand and weight is passing the address of the status.
+1:04:45.
+variable to the kernel the colonel fills in that address with the.
+1:04:50.
+第20行用于进程等待其创建的四个子进程之一完成。
+1:03:51.
+当我在命令行上运行一个命令时，我们希望shell在打印下一个提示符之前等待命令完成。
+1:03:59.
+这就是等待系统调用允许进程等待其任何子进程返回的原因，而这个status参数是一个。
+1:04:10.
+退出的子进程与等待的父进程之间进行通信的方式，它是一个整数。
+1:04:22.
+32位值从退出的子进程传递给在第20行调用wait的参数。
+所以。
+1:04:39.
+weight的&符号和weight将status变量的地址传递给内核，内核用该地址填充。
+1:04:50.
+ child's argument to exit and the convention in unix is that if a program completes successfully it.
+1:04:57.
+exit with exits with state of zero but if if it encountered an error.
+1:05:02.
+as it lines 17 um then the unix convention is that you pass one to exit and so if you care the.
+1:05:09.
+calling process can look at the status from weight and decide whether the.
+1:05:15.
+child completed successfully enough professor morris quick question yes.
+1:05:21.
+about the exact call on 9 15.
+uh we mentioned not a bit ago that exec will completely go.
+1:05:29.
+into the echo program and not return to fork exec so.
+1:05:34.
+would it ever reach lines 16 and 17 well not for this exact code because.
+1:05:41.
+there happens to be a program called echo but but you know if i modified that code here let me let.
+1:05:46.
+me just modify this code for you okay so first let me just run fork exact.
+1:05:52.
+right it actually does execute echo with those arguments we see the output this is echo.
+1:05:59.
+孩子的争论是退出和Unix中的约定是，如果程序成功完成，则退出状态为零，但如果遇到错误，则退出状态为一。
+在第17行遇到错误时，Unix的约定是传递1给退出，所以如果你在乎的话，调用进程可以查看来自wait的状态并决定子进程是否成功完成。
+莫里斯教授，有一个问题，关于9点15分的确切调用。
+我们刚才提到exec将完全进入echo程序并且不会返回到fork exec，所以它会达到第16和17行吗？对于这段代码来说不会，因为恰好有一个叫做echo的程序，但是你知道如果我修改了这段代码，让我为你修改一下这段代码，好吗？首先让我运行fork exec，对吗？它实际上会执行带有这些参数的echo，我们看到输出这是echo。
+
+ and we see the child exited to show that uh echo exited successfully and the parent.
+1:06:05.
+waited for it let me just modify the program for you um instead of echo i'm going to run some.
+1:06:12.
+command that doesn't exist i actually have to exit out of uh qmu.
+1:06:19.
+with control a x and then rebuild the whole thing in order to recompile my modified four gigs and i run four.
+1:06:26.
+pixel yen after modifying and compiling it and this time because the program we're asking to.
+1:06:33.
+actually the program we're asking to execute doesn't exist.
+1:06:39.
+exec does return we see the exec failed output and the exit one you see the one there.
+1:06:46.
+is communicated back to the parent which says the child exited the status one.
+1:06:52.
+so exec returns back to the calling function when something went wrong yes.
+1:07:12.
+okay all right um something that uh something to note here that.
+1:07:18.
+actually i think many of you have already noted is that uh this is a common idiom here this fork.
+1:07:24.
+我们看到孩子兴奋地展示，嗯，回声成功退出了，而父进程则等待它。
+1:06:05.
+让我为您修改一下程序，嗯，不再使用回声，而是运行一些不存在的命令。
+我实际上必须通过控制a x退出qmu，然后重新构建整个东西，以便重新编译我修改过的四个gigs，然后我运行四个像素。
+1:06:26.
+在修改和编译后，这次因为我们要求执行的程序不存在，exec返回，我们看到exec失败的输出和退出码为1的输出。
+1:06:46.
+所以当出现问题时，exec会返回给调用函数。
+是的。
+1:07:12.
+好的，没问题，嗯，这里有一点需要注意的是，我认为你们中的许多人已经注意到了，这是一个常见的习惯用法，即fork。
+1:07:24.
+ followed by an exec and a child um and it's potentially a bit wasteful the fork.
+1:07:29.
+copies the entire parent process but exec throws away all that copied memory and.
+1:07:35.
+replaces it with whatever is in the um file that you're running so you know if.
+1:07:43.
+you're worried about this kind of stuff the copy implied by the fork.
+1:07:48.
+is in some sense mostly wasted because all that copied memory is just thrown away and replaced by the.
+1:07:53.
+exact um and this effects actually would be significant for big programs if you have a multi-gigabyte program that calls.
+1:08:00.
+fork uh and it did indeed copy all the memory would actually uh take a fair fraction of a second.
+1:08:05.
+perhaps to do the copy which could be a problem um.
+1:08:13.
+but later in the course you'll actually implement some optimizations in particular something called.
+1:08:18.
+copy on right fork which will eliminate almost all of the apparent inefficiency of fork.
+1:08:25.
+跟着一个exec和一个子进程，嗯，fork可能有点浪费。
+1:07:29.
+复制整个父进程，但是exec会丢弃所有复制的内存，并且1:07:35.
+用运行的um文件中的内容替换它，所以你知道如果你担心这种情况，fork隐含的复制1:07:48.
+在某种意义上大部分都是浪费的，因为所有复制的内存都被丢弃并被1:07:53.
+精确的um替换，对于大型程序来说，这个效果实际上是显著的，如果你有一个多GB的程序调用1:08:00.
+fork，如果确实复制了所有的内存，实际上需要相当一部分时间，也许需要几秒钟1:08:05.
+来进行复制，这可能是一个问题，但是在课程的后面，你将实际上实现一些优化，特别是一种叫做1:08:18.
+右拷贝fork的东西，它将消除几乎所有fork的表面上的低效率。
+1:08:25.
+ copying only to have exact throw away the copy it turns out with a bunch of tricks involving a virtual memory system.
+1:08:33.
+you can build a fork that's lazy about the copy and that doesn't do in the common case of fork immediately followed.
+1:08:40.
+by exact um where you don't actually have to do the copy because the child doesn't actually use most of the memory.
+1:08:46.
+um i think you'll find that's a fun and interesting lab question from chat why does the parent.
+1:08:53.
+process print parent waiting completely before the child calls exec.
+1:09:00.
+it's just chance the is it that you know the.
+1:09:08.
+the observation is that um you know uh it could be that the parent's output.
+1:09:15.
+could be interleaved with the child's output in the same area that we saw before with the simpler fork example.
+1:09:22.
+it just happens not to be there's no guarantee that this is the output we would see in fact we shouldn't be surprised if we.
+1:09:29.
+复制只是为了确保精确，然后丢弃副本，结果却涉及到一个虚拟内存系统的一堆技巧。
+1:08:33。
+你可以构建一个关于复制懒惰的分叉，不会在分叉后立即执行。
+1:08:40。
+通过确切的方式，你实际上不需要进行复制，因为子进程实际上并不使用大部分内存。
+1:08:46。
+我认为你会发现这是一个有趣而有趣的实验问题，来自聊天室，为什么父进程在子进程调用exec之前完全打印父进程等待。
+1:09:00。
+这只是偶然的机会，你知道吗。
+1:09:08。
+观察是，你知道，父进程的输出可能与子进程的输出在我们之前看到的更简单的分叉示例中的同一区域交错。
+1:09:22。
+它只是碰巧不在那里，没有保证这是我们会看到的输出，事实上，如果我们看到了，我们不应该感到惊讶。
+1:09:29。
+
+ saw the lines of the output in the other order or interleaved i suspect what's going on.
+1:09:35.
+is that it takes a bit of time and effort now the exact system calls a little bit.
+1:09:41.
+expensive because it has to load all those instructions to access the file system and access the disk and.
+1:09:46.
+read the contents of a file called echo off the disk into memory after.
+1:09:51.
+allocating some memory and that even after freeing some memory from the old process so there's quite a bit of machinery.
+1:09:57.
+involved in the exact system call and apparently that takes long enough.
+1:10:03.
+that the parent can complete producing the output before the exec has finished and started running echo.
+1:10:10.
+does that make sense i have another question is it convention.
+1:10:17.
+that the child can't wait for the parent there's not a way unix doesn't have a.
+1:10:25.
+way for the child there's no straightforward way for the child to wait for the parent.
+1:10:31.
+看到输出的行以其他顺序或交错的方式，我怀疑发生了什么。
+1:09:35.
+这需要一些时间和精力，现在确切的系统调用有点。
+1:09:41.
+很昂贵，因为它必须加载所有那些指令来访问文件系统和访问磁盘和。
+1:09:46.
+将一个名为echo的文件的内容从磁盘读入内存。
+1:09:51.
+分配一些内存，即使从旧进程中释放了一些内存，所以有相当多的机制。
+1:09:57.
+参与到确切的系统调用中，显然这需要足够长的时间。
+1:10:03.
+在exec完成并开始运行echo之前，父进程可以完成生成输出。
+1:10:10.
+这有道理吗？我还有另一个问题，这是惯例吗？1:10:17.
+子进程不能等待父进程，Unix没有这样的方式。
+1:10:25.
+子进程没有直接等待父进程的方法。
+1:10:31.
+ the weight system call is sort of the only mechanism available well the.
+1:10:37.
+weight system call waits for your children and that's it.
+1:10:43.
+and so what weight is what weight does is um if you have any children and one of them.
+1:10:49.
+has already exited or does exit then weight will return but you know if you don't have any.
+1:10:55.
+children say because you are because in this simple case.
+1:11:00.
+um whether it was just a parent and a child if the child called weight the child.
+1:11:07.
+doesn't have any children and in that case weight just returns immediately with a minus one error return saying this process doesn't.
+1:11:13.
+have any children anyway the short answer is there's no way for a child to wait for its parent to exit.
+1:11:22.
+another question when we say the child copies all the memory from the parent process what i what.
+1:11:27.
+exactly do we refer to by that i thought the child is going to divide define the variables again.
+1:11:37.
+um well when you compile us you know um.
+1:11:45.
+权重系统调用是唯一可用的机制，权重系统调用等待您的子进程，就是这样。
+如果您有任何子进程，并且其中一个已经退出或退出，则权重将返回，但是如果您没有任何子进程，因为在这种简单情况下，权重将立即返回一个负一的错误返回，表示此进程没有任何子进程。
+简而言之，子进程没有办法等待其父进程退出。
+另一个问题是，当我们说子进程从父进程复制所有内存时，我们指的是什么？我以为子进程将重新定义变量。
+嗯，当您编译时，您知道。
+
+ after compilation your c program is just a bunch of instructions in memory that live in ram.
+1:11:53.
+um and so those can be copied because they're just bytes living in ram.
+1:11:59.
+those can be copied somewhere else um and with appropriate tricks having to.
+1:12:04.
+do with setting up a sort of virtual memory mappings um.
+1:12:09.
+and make the mappings look the same with the child as an apparent you can just copy the parent's memory image to the child.
+1:12:15.
+and execute it in the child.
+1:12:20.
+i mean even though we're looking at c programs you should think of them as just a bunch of us machine instructions um.
+1:12:27.
+which are just bytes in memory that can be copied if a parent has multiple children would.
+1:12:33.
+wait just return as soon as the first child finishes meaning that there could be some more interleaving with the parent and.
+1:12:38.
+unfinished children would there need to be multiple separate weights to ensure all children finish.
+1:12:44.
+编译后，您的C程序只是存储在RAM中的一堆指令。
+1:11:53.
+这些指令可以被复制，因为它们只是存储在RAM中的字节。
+1:11:59.
+这些指令可以被复制到其他地方，并通过适当的技巧设置虚拟内存映射，使得子进程的内存映像与父进程相同。
+1:12:04.
+然后在子进程中执行。
+1:12:20.
+我的意思是，即使我们在看C程序，您也应该将其视为一堆机器指令，它们只是存储在内存中的字节。
+1:12:27.
+如果父进程有多个子进程，那么wait函数将在第一个子进程完成后立即返回，这意味着父进程和未完成的子进程之间可能会有一些交错。
+1:12:38.
+需要多个独立的wait函数来确保所有子进程都完成。
+1:12:44.
+ yes if you call forth more than one if a sin if a given process calls for twice um.
+1:12:52.
+then and it wants to wait for both children it has to call weight twice and each call to wait will return.
+1:12:58.
+as soon as one of the children exits so you don't when weight returns you don't necessarily know which.
+1:13:04.
+child is exited the weight returns the child's process id as its return value.
+1:13:09.
+so you can tell after weight returns you know which one it was that exited.
+1:13:22.
+as a final example um i'd like to show.
+1:13:28.
+how all of these facilities combine to implement i o redirection so.
+1:13:37.
+if you remember the shell provides us with this handy syntax and i can say echo hello greater than.
+1:13:43.
+out and that runs the echo command that argument sending its.
+1:13:48.
+first that sends this output to the file out and we look it out or better yet run the cap command with.
+1:13:57.
+its input connected from the out file we can see that saved output from the.
+1:14:02.
+是的，如果你调用超过一个，如果一个给定的过程调用两次um。
+1:12:52.然后，它想要等待两个孩子，它必须调用两次wait，每次调用wait都会返回。
+1:12:58.只要其中一个孩子退出，所以当wait返回时，你不一定知道是哪个。
+1:13:04.孩子已经退出了，wait返回孩子的进程ID作为返回值。
+1:13:09.所以在wait返回后，你可以知道是哪个孩子退出了。
+1:13:22.作为最后一个例子，我想展示一下。
+1:13:28.如何将所有这些功能结合起来实现I/O重定向。
+所以。
+1:13:37.如果你记得，shell为我们提供了这个方便的语法，我可以说echo hello greater than。
+1:13:43.输出，这将运行echo命令，将其参数发送到。
+1:13:48.首先将输出发送到out文件，我们查看out文件，或者更好地运行cap命令，将其输入连接到out文件，我们可以看到保存的输出来自。
+1:14:02.
+ echo command um the way the shell sets this up.
+1:14:09.
+is as follows um it uh the shell.
+1:14:17.
+first forks like on line 13 and then in the child the shell changes the way.
+1:14:23.
+the file descriptors are set up so that the child's file descriptor one which by convention.
+1:14:30.
+most programs use for their output the shell changes the child's file.
+1:14:36.
+descriptor to one to refer to this output file and then runs whatever command.
+1:14:42.
+you wanted and that leaves the parent shells file descriptor one unchanged so this idiom of forking and.
+1:14:49.
+in the child um changing around the file descriptors is the usual way in.
+1:14:55.
+to sort of redirect input and output for a command that you run but not affect.
+1:15:00.
+the input and output for the calling program because we don't want to redirect the shell's output.
+1:15:07.
+we only want to redirect the child programs output anyway the way this works we call fork.
+1:15:14.
+echo命令的方式是通过shell设置的。
+1:14:09.首先，在第13行进行分叉，然后在子进程中，shell更改了文件描述符的设置方式。
+1:14:23.子进程的文件描述符1（按照惯例，大多数程序用于输出）被shell更改为指向此输出文件，然后运行所需的命令。
+这样做后，父shell的文件描述符1保持不变。
+因此，这种分叉和在子进程中更改文件描述符的习惯用法是在运行命令时重定向输入和输出的常用方式，但不会影响调用程序的输入和输出，因为我们不希望重定向shell的输出。
+1:15:07.我们只想重定向子程序的输出。
+这种方式的工作原理是调用fork。
+1:15:14.
+ in the usual way line 15 only executes in the child the reason for the close one.
+1:15:20.
+on line 15 is that in this program we're redirecting just the output of the.
+1:15:25.
+echo command so when i run this redirect program produces no output itself but it ran.
+1:15:32.
+echo with this output directed to output.txt so when i look at output.txt.
+1:15:39.
+i see this expected output the reason for the close one on line 15.
+1:15:44.
+is that we want one sort of conventional output file descriptor to refer to something else it.
+1:15:52.
+happens so we don't from the child we don't want to use the file descriptor one that the shell had that's connected to the.
+1:15:58.
+console um the call to open on line 16 is guaranteed to return one because.
+1:16:04.
+the semantics of open are that open returns the lowest file descriptor number that's not.
+1:16:10.
+currently in use um in the calling process since we just closed one.
+1:16:15.
+and file descriptor 0 is still connected to the console that mean.
+1:16:20.
+通常情况下，第15行只在子进程中执行，关闭的原因是为了只重定向输出。
+在这个程序中，我们只重定向了echo命令的输出，所以当我运行这个重定向程序时，它本身不会产生任何输出，但是它会运行echo命令，并将输出重定向到output.txt，所以当我查看output.txt时，我会看到这个预期的输出。
+第15行关闭的原因是我们希望一种常规的输出文件描述符引用其他内容，这样我们就不需要使用与shell连接到控制台的文件描述符1。
+第16行的open调用保证返回一个文件描述符，因为open的语义是返回当前未使用的最低文件描述符号，由于我们刚刚关闭了一个文件描述符1，并且文件描述符0仍然连接到控制台，这意味着open调用将返回1。
+
+ um open is guaranteed to return one so after the.
+1:16:25.
+line 16 file descriptor 1 is connected to this file when we exec echo echo just writes its.
+1:16:32.
+output to file scripter one um and now it goes to this file and the cool thing about this is echo had no idea what's going on.
+1:16:38.
+echo doesn't need to know about io redirection at all it just writes its output to file descriptor one.
+1:16:45.
+only the shell knows about io redirection.
+1:16:52.
+this example also illustrates the sort of kind of neatness of the separation.
+1:16:58.
+between fork and exec the fact that fork and exact are separate system calls.
+1:17:04.
+separate uh functions means that there's a period of time but.
+1:17:09.
+in the child between the fork between fork returns and the child and exact in which.
+1:17:14.
+we're still running the calling processes instructions so the calling process even though it's running.
+1:17:21.
+um open保证返回一个值，所以在第16行文件描述符1连接到这个文件时，我们执行echo echo只是将其输出写入文件scripter one，现在它进入了这个文件，这个很酷的事情是echo根本不知道发生了什么，echo根本不需要知道io重定向，它只是将其输出写入文件描述符1，只有shell知道io重定向，这个例子还说明了fork和exec之间的分离的一种有趣的方式，fork和exec是分离的系统调用，分离的函数意味着在子进程中在fork返回和子进程执行之间有一段时间，在这段时间内，我们仍然在运行调用进程的指令，所以即使调用进程正在运行。
+
+ even though its instructions are running in the child it's still the calling processes instructions that are executing.
+1:17:26.
+and so the calling process is still able to change things um still in control up until line.
+1:17:32.
+19 and this sort of interval between fork and sec uh gives the shell a chance to.
+1:17:38.
+change what the file descriptors refer to for example any questions about this redirect.
+1:17:45.
+example.
+1:17:55.
+all right um got out of time.
+1:18:00.
+i'll just wrap up we looked at unix's a bunch of the interfaces to unix's i o.
+1:18:07.
+and process abstractions a thing to take away from this is that the interfaces are relatively simple.
+1:18:12.
+you just pass integers like file descriptors and process ids back and forth across.
+1:18:17.
+as arguments to these system calls um but sort of all the functionality inside the.
+1:18:24.
+interfaces is relatively sophisticated like creating new processes and copying the current process and.
+1:18:30.
+即使它的指令在子进程中运行，仍然是调用进程的指令在执行。
+1:17:26。
+因此，调用进程仍然能够改变事物，直到第19行。
+1:17:32。
+而fork和sec之间的这种间隔给了shell一个机会来改变文件描述符的引用，例如关于这个重定向的任何问题。
+1:17:38。
+例如。
+1:17:55。
+好的，时间到了。
+1:18:00。
+我就总结一下，我们看了Unix的一些接口和进程抽象，从中可以得出的结论是，这些接口相对简单。
+1:18:07。
+你只需要传递整数，如文件描述符和进程ID，作为这些系统调用的参数来回传递。
+1:18:12。
+但是接口内部的功能相对复杂，比如创建新进程和复制当前进程。
+1:18:30。
+
+ furthermore i showed some examples of ways in which the abstractions though individually simple.
+1:18:36.
+combine in useful ways for example to produce iod direction.
+1:18:43.
+there's a lab due at the end of next week and that lab involves writing more simple utilities like the ones i.
+1:18:50.
+showed that use the system calls that we discussed so have fun with that lab and i'll see.
+1:18:56.
+you in class next week and that's it.
+1:19:15.
+since i'm the one recording um how do i end this first time recording is in lecture i.
+1:19:20.
+think we exit okay and nothing special i can just exit and it'll be saved somewhere.
+1:19:26.
+yes awesome.
+1:19:32.
+and zoom will create some directory and stick the vowel in that directory.
+1:19:38.
+there's also office hours right after this right yes perfect okay.
+1:19:48.
+cool all right all right thank you and i'll see you next week thanks.
+此外，我还展示了一些抽象的例子，这些抽象虽然单独简单，但可以以有用的方式组合在一起，例如产生iod方向。
+下周末有一个实验室任务，该实验室任务涉及编写更多类似我展示的使用我们讨论过的系统调用的简单实用程序，祝你在实验室任务中玩得开心，下周上课见。
+因为我是录制者，所以我该如何结束这个首次录制呢？我想我们可以退出，没什么特别的，我只需退出，它会被保存在某个地方。
+是的，太棒了。
+Zoom会创建一个目录，并将文件放在该目录中。
+此外，此次讲座后还有办公时间，是的，非常完美。
+好的，谢谢，下周见。
+谢谢。
+

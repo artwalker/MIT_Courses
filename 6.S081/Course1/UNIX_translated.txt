@@ -1,0 +1,1729 @@
+0:15.
+the usual way to get a large computer.
+0:17.
+application developed involves a big.
+0:21.
+team of people working in close.
+0:23.
+coordination most of the time this works.
+0:27.
+surprisingly well but it does have its.
+0:29.
+problems and large projects tend to get.
+0:34.
+done poorly they take a long time they.
+0:38.
+consume an astonishing amount of money.
+0:40.
+and in many cases the individual team.
+0:43.
+members are dissatisfied so everybody in.
+0:46.
+the computing business is constantly.
+0:48.
+searching for ways to do a better job of.
+0:51.
+developing computer applications there.
+0:55.
+aren't likely to be any final answers.
+0:57.
+both because the problems are hard and.
+1:00.
+because as we find solutions we try even.
+1:02.
+more ambitious objectives but there are.
+1:05.
+some things that can be done to make.
+1:07.
+life easier for everybody on a large.
+1:09.
+programming project a good programming.
+1:12.
+environment helps a lot and in the next.
+1:15.
+few minutes we're going to show you some.
+1:18.
+0:15。
+获取大型计算机的常规方法。
+0:17。
+开发的应用程序涉及大规模的0:21。
+团队密切合作的人。
+0:23。
+协调大部分时间这样做。
+0:27。
+出奇的好，但它确实有它的。
+0:29。
+问题和大型项目往往会。
+0:34。
+做得很差，他们需要很长时间。
+0:38。
+消耗了惊人的资金。
+0:40。
+在许多情况下，个人团队。
+0:43。
+成员不满意，所以每个人都在。
+0:46。
+计算机业务中不断寻找方法来更好地完成工作。
+0:48。
+开发计算机应用程序。
+那里。
+0:55。
+不太可能有任何最终答案。
+0:57。
+因为问题很难。
+1:00。
+因为我们找到解决方案，我们尝试更高的目标。
+1:02。
+但有。
+1:05。
+一些事情可以做到。
+1:07。
+为大型项目上的每个人简化生活。
+1:09。
+编程项目一个好的编程。
+1:12。
+环境帮助很多，在接下来的几分钟里，我们将向您展示一些。
+1:15。
+
+ of the properties of the UNIX operating.
+1:19.
+system that make it a good programming.
+1:22.
+environment for many purposes in Bell.
+Software.
+1:25.
+Labs as in many industries almost.
+1:28.
+everyone has some kind of involvement.
+1:30.
+with software either they are actually.
+1:32.
+producing software and that is their job.
+1:34.
+or they are impacted by software or they.
+1:38.
+use software fact that Bell Labs about.
+1:41.
+50% of the people are actually producing.
+1:43.
+software and everyone else has some kind.
+1:45.
+of involvement with it.
+1:46.
+in fact that's one of our worse problems.
+1:49.
+today there is a crying need for useful.
+1:52.
+software to do effective jobs we just do.
+1:55.
+not have enough people for write all.
+1:57.
+that software keeping large amounts of.
+2:00.
+software working and keeping it working.
+2:02.
+in the face of change is a big job takes.
+2:04.
+a lot of skilled people to do this now.
+2:07.
+software is different from hardware when.
+2:10.
+you build hardware and send it out.
+2:13.
+UNIX操作系统的一些特性使其成为一个良好的编程环境，适用于贝尔实验室以及许多行业中的许多目的。
+几乎每个人都与软件有某种形式的接触，无论是实际上生产软件并将其作为工作的人，还是受软件影响或使用软件的人。
+事实上，贝尔实验室约有50%的人实际上在生产软件，其他人也与之有某种形式的接触。
+事实上，这是我们今天面临的一个严重问题之一。
+我们迫切需要有用的软件来完成有效的工作，但我们没有足够的人来编写所有这些软件。
+在面对变化时，保持大量软件的工作并使其保持工作状态是一项艰巨的任务，需要许多熟练的人来完成。
+现在，软件与硬件不同，当您构建硬件并将其发送出去时。
+
+ you may have to fix it because it breaks.
+2:15.
+but you don't demand for example that.
+2:18.
+your radio suddenly turn into a.
+2:20.
+television and you don't demand that a.
+2:22.
+piece of hardware suddenly do a.
+2:24.
+completely different function but people.
+2:26.
+do that of software all.
+2:27.
+the time there's a continual demand for.
+2:30.
+changes enhancements new features that.
+2:34.
+people find necessary once they get used.
+2:36.
+to a system in other words we put the.
+2:39.
+system out there people get used to it.
+2:41.
+their jobs change they come back with.
+2:43.
+more demands for different sorts of.
+2:45.
+features in the system the result is.
+2:48.
+there's no way to get perfect.
+2:50.
+requirements in the first place and that.
+2:52.
+means that we have to build the software.
+2:54.
+to be very changed tolerant because we.
+2:57.
+do not want to throw the software away.
+2:59.
+the year after we wrote it there are a.
+3:01.
+couple ways to do that one is to make.
+3:04.
+the software fairly clear and easy to.
+3:08.
+你可能需要修复它，因为它会出错。
+2:15。
+但你不要求例如。
+2:18。
+你的收音机突然变成了一个。
+2:20。
+电视，你不要求一个。
+2:22。
+硬件突然执行完全不同的功能，但人们。
+2:24。
+在软件方面一直这样做。
+2:26。
+有不断的需求。
+2:27。
+变化增强新功能。
+2:30。
+人们发现这些是必要的，一旦他们习惯了一个系统。
+2:36。
+换句话说，我们把系统放在那里，人们习惯了它。
+2:41。
+他们的工作发生变化，他们带着更多对系统不同特性的需求回来。
+2:45。
+结果是，没有办法在一开始就得到完美的需求。
+2:50。
+这意味着我们必须构建具有很强的变化容忍性的软件，因为我们不想在写完软件后的一年就把它丢掉。
+2:59。
+有几种方法可以做到这一点，其中一种是使软件相对清晰和易于理解。
+3:08。
+
+ read and understand and change and you.
+3:10.
+do that with some of the current popular.
+3:12.
+structured programming techniques.
+3:14.
+another way is to write many many small.
+3:18.
+modules of code that way when you have a.
+3:20.
+change perhaps you only throw out a few.
+3:23.
+small modules or make changes in a few.
+3:25.
+modules rather than in thousands and.
+3:28.
+thousands of lines of code what we.
+3:30.
+should be doing in the computing.
+3:32.
+business is trying to raise the level at.
+3:34.
+which we work so that a programmer can.
+3:37.
+write a few lines of code that turn into.
+3:40.
+many many instructions in the machine.
+3:42.
+that way when changes need to be made.
+3:44.
+one just changes a few lines of code.
+3:46.
+rather than thousands and thousands of.
+3:49.
+them in the mythical man-month.
+3:52.
+fred brooks estimates that it took 5,000.
+3:54.
+staff years of effort to produce the.
+3:56.
+operating system for IBM's 360 series.
+3:59.
+computers clearly nobody is going to do.
+4:02.
+阅读并理解并改变和你。
+3:10。
+用一些当前流行的方法来做到这一点。
+3:12。
+结构化编程技术。
+3:14。
+另一种方法是编写许多小模块的代码，这样当你有一个变化时，你只需要丢弃一些小模块或在几个模块中进行更改，而不是在成千上万行的代码中进行更改。
+3:18。
+在计算业务中，我们应该做的是提高我们工作的水平，这样程序员可以编写几行代码，然后转化为机器中的许多指令。
+3:42。
+这样当需要进行更改时，只需更改几行代码，而不是成千上万行的代码。
+3:46。
+在《神话般的人月》中，弗雷德·布鲁克斯估计，为了为IBM的360系列计算机开发操作系统，需要5000个员工年的工作量。
+3:59。
+显然，没有人会这样做。
+4:02。
+
+ that sort of thing very often certainly.
+4:04.
+not for every new type of hardware or.
+4:06.
+for every new class of application.
+4:08.
+someone once said that software stands.
+4:11.
+between the user and the machine and to.
+4:13.
+me this conveys this picture of a great.
+4:15.
+wall of software up there that you have.
+4:17.
+to overcome to get anything done there's.
+4:19.
+certainly a grain of truth in the remark.
+4:21.
+anyway if you stop to look many many.
+4:23.
+operating systems seem to spend a.
+4:25.
+substantial fraction of their time and.
+4:27.
+effort not in helping you but in.
+4:30.
+impeding you in making your job.
+4:31.
+difficult sort of providing obstacles to.
+4:33.
+be overcome when Ken Thompson and Dennis.
+4:36.
+Ritchie start.
+4:37.
+the unit system 1969.
+4:39.
+they found a structure which simplified.
+4:42.
+many aspects of the interactions between.
+4:45.
+computers and people Thomson and Richie.
+4:48.
+were aiming to keep their system simple.
+4:50.
+and they found a collection of.
+4:52.
+那种事情经常发生。
+4:04。
+不是针对每一种新的硬件或者。
+4:06。
+每一种新的应用类别。
+4:08。
+有人曾经说过，软件就是用户和机器之间的媒介，对我来说，这传达了一个巨大的软件墙的形象，你必须克服它才能完成任何事情。
+这种说法当然有一定的道理。
+4:21。
+无论如何，如果你停下来看，很多操作系统似乎花费了大量的时间和精力，不是在帮助你，而是在阻碍你，使你的工作变得困难，提供了一些需要克服的障碍。
+当肯·汤普森和丹尼斯·里奇在1969年开始开发Unix系统时，他们发现了一种简化计算机与人之间交互的结构。
+汤普森和里奇的目标是保持他们的系统简单，他们找到了一系列的方法。
+
+ primitives that enable them to do a.
+4:54.
+great deal with the very few primitives.
+System Structure.
+4:56.
+a UNIX system is made up sort of of.
+4:59.
+three layers if you like the central.
+5:01.
+layer the kernel is the thing that.
+5:03.
+controls the resources of the machine.
+5:05.
+then wrapped around that at least in.
+5:08.
+conceptually is something called the.
+5:10.
+shell which is the interface between.
+5:12.
+most users and the kernel part it sits.
+5:15.
+there and waits for you to type commands.
+5:16.
+at it and then it interprets them and.
+5:18.
+then around that sort of an yet another.
+5:20.
+layer are useful programs things like.
+5:22.
+editors and compilers for programming.
+5:24.
+languages and document formatting.
+5:26.
+programs and programs that you write.
+5:29.
+yourself and what you can do is to think.
+5:33.
+of these UNIX system programs basically.
+5:37.
+as in some sense the building blocks.
+5:38.
+with which you can create things and the.
+5:41.
+thing that distinguishes UNIX system.
+5:43.
+原语使它们能够使用非常少的原语做很多事情。
+系统结构。
+UNIX系统由三个层次组成。
+如果你喜欢，中央层是内核，它控制着机器的资源。
+然后至少在概念上，有一个称为shell的东西包围在其周围，它是大多数用户和内核部分之间的接口。
+它在那里等待您键入命令，然后解释它们。
+然后，在另一个层次上，有一些有用的程序，如编辑器、编程语言的编译器和文档格式化程序，以及您自己编写的程序。
+您可以将这些UNIX系统程序基本上视为构建块，您可以使用它们来创建事物，而UNIX系统的特点就是这一点。
+
+ from any other system is the degree to.
+5:45.
+which those building blocks can be glued.
+5:47.
+together in a variety of different ways.
+5:49.
+not just obvious ways but in many cases.
+5:51.
+very unobvious ways to get different.
+5:54.
+jobs done the system is very flexible in.
+5:57.
+that respect I think the notion of.
+5:59.
+pipelining is the fundamental.
+6:00.
+contribution if the system is you can.
+6:03.
+take a bunch of programs two or more.
+6:06.
+programs and stick them together end to.
+6:08.
+end so that the data simply flows from.
+6:10.
+the one on the left to the one on the.
+6:11.
+right and the system itself looks after.
+6:13.
+all the connections all of the.
+6:15.
+synchronization making sure that the.
+6:17.
+data goes from the one into the other.
+6:18.
+the program's themselves don't know.
+6:21.
+anything about the connection as far as.
+6:22.
+they're concerned they're just talking.
+6:23.
+to the terminal let me give you an.
+6:25.
+example of how this works in practice.
+6:29.
+the system is as I mentioned is used a.
+从任何其他系统中区别出来的是它的灵活性。
+5:45。
+这些构建块可以以多种不同的方式粘合在一起。
+5:47。
+不仅仅是显而易见的方式，而且在许多情况下，还有很多不明显的方式来完成不同的任务。
+5:49。
+系统在这方面非常灵活。
+5:51。
+我认为流水线的概念是这个系统的基本贡献。
+6:00。
+如果系统允许，你可以将两个或多个程序连接在一起，使数据从左边的程序流向右边的程序，系统本身负责处理所有的连接和同步，确保数据从一个程序流向另一个程序。
+6:03。
+程序本身对连接一无所知，对它们来说，它们只是与终端进行通信。
+6:22。
+让我给你一个实际运作的例子。
+6:29。
+正如我提到的，这个系统被广泛使用。
+
+ 6:32.
+lot for document preparation kinds of.
+6:34.
+things programs for helping you type.
+6:37.
+letters or produce technical papers or.
+6:39.
+write books in all of those things of.
+6:42.
+course people when they're typing into.
+6:44.
+machine make spelling mistakes so let's.
+6:45.
+see how we could use some of these.
+6:47.
+building block notions in practice to.
+6:48.
+help you develop a program for finding.
+6:51.
+spelling mistakes suppose I take a.
+6:52.
+sentence this is a.
+6:53.
+sentence which is in a paper that John.
+6:57.
+Massey and I wrote some years ago now if.
+7:01.
+you look at it carefully you'll see that.
+7:03.
+there are actually a couple of spelling.
+7:04.
+mistakes in there now suppose that we.
+7:07.
+wanted to find the spelling mistakes.
+7:08.
+using a machine how would we do that.
+7:10.
+well basically what we would do the.
+7:12.
+simplest thing I can think of is to.
+7:14.
+split the sentence there in two words.
+7:18.
+individual words and then compare the.
+7:20.
+words against a dictionary and every.
+7:22.
+6:32。
+文件准备的很多种类。
+6:34。
+有助于您输入的程序。
+6:37。
+撰写信件或制作技术论文或。
+6:39。
+写书等等，所有这些事情。
+6:42。
+当人们在打字时，会出现拼写错误，所以让我们看看如何使用这些基本概念来帮助您开发一个查找拼写错误的程序。
+假设我拿一句话来说，这是一句。
+6:52。
+句子，这是约翰·马西和我几年前写的一篇论文。
+如果你仔细看，你会发现里面实际上有几个拼写错误。
+现在假设我们想用机器来找出拼写错误。
+我们该怎么做呢？嗯，基本上我们会做的最简单的事情是将句子分成两个单词。
+7:18。
+个别的单词，然后将这些单词与字典进行比较，每个。
+7:22。
+
+ time we find a word which is in that.
+7:23.
+sentence but not in dictionary it's at.
+7:25.
+least a plausible contender for being a.
+7:27.
+spelling mistake now how do we do that.
+7:29.
+what I want to show is that you can do.
+7:31.
+that using just existing UNIX programs.
+7:33.
+just gluing them together to get the job.
+7:35.
+done suppose that we say first we will.
+7:38.
+take a program called make words and.
+7:40.
+we'll run that on the sentence now what.
+7:43.
+that does is break the thing up into one.
+7:46.
+word per line now I'll take the output.
+7:50.
+and I'll pipe it into another program.
+7:53.
+which will simply convert it into.
+7:54.
+lowercase the reason I want to convert.
+7:56.
+it into lowercase is that my dictionary.
+7:57.
+doesn't have any capitalizations and so.
+7:59.
+words like Bell and UNIX which are.
+8:02.
+capitalized here would show up as.
+8:03.
+spelling mistakes unless I did this now.
+8:06.
+the next thing that I want to do my.
+8:08.
+dictionary is in fact sorted in.
+8:09.
+时间我们找到一个单词，它在句子中，但字典中没有，它至少是一个可能的拼写错误的候选者，现在我们该怎么办，我想要展示的是，你可以只使用现有的UNIX程序来做到这一点，只需将它们粘合在一起完成任务，假设我们首先使用一个叫做make words的程序，然后在句子上运行它，现在它的作用是将句子分解成每行一个单词，现在我将输出传输到另一个程序中，该程序将简单地将其转换为小写，我想要将其转换为小写的原因是我的字典没有任何大写字母，所以像Bell和UNIX这样的单词在这里被大写，除非我这样做，否则它们将显示为拼写错误，现在我想要做的下一件事是，我的字典实际上是按顺序排列的。
+
+ alphabetical order dictionaries are and.
+8:12.
+so it's a lot easier for me to compare.
+8:13.
+the words of my document to the words in.
+8:16.
+the dictionary if they're started so I'm.
+8:18.
+going to run them into sort and finally.
+8:25.
+if you look at it carefully it doesn't.
+8:26.
+show up very easily here but there are.
+8:29.
+in fact there is a duplicate word their.
+8:32.
+systems appears twice and in a real.
+8:35.
+document words like TIG would show up.
+8:36.
+many times so we'd like to get rid of.
+8:38.
+duplicates so let's throw that through.
+8:40.
+another program called unique so what.
+8:43.
+we've got so far is we've got the words.
+8:45.
+of my document in this case the sentence.
+8:47.
+one word per line in lowercase neatly.
+8:51.
+sorted and all of the duplicate words.
+8:52.
+thrown away so there's only one word one.
+8:55.
+instance of each different word then.
+8:57.
+what I'm going to do is run it into one.
+8:58.
+last program called mismatch which will.
+9:01.
+simply print all of the words that came.
+9:03.
+字母顺序字典是和。
+8:12.所以对我来说比较容易。
+8:13.我的文件中的单词与字典中的单词进行比较。
+8:16.如果它们是以这种方式开始的，那么我就可以运行它们进行排序，最后。
+8:25.如果你仔细看，这里并不容易看出来，但实际上有一个重复的单词。
+8:26.系统出现了两次，在真实的。
+8:35.文档中，像TIG这样的单词会出现。
+8:36.很多次，所以我们想要去掉。
+8:38.重复的单词，所以让我们通过。
+8:40.另一个叫做unique的程序来处理。
+8:43.到目前为止，我们已经得到了这些单词。
+8:45.我的文件中的单词，在这种情况下是句子。
+8:47.每行一个单词，小写，整齐地排序，并且所有重复的单词。
+8:52.被丢弃，所以只有一个单词一个。
+8:55.每个不同的单词，然后。
+8:57.我要做的是将其输入到一个。
+8:58.最后一个叫做mismatch的程序中，它将。
+9:01.简单地打印出所有出现的单词。
+9:03.
+ down this pipeline and.
+9:05.
+print out the ones that were in the.
+9:08.
+document that word in the dictionary.
+9:10.
+what we have here is five separate.
+9:14.
+programs cooperating to do this job and.
+9:17.
+in one giant pipeline now if you look at.
+9:20.
+the list that came out you'll see that.
+9:22.
+indeed we got laboratories and provide.
+9:24.
+which were our two spelling mistakes of.
+9:26.
+course we've got two other words as well.
+9:27.
+and this tells you not only was what.
+9:30.
+what's good about the approach but also.
+9:32.
+what's bad about it time sharing is not.
+9:34.
+a spelling mistake but it's a perfectly.
+9:36.
+fine example of technical jargon the.
+9:38.
+sort of thing that means something to.
+9:39.
+everybody in the computer business it.
+9:41.
+means nothing whatsoever to people who.
+9:43.
+are not computer types and the word UNIX.
+9:45.
+is a fine example of something that's.
+9:47.
+not going to be found in a normal.
+9:49.
+dictionary so what do we do first we.
+9:53.
+沿着这条管道向下。
+9:05。
+打印出在9:08的文档中的那些单词。
+在字典中记录9:10的单词。
+我们这里有五个独立的程序合作来完成这个任务，并且在一个巨大的管道中。
+现在如果你看一下输出的列表，你会看到确实有实验室和提供这两个拼写错误。
+当然，我们还有其他两个单词。
+这不仅告诉你这种方法的好处，还告诉你它的不足之处。
+时间共享不是一个拼写错误，而是一个完全正常的技术术语，对于计算机行业的每个人来说都有意义，但对于非计算机人员来说一点意义都没有。
+而UNIX这个词是一个很好的例子，它在普通字典中找不到。
+那么我们首先要做什么呢？9:53。
+
+ take the misspelled words and we go back.
+9:55.
+to the original document and we correct.
+9:57.
+them so we don't have any spelling.
+9:58.
+mistakes secondly we take the words that.
+10:00.
+like time-sharing and unix that are not.
+10:02.
+spelling mistakes but which showed up.
+10:04.
+here and we put them back into our.
+10:06.
+dictionary so that the next time.
+10:07.
+somebody has a document that contains.
+10:09.
+the UNIX or time-sharing they don't show.
+10:11.
+up as spelling mistakes so we've not.
+10:13.
+only done our own job but we've improved.
+10:14.
+the tool that we're using in the process.
+Programming.
+10:17.
+so you notice that I did that whole job.
+10:19.
+without writing any programs at all the.
+10:21.
+whole thing is cobbled together out of.
+10:23.
+programs that already exist it and all I.
+10:25.
+did was to use the fact that the system.
+10:27.
+provides this mechanism of the pipeline.
+10:29.
+so that I can take programs and stick.
+10:31.
+them together one after another to get.
+10:33.
+把拼写错误的单词拿出来，我们回到原始文件，进行修正。
+9:55。
+然后，我们把它们放回我们的字典中，这样下次有人使用包含UNIX或time-sharing的文件时，它们就不会显示为拼写错误了。
+10:07。
+所以我们不仅完成了我们自己的工作，还改进了我们在这个过程中使用的工具。
+编程。
+10:17。
+你注意到我在整个过程中都没有写任何程序，整个过程是由已经存在的程序拼凑而成的，我所做的就是利用系统提供的管道机制，将程序一个接一个地连接起来。
+10:33。
+
+ my job done and I think this is one of.
+10:35.
+the reasons why the system so productive.
+10:37.
+that there's a large collection of.
+10:40.
+things that people have already built.
+10:41.
+that we use and as we build our new.
+10:45.
+things then they become part of the.
+10:47.
+repertoire of things that people.
+10:48.
+subsequently can build on during the.
+10:51.
+last decade we have discovered a number.
+10:54.
+of new powerful pattern matching.
+10:56.
+algorithms that are useful for locating.
+10:59.
+patterns and texts many of these.
+11:02.
+algorithms have been developed using.
+11:05.
+insights obtained from theory obtained.
+11:07.
+by studying automata and language theory.
+11:09.
+as our knowledge of pattern matching.
+11:14.
+algorithms increases we can very quickly.
+11:17.
+take this knowledge and.
+11:19.
+package it in the form of UNIX programs.
+11:21.
+and we can spread these UNIX programs to.
+11:25.
+the entire community very quickly.
+11:35.
+the UNIX systems has many features which.
+11:38.
+我的工作完成了，我认为这是系统如此高效的原因之一。
+10:35。
+因为有很多人已经建立的大量事物。
+10:37。
+我们使用这些已经建立的事物，并在我们建立新事物时，它们成为我们的事物库的一部分。
+10:40。
+随后其他人可以在此基础上继续建立。
+10:41。
+在过去的十年中，我们发现了许多强大的模式匹配算法，用于在文本中定位模式。
+10:45。
+其中许多算法是通过研究自动机和语言理论获得的洞察而开发的。
+10:47。
+随着我们对模式匹配算法的了解增加，我们可以很快地将这些知识打包成UNIX程序，并迅速传播给整个社区。
+10:48。
+UNIX系统具有许多功能。
+11:35。
+
+ make it easier for the programmer to.
+11:41.
+write programs.
+11:42.
+these include form atlas files the.
+11:46.
+hierarchical directory structure the.
+11:49.
+ability to pipeline the output of one.
+11:51.
+command as the input of another device.
+11:55.
+independent i/o all of these things make.
+11:58.
+programming considerably easier than on.
+12:01.
+most other systems the heart of the.
+File System.
+12:04.
+system is really the file system the.
+12:06.
+ability to store information for.
+12:08.
+extended periods of time and the reason.
+12:11.
+one of the reasons the system works as.
+12:12.
+well as it does is that the file system.
+12:14.
+is well designed and many systems you.
+12:17.
+have to say an awful lot about a file.
+12:19.
+before you can do anything with it you.
+12:20.
+have to say where it is and how big it.
+12:23.
+is and what kind of information it's.
+12:24.
+going to that's going to be in it.
+12:26.
+all kinds of things that are basically.
+12:27.
+utterly completely irrelevant here you.
+12:30.
+使程序员更容易编写程序。
+11:41。
+这些包括形式图集文件。
+11:46。
+分层目录结构。
+11:49。
+能够将一个命令的输出作为另一个设备的输入进行流水线处理。
+11:55。
+独立的输入/输出。
+所有这些都使编程比大多数其他系统更容易。
+12:01。
+系统的核心是文件系统。
+12:04。
+文件系统的能力是长时间存储信息的能力。
+12:08。
+系统之所以能够如此良好地工作的原因之一是文件系统设计良好。
+在许多其他系统中，您必须在对文件进行任何操作之前提供大量关于文件的信息。
+您必须说明文件的位置、大小以及其中将包含的信息的类型等等。
+这些都是在这里基本上完全无关紧要的事情。
+12:30。
+
+ don't have to do any of that the file is.
+12:32.
+as big as it is it doesn't matter where.
+12:35.
+it is as long as you know what it's.
+12:36.
+called and so you basically don't have.
+12:38.
+to think of any of those complexities.
+12:40.
+that you have in other systems when you.
+12:42.
+want information in a file you put it.
+12:43.
+there when you want it back you get it.
+12:45.
+out again and you don't have to think.
+12:46.
+about size or number of Records or.
+12:49.
+number of fields or anything like that.
+12:50.
+unless it's really germane to your.
+12:52.
+program for most purposes it's utterly.
+12:54.
+irrelevant a file is simply a sequence.
+12:57.
+of bytes its main attribute is its size.
+13:00.
+by contrast and more conventional.
+13:02.
+systems file has dozen or so attributes.
+13:05.
+to specify or create a file it takes.
+13:08.
+endless amounts of chitchat if you want.
+13:11.
+a UNIX system file you simply ask for a.
+13:13.
+file and you can use it interchangeably.
+13:14.
+wherever you want to file the UNIX.
+不需要做任何那些文件是。
+12:32.
+多大都无所谓。
+12:35.
+只要你知道它叫什么。
+12:36.
+并且基本上你不需要。
+12:38.
+考虑到其他系统中的任何复杂性。
+12:40.
+当你想要文件中的信息时，你把它放在那里。
+12:43.
+当你想要它时，你把它取出来。
+12:45.
+你不需要考虑大小、记录数或者字段数等等。
+12:50.
+除非它对你的程序真的很重要，否则对于大多数目的来说，它是完全无关的。
+12:54.
+文件只是一系列字节，它的主要属性是它的大小。
+13:02.
+相比之下，传统的系统文件有十几个属性。
+13:08.
+要指定或创建一个文件，需要无尽的闲聊。
+13:13.
+如果你想要一个UNIX系统文件，你只需要请求一个文件，然后你可以在任何地方使用它。
+UNIX文件。
+
+ Directory Hierarchy.
+13:17.
+system consists of a hierarchy of.
+13:20.
+directories which a directory is simply.
+13:22.
+a file that contains the names of either.
+13:25.
+other directories or files and this.
+13:28.
+whole thing goes on recursively when you.
+13:30.
+log into a UNIX system you normally are.
+13:32.
+sitting in a place that's called your.
+13:34.
+home directory or users directory and I.
+13:36.
+can say TWD which means print the name.
+13:38.
+of my working directory and it'll tell.
+13:39.
+me where I am it says at the moment that.
+13:41.
+I mean user bwk that's where I start.
+13:44.
+when I log in now I can go up a level in.
+13:48.
+that I can.
+13:49.
+change to parent level and now if I.
+13:52.
+print my working directory I'm in slash.
+13:54.
+user and I can go up one more level to.
+13:56.
+the root of the whole file system let me.
+13:58.
+go back down to BW k and I can list the.
+14:02.
+direct the files that I have in that.
+14:03.
+directory and I find there among other.
+14:08.
+目录层次结构。
+13:17。
+系统由一系列目录组成，其中一个目录只是一个包含其他目录或文件名称的文件，整个过程是递归进行的。
+当您登录UNIX系统时，通常会位于一个称为您的主目录或用户目录的位置，我可以说TWD，这意味着打印我的工作目录的名称，它会告诉我我在哪里，目前它说我是用户bwk，这是我登录时的起点。
+现在我可以向上移动一个级别，即切换到父级，现在如果我打印我的工作目录，我在/user目录中，我可以再向上移动一个级别到整个文件系统的根目录。
+让我返回到bwk，我可以列出我在该目录中拥有的直接文件，其中包括其他文件。
+
+ things a directory called TV and I can.
+14:12.
+list the files that are there and I'll.
+14:13.
+find among other things the sentence.
+14:15.
+that we printed in a spelling mistake.
+14:17.
+finding program they look at that and.
+14:20.
+sure enough there it is so as you can.
+14:22.
+see the file system hierarchy makes it.
+14:25.
+possible for users to organize.
+14:27.
+information into its natural grouping.
+14:29.
+and to go up or down and find things.
+14:32.
+quickly and easily the UNIX system.
+Shell.
+14:35.
+interface for most people is through.
+14:37.
+program called the shell or the command.
+14:39.
+interpreter basically it's simply a.
+14:41.
+program that watches what you type and.
+14:44.
+treats it as requests to run particular.
+14:48.
+programs now there's nothing magic about.
+14:50.
+running programs the programs that you.
+14:53.
+run are actually just the names of files.
+14:55.
+in the file system the shell searches in.
+14:58.
+the file system in a particular way to.
+14:59.
+find a file whose name is the name of.
+15:02.
+有一个名为TV的目录，我可以在14:12列出那里的文件，然后在14:13找到其中一个句子，我们在14:15打印了一个拼写错误。
+找到了一个查找程序，他们看了一下，果然在那里。
+所以你可以看到，文件系统的层次结构使用户能够将信息组织成自然的分组，并快速轻松地上下查找。
+对于大多数人来说，UNIX系统的Shell接口是通过一个叫做shell或命令解释器的程序。
+基本上，它只是一个监视你输入的程序，并将其视为运行特定程序的请求。
+运行程序并没有什么神奇的地方，你运行的程序实际上只是文件系统中的文件名。
+Shell以特定的方式在文件系统中搜索，以找到一个文件，其名称与所需的程序名称相同。
+
+ the program that you think you're.
+15:03.
+running and it goes and executes it and.
+15:06.
+in fact it's not possible for you as a.
+15:10.
+user just by executing a program to tell.
+15:13.
+how that particular program has been.
+15:15.
+implemented for example it might have.
+15:17.
+been written in a language like Fortran.
+15:18.
+or C or it may have in fact been written.
+15:20.
+as something like the spell program that.
+15:23.
+we talked about earlier which is a.
+15:24.
+combination of other programs stuck.
+15:27.
+together with pipes or some similar.
+15:29.
+thing and all put in a single file as a.
+15:33.
+shell sequence or sequence of commands.
+15:36.
+what Brian did earlier was he typed all.
+15:40.
+the commands the the five program names.
+15:42.
+for his spelling checker on one line.
+15:45.
+using the pipeline facilities that's.
+15:48.
+nice except that you may want to check.
+15:50.
+documents often and you don't want to.
+15:54.
+have to type that long sequence of.
+15:55.
+commands so it's possible to put all of.
+15:58.
+你认为你正在运行的程序。
+15:03。
+运行并执行它，实际上作为用户，仅通过执行程序无法告诉该特定程序是如何实现的，例如它可能是用Fortran或C等语言编写的，或者实际上可能是像我们之前讨论的拼写程序那样，它是由其他程序组合在一起并通过管道或类似的方式放在一个单独的文件中作为一个shell序列或一系列命令。
+Brian之前所做的是他在一行上键入了所有命令，用于他的拼写检查器的五个程序名称，使用管道设施很好，但是你可能经常需要检查文档，而不想输入那么长的命令序列，所以可以将所有的命令放在一个文件中。
+
+ these commands in a file and tell the.
+16:00.
+shell when.
+16:02.
+I type the name of that file I want you.
+16:04.
+to execute the commands that are inside.
+16:06.
+that file let me show you an example of.
+16:08.
+this we have a program called spline.
+16:12.
+which fits curves to a set of data.
+16:17.
+points and I've got a set of five data.
+16:19.
+points that we're going to see what the.
+16:21.
+curve looks like I'm going to run spline.
+16:23.
+through a program that turns this into.
+16:28.
+graphics called graph and I'm going to.
+16:30.
+run that through a special program that.
+16:33.
+turns the graphic language into.
+16:35.
+something specific for this terminal I.
+16:38.
+only need to type plot and data because.
+16:42.
+inside the file plot is the string of.
+16:45.
+commands and here is a result of.
+16:47.
+plotting those five data points on this.
+16:48.
+particular terminal the ability to put.
+16:51.
+commands in files and only have to type.
+16:54.
+the file name to get these commands.
+16:56.
+将这些命令保存在一个文件中，并在16:00时告诉shell。
+当我在16:02时输入该文件的名称时，我希望你执行其中的命令。
+让我给你展示一个例子。
+我们有一个叫做spline的程序，它可以将曲线拟合到一组数据点上。
+我有一组五个数据点，我们将看看曲线的样子。
+我将通过一个将其转换为图形的程序来运行spline，这个程序叫做graph。
+然后我将通过一个特殊的程序将图形语言转换为适用于这个终端的特定内容。
+我只需要输入plot和data这两个命令，因为在文件中，plot是一串命令的字符串。
+下面是在这个特定终端上绘制这五个数据点的结果。
+将命令放在文件中，并只需输入文件名即可执行这些命令的能力。
+
+ executed makes the computing business a.
+17:00.
+lot easier often you're doing things.
+17:02.
+that are repetitive and you don't want.
+17:04.
+to have to type long lists of things.
+17:06.
+this makes our life much easier and.
+17:08.
+allows us to tailor our environment for.
+17:11.
+the way we want to work another nice.
+17:13.
+feature of the UNIX programming.
+17:15.
+environment is the concept of input.
+17:17.
+output redirection normally when you.
+17:21.
+type a command the output from it goes.
+17:23.
+to your terminal and the input comes.
+17:25.
+from your keyboard.
+17:26.
+however the shell can be told by a.
+17:29.
+simple notation that when you run a.
+17:31.
+program you wish the output to be.
+17:32.
+directed into a file or that the input.
+17:35.
+be taken from a file for example to.
+Redirection.
+17:37.
+print the output of my spelling program.
+17:39.
+on the line printer instead of putting.
+17:42.
+it on my terminal all I have to do is.
+17:44.
+say my spell sentence greater than.
+17:47.
+执行使计算业务变得更容易。
+17:00。
+经常你在做一些重复的事情。
+17:02。
+你不想要输入长列表的东西。
+17:04。
+这使我们的生活变得更容易，并且允许我们根据我们想要的方式来定制我们的环境。
+UNIX编程环境的另一个好处是输入输出重定向的概念。
+通常，当你输入一个命令时，它的输出会发送到你的终端，输入来自你的键盘。
+然而，通过简单的符号，shell可以被告知当你运行一个程序时，你希望将输出定向到一个文件，或者输入来自一个文件。
+例如，为了将我的拼写程序的输出打印到行打印机上，而不是放在我的终端上，我只需要说我的拼写句子大于。
+
+ device line printer rather than my spell.
+17:50.
+sentence and the output goes into the.
+17:52.
+file what looks like a file except that.
+17:55.
+it's actually a file that causes the.
+17:56.
+line printer to spring into action and.
+17:58.
+print my three or four spelling mistakes.
+18:01.
+on the line printer on many systems.
+18:04.
+redirection of input and output is.
+18:08.
+literally impossible because the.
+18:09.
+programs have wired into them the notion.
+18:11.
+that they have to read or write the.
+18:13.
+user's terminal and there's simply no.
+18:15.
+way.
+18:15.
+to convince them otherwise they'd have.
+18:17.
+to do that here that is not the case.
+18:20.
+here any program can have its input or.
+18:23.
+output redirected because the input and.
+18:25.
+output redirection is handled not by the.
+18:27.
+individual program but by the shell and.
+18:29.
+so that way it applies to all programs.
+18:31.
+without any exception at all and in fact.
+18:33.
+this goes a little further than you.
+18:35.
+设备行打印机而不是我的拼写。
+17:50。
+句子和输出进入。
+17:52。
+文件看起来像一个文件，除了。
+17:55。
+它实际上是一个导致。
+17:56。
+行打印机立即行动并。
+17:58。
+打印我的三四个拼写错误。
+18:01。
+在许多系统上，输入和输出的重定向是。
+18:04。
+从字面上讲是不可能的，因为。
+18:09。
+程序已经将读取或写入。
+18:13。
+用户的终端，并且根本没有。
+18:15。
+办法。
+18:15。
+说服他们相反他们必须。
+18:17。
+在这里做到这一点不是这样。
+18:20。
+这里的任何程序都可以将其输入或。
+18:23。
+输出重定向，因为输入和。
+18:25。
+输出重定向不是由单个程序处理的，而是由shell处理的。
+18:27。
+所以这适用于所有程序。
+18:31。
+没有任何例外，事实上。
+18:33。
+这比你想象的要进一步一些。
+
+ might expect because not only are parts.
+18:38.
+of the disk files as they are in other.
+18:41.
+systems but in addition the i/o devices.
+18:45.
+the peripheral devices connected to the.
+18:47.
+computer are also files in the file.
+18:49.
+system for example the line printer and.
+18:51.
+the tape drive and even the thing that.
+18:52.
+dials telephone numbers are all devices.
+18:55.
+in the file system in the same program.
+18:57.
+that will copy information from one disk.
+18:59.
+file to another disk file will also copy.
+19:01.
+information from a disk file to the line.
+19:04.
+printer or from the magnetic tape drive.
+19:06.
+to the printer the same program exactly.
+19:08.
+a good operating system is easiest for.
+19:12.
+programmer to use if the programming.
+19:14.
+language fits with the style of the.
+19:17.
+system so along the way in the course of.
+19:19.
+the unit systems development Dennis.
+19:21.
+Ritchie created the C language C is a.
+19:24.
+very nice high-level language with many.
+19:27.
+可能会期望的不仅仅是磁盘文件的部分。
+18:38。
+在其他系统中，I/O设备。
+18:41。
+计算机连接的外围设备也是文件系统中的文件。
+18:45。
+例如，行式打印机和。
+18:51。
+磁带驱动器，甚至拨号电话的设备。
+18:52。
+都是文件系统中的设备。
+18:55。
+将从一个磁盘。
+18:59。
+文件复制到另一个磁盘文件的程序也会复制。
+19:01。
+信息从磁盘文件到行式。
+19:04。
+打印机或从磁带驱动器。
+19:06。
+到打印机的磁带。
+19:08。
+相同的程序完全相同。
+19:12。
+对于程序员来说，良好的操作系统最容易使用。
+19:14。
+如果编程。
+19:17。
+语言与系统的风格相匹配，那么在。
+19:19。
+Dennis的单位系统开发过程中。
+19:21。
+Ritchie创建了C语言，C是一种。
+19:24。
+非常好的高级语言，具有许多。
+19:27。
+
+ of the modern programming constructs in.
+19:29.
+it the thing that's very important about.
+19:32.
+it is that it lets you avoid the details.
+19:35.
+of the machine when you want to but when.
+19:38.
+you need to and sometimes when you're.
+19:40.
+writing an operating system you really.
+19:42.
+do need to you can get at the details of.
+19:45.
+the machine and control everything but.
+19:47.
+you're not forced to do that and that's.
+19:49.
+important because that means you can.
+19:51.
+write operating systems in this language.
+19:53.
+and still have something that can be.
+19:55.
+portable to other machines the UNIX.
+19:58.
+system has been moved to many many.
+20:00.
+different kinds of computers again that.
+20:03.
+means that people can ignore the details.
+20:05.
+of what a machine is underneath and get.
+20:09.
+on with their job now so at that level C.
+20:13.
+is by far the favorite language at the.
+20:15.
+next level the shell programming.
+20:17.
+language is very popular back on some.
+20:20.
+machines people find that the shell.
+现代编程结构中的一个非常重要的特点是，它让你在需要时可以避免关注机器的细节。
+当你编写操作系统时，有时确实需要关注机器的细节并控制一切，但你并不被强制这样做，这一点非常重要。
+这意味着你可以用这种语言编写操作系统，并且仍然可以将其移植到其他机器上。
+UNIX系统已经移植到了许多不同类型的计算机上，这意味着人们可以忽略机器的细节并继续工作。
+因此，在这个层面上，C语言是最受欢迎的语言。
+在下一个层面上，Shell编程语言非常流行，在某些机器上，人们发现Shell语言非常有用。
+
+ 20:22.
+meets all of their programming needs.
+20:24.
+they are writing lots of procedures to.
+20:26.
+help them manage their work they don't.
+20:28.
+even have to.
+20:29.
+go to a language at the level of see as.
+20:33.
+it happens though because the system is.
+20:36.
+such a pleasant programming environment.
+20:38.
+programmers all over the world have.
+20:40.
+imported or added their own languages so.
+20:43.
+for instance you can find Fortran Algol.
+20:46.
+Lisp basic fact almost any language you.
+20:50.
+can think of exists on some UNIX system.
+20:53.
+somewhere what's important about the.
+20:54.
+unique system is not so much what Ricci.
+20:56.
+and Thompson put into it as what they.
+20:59.
+were able to leave out of it rather than.
+21:01.
+produce a large number of primitives.
+21:03.
+each one complex they were able to.
+21:07.
+choose a small number of simple.
+21:09.
+primitives which could be fitted.
+21:11.
+naturally together to accomplish complex.
+21:14.
+tasks this structure of the operating.
+21:16.
+20:22。
+满足他们的所有编程需求。
+20:24。
+他们正在编写许多过程来帮助他们管理工作，他们甚至不需要去一个像看到的语言水平。
+20:33。
+尽管这种情况发生了，因为系统是如此愉快的编程环境。
+20:36。
+世界各地的程序员都导入或添加了自己的语言，所以。
+20:43。
+例如，你可以找到Fortran Algol。
+20:46。
+Lisp基本事实上，任何你能想到的语言都存在于某个UNIX系统上。
+20:53。
+关于这个独特系统的重要之处不是Ricci和Thompson放入其中的东西，而是他们能够从中省略的东西，而不是。
+21:01。
+产生大量复杂的原语，他们能够。
+21:03。
+选择少量简单的原语，可以自然地组合在一起完成复杂的。
+21:14。
+任务操作的结构。
+
+ system makes it natural and easy for.
+21:20.
+people who create applications to.
+21:21.
+produce applications in that same style.
+21:24.
+for example as the scale of integration.
+21:26.
+of silicon circuits gets ever larger we.
+21:29.
+find it necessary to have more and more.
+21:31.
+sophisticated design aids to help people.
+21:33.
+create large-scale integrated circuits.
+21:35.
+our existing design aids are advanced.
+21:37.
+and effective but advances in VLSI.
+21:40.
+create a need for even better tools.
+21:42.
+rather than produce those tools in the.
+21:44.
+form of one humongous program designed.
+21:47.
+to do everything the people here have.
+21:50.
+been producing small packages each.
+21:52.
+designed to do some individual function.
+21:54.
+that's helpful in the design of.
+21:56.
+integrated circuits then these.
+21:58.
+individual packages can be combined.
+22:00.
+using shell procedures to design a part.
+22:03.
+of a circuit or a circuit and the parts.
+22:05.
+of a circuit can be combined to make a.
+22:07.
+系统使得对于创建应用程序的人们来说自然而易于。
+例如，随着硅电路的集成规模越来越大，我们发现有必要提供更多更复杂的设计辅助工具来帮助人们创建大规模集成电路。
+我们现有的设计辅助工具已经先进而有效，但是VLSI技术的进步需要更好的工具。
+我们并不是设计一个巨大的程序来完成所有工作，而是开发一些小型的程序，每个程序都能完成一些特定的功能，对于集成电路的设计非常有帮助。
+然后，可以使用shell程序将这些小型程序组合起来设计电路的一部分，或者将电路的各个部分组合起来形成一个完整的电路。
+
+ whole circuit Steve Johnson is one of.
+22:11.
+the people who has been involved in this.
+22:12.
+effort he is currently working on a.
+22:14.
+program called Elgin which takes boolean.
+22:16.
+equations as input and produces logic.
+22:19.
+circuit designs as output because tool.
+Tools.
+22:21.
+building is such a way of life on the.
+22:24.
+UNIX system over the years we've.
+22:26.
+developed tools that actually help us.
+22:28.
+make other tools these involve things.
+22:31.
+like parser generators lexical analyser.
+22:35.
+generators and other programs that help.
+22:38.
+us organize and develop tools these.
+22:44.
+tools have been used in the development.
+22:45.
+of L gen and many other applications.
+22:48.
+here we see the boolean equations for a.
+22:52.
+simple matter down here we have the.
+22:57.
+equations for the carryout and the sum.
+23:08.
+in the middle we have some descriptions.
+23:10.
+as to how we would like the cell to be.
+23:13.
+laid out geometrically see we would like.
+23:16.
+the two inputs on the left side the.
+整个电路Steve Johnson是其中之一。
+22:11.参与其中的人。
+22:12.他目前正在开发一个名为Elgin的程序，该程序以布尔方程作为输入，并生成逻辑电路设计作为输出，因为工具。
+工具。
+22:21.在UNIX系统上，构建工具是一种生活方式，多年来，我们开发了一些实际帮助我们制作其他工具的工具，包括解析器生成器、词法分析器生成器和其他帮助我们组织和开发工具的程序，这些工具已经在L gen和许多其他应用程序的开发中使用。
+在这里，我们看到了一个简单的布尔方程。
+22:52.在这里，我们有进位和和的方程。
+23:08.在中间，我们有一些关于我们希望细胞在几何上布局的描述，我们希望左侧有两个输入。
+
+ 23:20.
+carry in on the bottom the carryout on.
+23:24.
+the top and the output on the right side.
+23:28.
+the input equations first have to be.
+23:31.
+processed so that they can be more.
+23:34.
+easily represented in silicon this.
+23:36.
+process is very similar to recognizing.
+23:39.
+common sub-expressions in the input of a.
+23:41.
+compiler input language the boolean.
+23:45.
+equations are read and processed by a.
+23:48.
+program called yak which was originally.
+23:51.
+developed to help us build compilers but.
+23:54.
+has in fact been used in a large number.
+23:56.
+of application programs as well yak is.
+23:59.
+based on the theory of lalr 1 parsing.
+24:06.
+represents it builds a small finite.
+24:08.
+state machine which is able to control.
+24:11.
+the actions of the program which reads.
+24:14.
+the input detect errors accurately and.
+24:19.
+structure the input in such a way that.
+24:21.
+the program can then go ahead and.
+24:23.
+perform its operations on it after these.
+24:28.
+equations have been processed.
+24:30.
+23:20。
+底部携带进入，右侧携带输出。
+23:24。
+顶部和输出。
+23:28。
+首先必须处理输入方程，以便更容易地在硅中表示。
+23:31。
+这个过程与识别编译器输入语言中的常见子表达式非常相似。
+23:39。
+布尔方程由一个名为yak的程序读取和处理，该程序最初是为了帮助我们构建编译器而开发的，但实际上已经在大量的应用程序中使用。
+23:59。
+yak基于lalr 1解析理论。
+24:06。
+它构建了一个小的有限状态机，能够控制程序的操作，读取输入，准确检测错误，并以这样的方式结构化输入，以便程序可以继续执行操作。
+24:30。
+在处理这些方程之后。
+
+ it's then necessary to worry about the.
+24:33.
+geometric layout of the circuit this is.
+24:38.
+done in the next 2 portions of el jem.
+24:41.
+the first program worries about the.
+24:44.
+ordering of these columns it uses a.
+24:50.
+technique called graph partitioning to.
+24:53.
+attempt to iteratively come up with a.
+24:56.
+good solution to what is in fact an.
+24:58.
+extremely difficult problem in theory.
+25:01.
+after the columns have been ordered then.
+25:04.
+the tracks where the signals run are.
+25:07.
+laid out as well by another program and.
+25:11.
+finally in some sense we now have the.
+25:14.
+circuit designed and it's simply a.
+25:17.
+question of realizing it with the.
+25:19.
+particular rules.
+25:20.
+for our fabrication process and that is.
+25:24.
+done by a fourth program so once again.
+25:27.
+we have an example of taking a very.
+25:31.
+complex problem dividing it into pieces.
+25:33.
+representing each piece with a separate.
+25:36.
+program and then using the facilities of.
+25:39.
+然后需要担心电路的几何布局。
+24:33.
+这是在el jem的下两个部分中完成的。
+24:41.
+第一个程序担心这些列的顺序，它使用了一种叫做图分割的技术，试图迭代地找到一个好的解决方案，实际上这是一个非常困难的问题。
+25:01.
+在列被排序之后，信号传输的轨道也被布置好了，由另一个程序完成。
+25:11.
+最后，在某种意义上，我们现在已经设计好了电路，只是用特定的规则来实现它。
+25:20.
+对于我们的制造过程，这是由第四个程序完成的。
+25:24.
+所以再一次，我们有一个将一个非常复杂的问题分解成若干部分，用单独的程序表示每个部分，然后利用设施来解决的例子。
+25:39.
+ the UNIX system to glue the pieces.
+25:41.
+together into a coherent whole again.
+25:45.
+computing is going to be more and more.
+25:47.
+inner woven with people's lives as the.
+25:49.
+years go by so computer technology is.
+25:53.
+going to have to evolve to be easier for.
+25:55.
+people to use the unit system is not the.
+25:58.
+end of the road in this regard but I.
+26:00.
+think it's a good step along the way.
+26:41.
+you.
+27:10.
+you.
+27:17.
+you.
+UNIX系统将这些部分粘合在一起，形成一个连贯的整体。
+随着时间的推移，计算机技术将越来越深入人们的生活中，因此计算机技术必须不断发展，以便更容易为人们所使用。
+UNIX系统在这方面并不是终点，但我认为这是一个很好的进步。
+你。
+你。
+你。
+
